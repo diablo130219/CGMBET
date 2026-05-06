@@ -1,39 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <title>CGMBet Pro — Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CGMBet Toon — Accesso</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
 </head>
-<body class="login-page">
+<body class="login-body">
 
-  <div class="login-box">
-    <div class="logo">
-      <div class="logo-mark">C</div>
-      <div>
-        <h1>CGMBET</h1>
-        <span>PRO DATA ROOM</span>
-      </div>
-    </div>
-    <h2>Accesso Dashboard</h2>
-    <p>Inserisci le tue credenziali per accedere.</p>
+<div class="comic-bg">
+  <span class="bubble b1">LOGIN!</span>
+  <span class="bubble b2">GO!</span>
+  <span class="bubble b3">CG!</span>
+</div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endwith %}
+<div class="login-card">
+  <div class="login-logo">⚽</div>
+  <h2>CGMBet Toon</h2>
+  <p>Accedi alla tua data room fumettosa.</p>
 
-    <form method="POST">
-      <label>Username</label>
-      <input type="text" name="username" required autocomplete="username">
-      <label>Password</label>
-      <input type="password" name="password" required autocomplete="current-password">
-      <button class="btn btn-primary" type="submit">Accedi</button>
-    </form>
-  </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">💬 {{ message }}</div>
+    {% endfor %}
+  {% endwith %}
 
-  <div class="version">CGMBet v1.0</div>
+  <form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" placeholder="Il tuo username" required autocomplete="username">
+
+    <label>Password</label>
+    <input type="password" name="password" placeholder="La tua password" required autocomplete="current-password">
+
+    <button type="submit" class="toon-btn login-btn">Entra nella Dashboard</button>
+  </form>
+</div>
+
+<div class="version">CGMBet Toon v1.0</div>
 </body>
 </html>
