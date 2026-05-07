@@ -341,6 +341,7 @@ body {
   gap: 16px;
   margin-bottom: 22px;
 }
+.stats-grid.five  { grid-template-columns: repeat(5, 1fr); }
 .stats-grid.four  { grid-template-columns: repeat(4, 1fr); }
 .stats-grid.three { grid-template-columns: repeat(3, 1fr); }
 
