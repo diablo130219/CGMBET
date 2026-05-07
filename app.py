@@ -73,17 +73,26 @@ def parse_float(value):
 
 
 def pick(row, names):
-    """Cerca nei campi del CSV in modo flessibile."""
-    lowered = {str(k).strip().lower(): v for k, v in row.items()}
+    """
+    Cerca nei campi del CSV in modo flessibile.
+    Gestisce colonne con parentesi graffe tipo {ELO GAP}, {QUOTE}, ecc.
+    """
+    # Normalizza le chiavi: rimuove spazi, parentesi graffe, lowercase
+    def normalize(k):
+        return str(k).strip().lower().replace("{", "").replace("}", "").strip()
+
+    normalized = {normalize(k): v for k, v in row.items()}
+
     for wanted in names:
-        wanted_lower = wanted.lower()
-        # Prima cerca corrispondenza esatta
-        if wanted_lower in lowered:
-            return str(lowered[wanted_lower] or "").strip().replace('"', "")
-        # Poi cerca corrispondenza parziale
-        for key, value in lowered.items():
-            if wanted_lower in key:
-                return str(value or "").strip().replace('"', "")
+        wanted_norm = normalize(wanted)
+        # Corrispondenza esatta
+        if wanted_norm in normalized:
+            val = normalized[wanted_norm]
+            return str(val or "").strip().replace('"', "").strip()
+        # Corrispondenza parziale
+        for key, value in normalized.items():
+            if wanted_norm in key or key in wanted_norm:
+                return str(value or "").strip().replace('"', "").strip()
     return ""
 
 
@@ -93,30 +102,31 @@ def detect_delimiter(text):
 
 
 def odd_for_strategy(row, strategy):
-    """Legge la quota giusta in base alla strategia."""
-    if strategy == "GG":
-        return pick(row, ["quota gg", "coeff. gg", "coeff gg", "gg quota", "quota"])
-    if strategy == "Over 2.5":
-        return pick(row, ["quota over 2.5", "quota o2.5", "coeff. over 2.5", "over 2.5", "quota"])
-    if strategy == "Over 1.5":
-        return pick(row, ["quota over 1.5", "quota o1.5", "coeff. over 1.5", "over 1.5", "quota"])
-    return pick(row, ["quota", "odd"])
+    """
+    Legge la quota reale dal CSV CGMBet.
+    La colonna si chiama {QUOTE} in tutti gli slot.
+    """
+    return pick(row, ["{QUOTE}", "QUOTE", "quota", "odd", "coeff"])
 
 
 def home_stat_for_strategy(row, strategy):
-    """Legge la statistica casa in base alla strategia."""
+    """Legge la % statistica casa in base alla strategia."""
     if strategy == "GG":
-        return pick(row, ["gg casa", "gg_casa", "gg home", "gol gol casa"])
-    else:
-        return pick(row, ["over casa", "over_casa", "over home", "o15 casa", "o25 casa"])
+        return pick(row, ["{gg casa}", "{GG Casa}", "gg casa", "gg home", "GG Casa10"])
+    elif strategy == "Over 2.5":
+        return pick(row, ["{over 2.5 casa}", "{Over 2.5 Casa}", "over 2.5 casa", "over25 casa", "Over25Casa10"])
+    else:  # Over 1.5
+        return pick(row, ["{over 1.5 casa}", "{Over 1.5 Casa}", "over 1.5 casa", "over15 casa", "Over15Casa10"])
 
 
 def away_stat_for_strategy(row, strategy):
-    """Legge la statistica trasferta in base alla strategia."""
+    """Legge la % statistica trasferta in base alla strategia."""
     if strategy == "GG":
-        return pick(row, ["gg trasferta", "gg_trasferta", "gg away", "gol gol trasferta"])
-    else:
-        return pick(row, ["over trasferta", "over_trasferta", "over away", "o15 trasferta", "o25 trasferta"])
+        return pick(row, ["{gg trasferta}", "{GG Trasfe}", "gg trasferta", "gg away", "GG Trasf10"])
+    elif strategy == "Over 2.5":
+        return pick(row, ["{over 2.5 trasfe}", "{Over 2.5 Trasfe}", "over 2.5 trasferta", "over25 trasferta", "Over25Trasf10"])
+    else:  # Over 1.5
+        return pick(row, ["{over 1.5 trasfe}", "{Over 1.5 Trasfe}", "over 1.5 trasferta", "over15 trasferta", "Over15Trasf10"])
 
 
 def get_counts(conn):
@@ -272,24 +282,45 @@ def import_csv():
     conn = get_db()
 
     for row in reader:
-        home = pick(row, ["squadra casa", "casa", "home team", "home"])
-        away = pick(row, ["squadra ospite", "ospite", "trasferta", "away team", "away"])
+        home = pick(row, ["Squadra Casa", "squadra casa", "casa", "home"])
+        away = pick(row, ["Squadra Ospite", "squadra ospite", "ospite", "trasferta", "away"])
 
         if not home or not away:
             continue
 
-        # Quota specifica per strategia
+        # Data/ora: il CSV CGMBet ha "Data/Ora" con formato "25/26 08/05/2026 1800"
+        raw_datetime = pick(row, ["Data/Ora", "data/ora", "data", "date"])
+        # Estrai data e ora dal formato "25/26 08/05/2026 1800"
+        match_date = ""
+        match_time = ""
+        if raw_datetime:
+            parts = raw_datetime.strip().split()
+            # parts = ["25/26", "08/05/2026", "1800"]
+            if len(parts) >= 3:
+                match_date = parts[1]  # 08/05/2026
+                t = parts[2]           # 1800
+                match_time = t[:2] + ":" + t[2:] if len(t) == 4 else t
+            elif len(parts) == 2:
+                match_date = parts[0]
+                match_time = parts[1]
+            else:
+                match_date = raw_datetime
+
+        # Quota reale dalla colonna {QUOTE}
         odd_val = parse_float(odd_for_strategy(row, strategy))
 
-        # Statistiche casa/trasferta dinamiche per strategia
+        # Statistiche % casa e trasferta in base alla strategia
         home_stat = home_stat_for_strategy(row, strategy)
         away_stat = away_stat_for_strategy(row, strategy)
 
-        # Per GG salviamo in gg_home/gg_away, per Over in over_home/over_away
-        gg_home_val   = home_stat if strategy == "GG" else pick(row, ["gg casa", "gg_casa"])
-        gg_away_val   = away_stat if strategy == "GG" else pick(row, ["gg trasferta", "gg_trasferta"])
-        over_home_val = home_stat if strategy != "GG" else pick(row, ["over casa", "over_casa"])
-        over_away_val = away_stat if strategy != "GG" else pick(row, ["over trasferta", "over_trasferta"])
+        # Salva in gg_home/gg_away per GG, in over_home/over_away per Over
+        gg_home_val   = home_stat if strategy == "GG" else ""
+        gg_away_val   = away_stat if strategy == "GG" else ""
+        over_home_val = home_stat if strategy != "GG" else ""
+        over_away_val = away_stat if strategy != "GG" else ""
+
+        # Media gol (colonna {MEDIA GOAL})
+        media_gol = pick(row, ["{MEDIA GOAL}", "MEDIA GOAL", "media goal", "media gol"])
 
         conn.execute(
             """
@@ -301,19 +332,19 @@ def import_csv():
             """,
             (
                 strategy,
-                pick(row, ["data", "date", "data/ora"]),
-                pick(row, ["ora", "time"]),
-                pick(row, ["campionato", "league", "lega"]),
+                match_date,
+                match_time,
+                pick(row, ["Campionato", "campionato", "league", "lega"]),
                 home,
                 away,
                 strategy,
                 odd_val,
-                pick(row, ["elo gap", "elo_gap", "elo"]),
+                pick(row, ["{ELO GAP}", "ELO GAP", "elo gap", "elo"]),
                 gg_home_val,
                 gg_away_val,
                 over_home_val,
                 over_away_val,
-                "",
+                media_gol,  # salviamo media gol nel campo notes
             ),
         )
         imported += 1

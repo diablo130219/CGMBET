@@ -170,12 +170,13 @@
               <th>Mercato</th>
               <th>Quota</th>
               <th>ELO GAP</th>
+              <th>Media Gol</th>
               {% if strategy == 'GG' %}
-              <th>GG Casa</th>
-              <th>GG Trasferta</th>
+              <th>GG Casa %</th>
+              <th>GG Trasferta %</th>
               {% else %}
-              <th>Over Casa</th>
-              <th>Over Trasferta</th>
+              <th>Over Casa %</th>
+              <th>Over Trasferta %</th>
               {% endif %}
             </tr>
           </thead>
@@ -189,17 +190,18 @@
               <td><span class="market-badge">{{ m.market }}</span></td>
               <td><span class="prob-value">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="stat-value">{{ m.elo_gap }}</span></td>
+              <td><span class="stat-value">{{ m.notes }}</span></td>
               {% if strategy == 'GG' %}
-              <td><span class="stat-value">{{ m.gg_home }}</span></td>
-              <td><span class="stat-value">{{ m.gg_away }}</span></td>
+              <td><span class="stat-value">{{ m.gg_home }}%</span></td>
+              <td><span class="stat-value">{{ m.gg_away }}%</span></td>
               {% else %}
-              <td><span class="stat-value">{{ m.over_home }}</span></td>
-              <td><span class="stat-value">{{ m.over_away }}</span></td>
+              <td><span class="stat-value">{{ m.over_home }}%</span></td>
+              <td><span class="stat-value">{{ m.over_away }}%</span></td>
               {% endif %}
             </tr>
             {% else %}
             <tr>
-              <td colspan="9">
+              <td colspan="10">
                 <div class="empty-state">
                   <strong>Nessun dato caricato</strong>
                   <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
