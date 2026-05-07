@@ -255,6 +255,10 @@ def dashboard():
     today_count = conn.execute(
         "SELECT COUNT(*) FROM matches WHERE match_date = ?", (today.isoformat(),)
     ).fetchone()[0]
+    next3_count = conn.execute(
+        "SELECT COUNT(*) FROM matches WHERE match_date BETWEEN ? AND ?",
+        (today.isoformat(), (today + timedelta(days=3)).isoformat())
+    ).fetchone()[0]
     next7_count = conn.execute(
         "SELECT COUNT(*) FROM matches WHERE match_date BETWEEN ? AND ?",
         (today.isoformat(), (today + timedelta(days=7)).isoformat())
@@ -276,6 +280,7 @@ def dashboard():
         trend_labels=trend_labels,
         trend_data=trend_data,
         today_count=today_count,
+        next3_count=next3_count,
         next7_count=next7_count,
         total_all=total_all,
         gg_count=gg_count,
