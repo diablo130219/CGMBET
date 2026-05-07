@@ -73,11 +73,16 @@ def parse_float(value):
 
 
 def pick(row, names):
+    """Cerca nei campi del CSV in modo flessibile."""
     lowered = {str(k).strip().lower(): v for k, v in row.items()}
     for wanted in names:
-        wanted = wanted.lower()
+        wanted_lower = wanted.lower()
+        # Prima cerca corrispondenza esatta
+        if wanted_lower in lowered:
+            return str(lowered[wanted_lower] or "").strip().replace('"', "")
+        # Poi cerca corrispondenza parziale
         for key, value in lowered.items():
-            if wanted in key:
+            if wanted_lower in key:
                 return str(value or "").strip().replace('"', "")
     return ""
 
@@ -88,13 +93,30 @@ def detect_delimiter(text):
 
 
 def odd_for_strategy(row, strategy):
+    """Legge la quota giusta in base alla strategia."""
     if strategy == "GG":
-        return pick(row, ["quota gg", "gg", "quota"])
+        return pick(row, ["quota gg", "coeff. gg", "coeff gg", "gg quota", "quota"])
     if strategy == "Over 2.5":
-        return pick(row, ["quota over 2.5", "over 2.5", "quota"])
+        return pick(row, ["quota over 2.5", "quota o2.5", "coeff. over 2.5", "over 2.5", "quota"])
     if strategy == "Over 1.5":
-        return pick(row, ["quota over 1.5", "over 1.5", "quota"])
+        return pick(row, ["quota over 1.5", "quota o1.5", "coeff. over 1.5", "over 1.5", "quota"])
     return pick(row, ["quota", "odd"])
+
+
+def home_stat_for_strategy(row, strategy):
+    """Legge la statistica casa in base alla strategia."""
+    if strategy == "GG":
+        return pick(row, ["gg casa", "gg_casa", "gg home", "gol gol casa"])
+    else:
+        return pick(row, ["over casa", "over_casa", "over home", "o15 casa", "o25 casa"])
+
+
+def away_stat_for_strategy(row, strategy):
+    """Legge la statistica trasferta in base alla strategia."""
+    if strategy == "GG":
+        return pick(row, ["gg trasferta", "gg_trasferta", "gg away", "gol gol trasferta"])
+    else:
+        return pick(row, ["over trasferta", "over_trasferta", "over away", "o15 trasferta", "o25 trasferta"])
 
 
 def get_counts(conn):
@@ -133,8 +155,8 @@ def dashboard():
     odds_distribution = {}
     for s in STRATEGIES:
         rows = conn.execute("SELECT odd FROM matches WHERE strategy = ? AND odd > 0", (s,)).fetchall()
-        low = sum(1 for r in rows if r["odd"] < 1.40)
-        mid = sum(1 for r in rows if 1.40 <= r["odd"] <= 1.70)
+        low  = sum(1 for r in rows if r["odd"] < 1.40)
+        mid  = sum(1 for r in rows if 1.40 <= r["odd"] <= 1.70)
         high = sum(1 for r in rows if r["odd"] > 1.70)
         odds_distribution[s] = {"low": low, "mid": mid, "high": high}
 
@@ -148,7 +170,7 @@ def dashboard():
     for r in rows:
         imports_by_day[r["day"]] = r["cnt"]
     trend_labels = [d[5:] for d in days]
-    trend_data = [imports_by_day.get(d, 0) for d in days]
+    trend_data   = [imports_by_day.get(d, 0) for d in days]
 
     today_count = conn.execute(
         "SELECT COUNT(*) FROM matches WHERE match_date = ?", (today.isoformat(),)
@@ -211,7 +233,9 @@ def index():
 
     conn = get_db()
     matches = conn.execute(query, params).fetchall()
-    total_strategy = conn.execute("SELECT COUNT(*) FROM matches WHERE strategy = ?", (strategy,)).fetchone()[0]
+    total_strategy = conn.execute(
+        "SELECT COUNT(*) FROM matches WHERE strategy = ?", (strategy,)
+    ).fetchone()[0]
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
     conn.close()
 
@@ -248,33 +272,47 @@ def import_csv():
     conn = get_db()
 
     for row in reader:
-        home = pick(row, ["squadra casa", "casa", "home"])
-        away = pick(row, ["squadra ospite", "trasferta", "away", "ospite"])
+        home = pick(row, ["squadra casa", "casa", "home team", "home"])
+        away = pick(row, ["squadra ospite", "ospite", "trasferta", "away team", "away"])
 
         if not home or not away:
             continue
 
+        # Quota specifica per strategia
+        odd_val = parse_float(odd_for_strategy(row, strategy))
+
+        # Statistiche casa/trasferta dinamiche per strategia
+        home_stat = home_stat_for_strategy(row, strategy)
+        away_stat = away_stat_for_strategy(row, strategy)
+
+        # Per GG salviamo in gg_home/gg_away, per Over in over_home/over_away
+        gg_home_val   = home_stat if strategy == "GG" else pick(row, ["gg casa", "gg_casa"])
+        gg_away_val   = away_stat if strategy == "GG" else pick(row, ["gg trasferta", "gg_trasferta"])
+        over_home_val = home_stat if strategy != "GG" else pick(row, ["over casa", "over_casa"])
+        over_away_val = away_stat if strategy != "GG" else pick(row, ["over trasferta", "over_trasferta"])
+
         conn.execute(
             """
             INSERT INTO matches (
-                strategy, match_date, match_time, championship, home_team, away_team,
-                market, odd, elo_gap, gg_home, gg_away, over_home, over_away, notes
+                strategy, match_date, match_time, championship,
+                home_team, away_team, market, odd, elo_gap,
+                gg_home, gg_away, over_home, over_away, notes
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 strategy,
-                pick(row, ["data", "date"]),
+                pick(row, ["data", "date", "data/ora"]),
                 pick(row, ["ora", "time"]),
                 pick(row, ["campionato", "league", "lega"]),
                 home,
                 away,
                 strategy,
-                parse_float(odd_for_strategy(row, strategy)),
-                pick(row, ["elo gap", "elo"]),
-                pick(row, ["gg casa"]),
-                pick(row, ["gg trasferta"]),
-                pick(row, ["over casa"]),
-                pick(row, ["over trasferta"]),
+                odd_val,
+                pick(row, ["elo gap", "elo_gap", "elo"]),
+                gg_home_val,
+                gg_away_val,
+                over_home_val,
+                over_away_val,
                 "",
             ),
         )
@@ -283,7 +321,7 @@ def import_csv():
     conn.commit()
     conn.close()
 
-    flash(f"{imported} partite importate nella strategia {strategy}.", "success")
+    flash(f"✅ {imported} partite importate nella strategia {strategy}.", "success")
     return redirect(url_for("index", strategy=strategy))
 
 
@@ -294,7 +332,7 @@ def clear_strategy(strategy):
     conn.execute("DELETE FROM matches WHERE strategy = ?", (strategy,))
     conn.commit()
     conn.close()
-    flash(f"Dati della strategia {strategy} cancellati.", "success")
+    flash(f"🗑 Dati della strategia {strategy} cancellati.", "success")
     return redirect(url_for("index", strategy=strategy))
 
 
@@ -302,29 +340,46 @@ def clear_strategy(strategy):
 @login_required
 def export_strategy(strategy):
     conn = get_db()
-    rows = conn.execute("SELECT * FROM matches WHERE strategy = ? ORDER BY match_date, match_time", (strategy,)).fetchall()
+    rows = conn.execute(
+        "SELECT * FROM matches WHERE strategy = ? ORDER BY match_date, match_time",
+        (strategy,)
+    ).fetchall()
     conn.close()
 
     output = io.StringIO()
     writer = csv.writer(output, delimiter=";")
-    writer.writerow([
-        "Strategia", "Data", "Ora", "Campionato", "Casa", "Trasferta",
-        "Mercato", "Quota", "ELO GAP", "GG CASA", "GG TRASFERTA",
-        "OVER CASA", "OVER TRASFERTA"
-    ])
 
-    for m in rows:
+    if strategy == "GG":
         writer.writerow([
-            m["strategy"], m["match_date"], m["match_time"], m["championship"],
-            m["home_team"], m["away_team"], m["market"], m["odd"], m["elo_gap"],
-            m["gg_home"], m["gg_away"], m["over_home"], m["over_away"]
+            "Strategia", "Data", "Ora", "Campionato", "Casa", "Trasferta",
+            "Mercato", "Quota GG", "ELO GAP", "GG Casa", "GG Trasferta"
         ])
+        for m in rows:
+            writer.writerow([
+                m["strategy"], m["match_date"], m["match_time"], m["championship"],
+                m["home_team"], m["away_team"], m["market"], m["odd"],
+                m["elo_gap"], m["gg_home"], m["gg_away"]
+            ])
+    else:
+        writer.writerow([
+            "Strategia", "Data", "Ora", "Campionato", "Casa", "Trasferta",
+            "Mercato", "Quota", "ELO GAP", "Over Casa", "Over Trasferta"
+        ])
+        for m in rows:
+            writer.writerow([
+                m["strategy"], m["match_date"], m["match_time"], m["championship"],
+                m["home_team"], m["away_team"], m["market"], m["odd"],
+                m["elo_gap"], m["over_home"], m["over_away"]
+            ])
 
     mem = io.BytesIO()
     mem.write(output.getvalue().encode("utf-8-sig"))
     mem.seek(0)
 
-    return send_file(mem, mimetype="text/csv", as_attachment=True, download_name=f"dati_{strategy.replace(' ', '_')}.csv")
+    return send_file(
+        mem, mimetype="text/csv", as_attachment=True,
+        download_name=f"cgmbet_{strategy.replace(' ', '_').replace('.', '')}.csv"
+    )
 
 
 if __name__ == "__main__":
