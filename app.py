@@ -304,6 +304,11 @@ def index():
         query += " AND match_date = ?"
         params.append(date.today().isoformat())
 
+    if date_filter == "3days":
+        query += " AND match_date BETWEEN ? AND ?"
+        params.append(date.today().isoformat())
+        params.append((date.today() + timedelta(days=3)).isoformat())
+
     if date_filter == "7days":
         query += " AND match_date BETWEEN ? AND ?"
         params.append(date.today().isoformat())
