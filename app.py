@@ -76,8 +76,9 @@ def pick(row, names):
     """
     Cerca nei campi del CSV in modo flessibile.
     Gestisce colonne con parentesi graffe tipo {ELO GAP}, {QUOTE}, ecc.
+    Prima cerca corrispondenza ESATTA, poi parziale solo se il nome cercato
+    e' contenuto nella chiave (mai il contrario, per evitare falsi positivi).
     """
-    # Normalizza le chiavi: rimuove spazi, parentesi graffe, lowercase
     def normalize(k):
         return str(k).strip().lower().replace("{", "").replace("}", "").strip()
 
@@ -85,14 +86,18 @@ def pick(row, names):
 
     for wanted in names:
         wanted_norm = normalize(wanted)
-        # Corrispondenza esatta
+        # 1. Corrispondenza esatta
         if wanted_norm in normalized:
             val = normalized[wanted_norm]
             return str(val or "").strip().replace('"', "").strip()
-        # Corrispondenza parziale
+
+    for wanted in names:
+        wanted_norm = normalize(wanted)
+        # 2. Corrispondenza parziale: la chiave CONTIENE il termine cercato
         for key, value in normalized.items():
-            if wanted_norm in key or key in wanted_norm:
+            if wanted_norm in key:
                 return str(value or "").strip().replace('"', "").strip()
+
     return ""
 
 
