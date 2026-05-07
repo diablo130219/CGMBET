@@ -137,6 +137,7 @@
         <select name="date_filter">
           <option value="">Tutte le date</option>
           <option value="today" {% if date_filter == "today" %}selected{% endif %}>Solo oggi</option>
+          <option value="3days" {% if date_filter == "3days" %}selected{% endif %}>Prossimi 3 giorni</option>
           <option value="7days" {% if date_filter == "7days" %}selected{% endif %}>Prossimi 7 giorni</option>
         </select>
         <button class="toon-btn secondary" type="submit">🔍 Filtra</button>
