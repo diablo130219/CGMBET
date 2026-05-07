@@ -103,30 +103,58 @@ def detect_delimiter(text):
 
 def odd_for_strategy(row, strategy):
     """
-    Legge la quota reale dal CSV CGMBet.
-    La colonna si chiama {QUOTE} in tutti gli slot.
+    GG      → {QUOTA GG}
+    Over2.5 → {QUOTA 02.5}
+    Over1.5 → {QUOTE}
     """
-    return pick(row, ["{QUOTE}", "QUOTE", "quota", "odd", "coeff"])
+    if strategy == "GG":
+        return pick(row, ["{QUOTA GG}", "QUOTA GG", "quota gg"])
+    elif strategy == "Over 2.5":
+        return pick(row, ["{QUOTA 02.5}", "QUOTA 02.5", "quota o2.5", "quota over 2.5"])
+    else:
+        return pick(row, ["{QUOTE}", "QUOTE", "quota over 1.5", "quota o1.5"])
 
 
 def home_stat_for_strategy(row, strategy):
-    """Legge la % statistica casa in base alla strategia."""
+    """
+    GG      → {GG CASA}
+    Over2.5 → {Over25Casa10}
+    Over1.5 → {over 1.5 casa}
+    """
     if strategy == "GG":
-        return pick(row, ["{gg casa}", "{GG Casa}", "gg casa", "gg home", "GG Casa10"])
+        return pick(row, ["{GG CASA}", "GG CASA", "gg casa"])
     elif strategy == "Over 2.5":
-        return pick(row, ["{over 2.5 casa}", "{Over 2.5 Casa}", "over 2.5 casa", "over25 casa", "Over25Casa10"])
-    else:  # Over 1.5
-        return pick(row, ["{over 1.5 casa}", "{Over 1.5 Casa}", "over 1.5 casa", "over15 casa", "Over15Casa10"])
+        return pick(row, ["{Over25Casa10}", "Over25Casa10", "over25 casa"])
+    else:
+        return pick(row, ["{over 1.5 casa}", "over 1.5 casa", "over15 casa"])
 
 
 def away_stat_for_strategy(row, strategy):
-    """Legge la % statistica trasferta in base alla strategia."""
+    """
+    GG      → {GG TRASFERTA}
+    Over2.5 → {Over25Trasf10}
+    Over1.5 → {Over 1.5 Trasfe}
+    """
     if strategy == "GG":
-        return pick(row, ["{gg trasferta}", "{GG Trasfe}", "gg trasferta", "gg away", "GG Trasf10"])
+        return pick(row, ["{GG TRASFERTA}", "GG TRASFERTA", "gg trasferta"])
     elif strategy == "Over 2.5":
-        return pick(row, ["{over 2.5 trasfe}", "{Over 2.5 Trasfe}", "over 2.5 trasferta", "over25 trasferta", "Over25Trasf10"])
-    else:  # Over 1.5
-        return pick(row, ["{over 1.5 trasfe}", "{Over 1.5 Trasfe}", "over 1.5 trasferta", "over15 trasferta", "Over15Trasf10"])
+        return pick(row, ["{Over25Trasf10}", "Over25Trasf10", "over25 trasferta"])
+    else:
+        return pick(row, ["{Over 1.5 Trasfe}", "Over 1.5 Trasfe", "over 1.5 trasferta"])
+
+
+def media_gol_for_strategy(row, strategy):
+    """
+    GG      → non presente
+    Over2.5 → {MEDIA GOL}
+    Over1.5 → {MEDIA GOAL }
+    """
+    if strategy == "GG":
+        return ""
+    elif strategy == "Over 2.5":
+        return pick(row, ["{MEDIA GOL}", "MEDIA GOL", "media gol"])
+    else:
+        return pick(row, ["{MEDIA GOL}", "MEDIA GOL", "media gol", "MEDIA GOAL", "media goal"])
 
 
 def get_counts(conn):
@@ -319,8 +347,8 @@ def import_csv():
         over_home_val = home_stat if strategy != "GG" else ""
         over_away_val = away_stat if strategy != "GG" else ""
 
-        # Media gol (colonna {MEDIA GOAL})
-        media_gol = pick(row, ["{MEDIA GOAL}", "MEDIA GOAL", "media goal", "media gol"])
+        # Media gol - colonna diversa per ogni strategia
+        media_gol = media_gol_for_strategy(row, strategy)
 
         conn.execute(
             """
