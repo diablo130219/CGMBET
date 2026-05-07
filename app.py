@@ -151,12 +151,13 @@ def away_stat_for_strategy(row, strategy):
 def media_gol_for_strategy(row, strategy):
     """
     GG      → non presente
-    Over2.5 → {MEDIA GOL}
-    Over1.5 → {MEDIA GOAL }
+    Over2.5 → {MEDIA GOL} diviso 10 (CGMBet esporta il totale, non la media)
+    Over1.5 → {MEDIA GOL} gia diviso 10 dalla formula CGMBet
     """
     if strategy == "GG":
         return ""
     elif strategy == "Over 2.5":
+        # Formula Pct restituisce già la media diretta
         return pick(row, ["{MEDIA GOL}", "MEDIA GOL", "media gol"])
     else:
         return pick(row, ["{MEDIA GOL}", "MEDIA GOL", "media gol", "MEDIA GOAL", "media goal"])
@@ -185,6 +186,42 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+
+
+
+@app.route("/debug-import", methods=["GET", "POST"])
+@login_required
+def debug_import():
+    if request.method == "POST":
+        file = request.files.get("csv_file")
+        strategy = request.form.get("strategy", "Over 1.5")
+        if file:
+            text = file.read().decode("utf-8-sig", errors="ignore")
+            delimiter = detect_delimiter(text)
+            import csv as csv_mod, io as io_mod
+            reader = csv_mod.DictReader(io_mod.StringIO(text), delimiter=delimiter)
+            results = []
+            for i, row in enumerate(reader):
+                if i >= 3:
+                    break
+                results.append({
+                    "colonne": list(row.keys()),
+                    "quota": odd_for_strategy(row, strategy),
+                    "media_gol": media_gol_for_strategy(row, strategy),
+                    "over_casa": home_stat_for_strategy(row, strategy),
+                    "over_trasf": away_stat_for_strategy(row, strategy),
+                    "elo": pick(row, ["{ELO GAP}", "ELO GAP", "elo gap"]),
+                })
+            return str(results)
+    return """<form method="POST" enctype="multipart/form-data">
+        <input type="file" name="csv_file">
+        <select name="strategy">
+            <option>GG</option>
+            <option>Over 2.5</option>
+            <option selected>Over 1.5</option>
+        </select>
+        <button type="submit">Test</button>
+    </form>"""
 
 @app.route("/dashboard")
 @login_required
@@ -330,14 +367,20 @@ def import_csv():
             parts = raw_datetime.strip().split()
             # parts = ["25/26", "08/05/2026", "1800"]
             if len(parts) >= 3:
-                match_date = parts[1]  # 08/05/2026
-                t = parts[2]           # 1800
+                raw_date = parts[1]  # 08/05/2026
+                t = parts[2]         # 1800
                 match_time = t[:2] + ":" + t[2:] if len(t) == 4 else t
             elif len(parts) == 2:
-                match_date = parts[0]
+                raw_date = parts[0]
                 match_time = parts[1]
             else:
-                match_date = raw_datetime
+                raw_date = raw_datetime
+            # Converti DD/MM/YYYY → YYYY-MM-DD per i filtri data
+            try:
+                d, m, y = raw_date.strip().split("/")
+                match_date = f"{y}-{m.zfill(2)}-{d.zfill(2)}"
+            except:
+                match_date = raw_date
 
         # Quota reale dalla colonna {QUOTE}
         odd_val = parse_float(odd_for_strategy(row, strategy))
