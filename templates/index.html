@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Toon — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-02">
 </head>
 <body>
 
 <div class="comic-bg">
-  <span class="bubble b1">GOAL!</span>
-  <span class="bubble b2">OVER!</span>
-  <span class="bubble b3">GG!</span>
+  <span class="bubble b1">BOOM!</span>
+  <span class="bubble b2">DATA!</span>
+  <span class="bubble b3">WIN!</span>
 </div>
 
 <header class="toon-header">
@@ -19,7 +19,7 @@
     <div class="toon-logo">⚽</div>
     <div>
       <h1>CGMBet Toon</h1>
-      <p>La tua data room in stile fumetto</p>
+      <p>Data Room delle Strategie</p>
     </div>
   </div>
   <div class="header-actions">
@@ -30,23 +30,24 @@
 
 <div class="layout">
 
+  <!-- SIDEBAR -->
   <aside class="sidebar">
     <div class="sidebar-card logo-card">
       <div class="mini-logo">CG</div>
       <div>
-        <strong>Strategie</strong>
-        <small>CSV CGMBet</small>
+        <strong>CGMBet Toon</strong>
+        <small>Pro Data Room</small>
       </div>
     </div>
 
     <a href="{{ url_for('dashboard') }}" class="nav-dashboard">📊 Dashboard</a>
 
-    <div class="nav-title">Scegli strategia</div>
+    <div class="nav-title">Strategie</div>
 
     <a href="{{ url_for('index', strategy='GG') }}" class="nav-item {% if strategy == 'GG' %}active{% endif %}">
       <div>
         <strong>GG</strong>
-        <small>{{ gg_count }} match</small>
+        <small>{{ gg_count }} match caricati</small>
       </div>
       <span class="comic-dot green"></span>
     </a>
@@ -54,7 +55,7 @@
     <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-item {% if strategy == 'Over 2.5' %}active{% endif %}">
       <div>
         <strong>Over 2.5</strong>
-        <small>{{ over25_count }} match</small>
+        <small>{{ over25_count }} match caricati</small>
       </div>
       <span class="comic-dot pink"></span>
     </a>
@@ -62,7 +63,7 @@
     <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-item {% if strategy == 'Over 1.5' %}active{% endif %}">
       <div>
         <strong>Over 1.5</strong>
-        <small>{{ over15_count }} match</small>
+        <small>{{ over15_count }} match caricati</small>
       </div>
       <span class="comic-dot blue"></span>
     </a>
@@ -74,16 +75,32 @@
     </div>
   </aside>
 
+  <!-- MAIN -->
   <main class="main-content">
 
-    <section class="hero-toon">
-      <div>
-        <span class="comic-label">Strategia attiva</span>
-        <h2>{{ strategy }}</h2>
-        <p>Importa il CSV esportato da CGMBet e visualizza i dati in una dashboard colorata, chiara e super leggibile.</p>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- HERO + IMPORT -->
+    <div class="import-section">
+      <div class="hero-toon" style="margin-bottom:0;">
+        <div>
+          <span class="comic-label">Strategia selezionata</span>
+          <h2>{{ strategy }}</h2>
+          <p>Importa il CSV da CGMBet, visualizza le partite e filtra per data o squadra.</p>
+        </div>
+        <div class="mascot-card">
+          <div class="mascot">
+            {% if strategy == 'GG' %}⚽{% elif strategy == 'Over 2.5' %}🎯{% else %}🔥{% endif %}
+          </div>
+          <span>{{ strategy }}</span>
+        </div>
       </div>
 
-      <form class="upload-panel" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
+      <form class="import-form" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="strategy" value="{{ strategy }}">
         <label>
           <span>Carica CSV CGMBet</span>
@@ -91,16 +108,11 @@
         </label>
         <button type="submit" class="toon-btn">⬆ Importa ora</button>
       </form>
-    </section>
+    </div>
 
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="flash {{ category }}">💬 {{ message }}</div>
-      {% endfor %}
-    {% endwith %}
-
-    <section class="stats-grid">
-      <div class="stat-card yellow">
+    <!-- STAT CARDS -->
+    <div class="stats-grid three">
+      <div class="stat-card blue">
         <span>Righe visualizzate</span>
         <strong>{{ total }}</strong>
         <small>con filtro attivo</small>
@@ -108,16 +120,17 @@
       <div class="stat-card mint">
         <span>Totale strategia</span>
         <strong>{{ total_strategy }}</strong>
-        <small>{{ strategy }}</small>
+        <small>match salvati</small>
       </div>
       <div class="stat-card violet">
-        <span>Filtro rapido</span>
-        <strong>7D</strong>
-        <small>prossimi giorni</small>
+        <span>Database totale</span>
+        <strong>{{ total_all }}</strong>
+        <small>tutti gli slot</small>
       </div>
-    </section>
+    </div>
 
-    <section class="toolbar">
+    <!-- TOOLBAR -->
+    <div class="toolbar">
       <form class="filters" method="GET">
         <input type="hidden" name="strategy" value="{{ strategy }}">
         <input type="text" name="search" value="{{ search }}" placeholder="Cerca squadra o campionato…">
@@ -126,9 +139,8 @@
           <option value="today" {% if date_filter == "today" %}selected{% endif %}>Solo oggi</option>
           <option value="7days" {% if date_filter == "7days" %}selected{% endif %}>Prossimi 7 giorni</option>
         </select>
-        <button class="toon-btn secondary" type="submit">🔎 Filtra</button>
+        <button class="toon-btn secondary" type="submit">🔍 Filtra</button>
       </form>
-
       <div class="actions">
         <a class="toon-btn export" href="{{ url_for('export_strategy', strategy=strategy) }}">⬇ Esporta CSV</a>
         <form action="{{ url_for('clear_strategy', strategy=strategy) }}" method="POST"
@@ -136,17 +148,17 @@
           <button class="toon-btn danger" type="submit">🗑 Svuota</button>
         </form>
       </div>
-    </section>
+    </div>
 
-    <section class="table-panel">
+    <!-- TABLE -->
+    <div class="table-panel">
       <div class="table-header">
         <div>
-          <span class="comic-label small-label">Match Data</span>
-          <h3>Dati {{ strategy }}</h3>
+          <span class="comic-label">Match Data</span>
+          <h3>Partite — {{ strategy }}</h3>
         </div>
         <div class="rows-badge">{{ total }} righe</div>
       </div>
-
       <div class="table-wrap">
         <table>
           <thead>
@@ -158,10 +170,14 @@
               <th>Mercato</th>
               <th>Quota</th>
               <th>ELO GAP</th>
-              <th>GG Casa</th>
-              <th>GG Trasf.</th>
-              <th>Over Casa</th>
-              <th>Over Trasf.</th>
+              <th>Media Gol</th>
+              {% if strategy == 'GG' %}
+              <th>GG Casa %</th>
+              <th>GG Trasferta %</th>
+              {% else %}
+              <th>Over Casa %</th>
+              <th>Over Trasferta %</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -172,18 +188,21 @@
               <td class="team">{{ m.home_team }}</td>
               <td>{{ m.away_team }}</td>
               <td><span class="market-badge">{{ m.market }}</span></td>
-              <td><span class="odd-value">{{ "%.2f"|format(m.odd or 0) }}</span></td>
-              <td>{{ m.elo_gap }}</td>
-              <td>{{ m.gg_home }}</td>
-              <td>{{ m.gg_away }}</td>
-              <td>{{ m.over_home }}</td>
-              <td>{{ m.over_away }}</td>
+              <td><span class="prob-value">{{ "%.2f"|format(m.odd or 0) }}</span></td>
+              <td><span class="stat-value">{{ m.elo_gap }}</span></td>
+              <td><span class="stat-value">{{ m.notes }}</span></td>
+              {% if strategy == 'GG' %}
+              <td><span class="stat-value">{{ m.gg_home }}%</span></td>
+              <td><span class="stat-value">{{ m.gg_away }}%</span></td>
+              {% else %}
+              <td><span class="stat-value">{{ m.over_home }}%</span></td>
+              <td><span class="stat-value">{{ m.over_away }}%</span></td>
+              {% endif %}
             </tr>
             {% else %}
             <tr>
-              <td colspan="11">
+              <td colspan="10">
                 <div class="empty-state">
-                  <div class="empty-icon">📁</div>
                   <strong>Nessun dato caricato</strong>
                   <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
                 </div>
@@ -193,7 +212,7 @@
           </tbody>
         </table>
       </div>
-    </section>
+    </div>
 
   </main>
 </div>
