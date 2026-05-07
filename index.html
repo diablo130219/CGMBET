@@ -1,0 +1,28 @@
+<!-- Inserisci questa parte nella tua table di templates/index.html -->
+<table>
+<thead>
+<tr>
+<th>Data / Ora</th>
+<th>Campionato</th>
+<th>Casa</th>
+<th>Trasferta</th>
+<th>Mercato</th>
+<th>Probabilità</th>
+<th>ELO GAP</th>
+</tr>
+</thead>
+
+<tbody>
+{% for m in matches %}
+<tr>
+<td><strong>{{ m.match_date }}</strong><small>{{ m.match_time }}</small></td>
+<td>{{ m.championship }}</td>
+<td class="team">{{ m.home_team }}</td>
+<td>{{ m.away_team }}</td>
+<td><span class="market-badge">{{ m.market }}</span></td>
+<td><span class="prob-value">{{ "%.0f"|format(m.odd or 0) }}%</span></td>
+<td>{{ m.elo_gap }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>

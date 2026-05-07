@@ -1,0 +1,70 @@
+
+:root {
+  --paper: #fffdf8;
+  --cream: #f6f0df;
+  --soft-pink: #ead7dc;
+  --soft-blue: #d9e8f5;
+  --soft-green: #d8ece3;
+  --soft-violet: #dfdaf3;
+  --ink: #2f3640;
+  --line: #d8d2c5;
+}
+
+body {
+  background: linear-gradient(135deg,#fffdf8,#f8f1e7,#eef5fb);
+  color: var(--ink);
+}
+
+.table-panel,
+.hero-toon,
+.stat-card,
+.sidebar-card,
+.sidebar-total,
+.toolbar {
+  background: rgba(255,255,255,.78);
+  border: 2px solid var(--line);
+  box-shadow: 0 10px 24px rgba(0,0,0,.05);
+}
+
+th {
+  background: #243041;
+  color: white;
+}
+
+tbody tr:nth-child(even) {
+  background: #fbf8f1;
+}
+
+tbody tr:hover {
+  background: #f2f8ff;
+}
+
+.market-badge {
+  background: var(--soft-blue);
+  border: 2px solid #7aa6cc;
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+.prob-value {
+  background: var(--soft-green);
+  border: 2px solid #7eb89f;
+  padding: 7px 12px;
+  border-radius: 14px;
+}
+
+.toon-btn {
+  background: var(--soft-pink);
+}
+
+.toon-btn.export {
+  background: var(--soft-green);
+}
+
+.toon-btn.secondary {
+  background: var(--soft-blue);
+}
+
+.toon-btn.danger {
+  background: #f3d2d7;
+}
