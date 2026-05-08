@@ -169,6 +169,7 @@
               <th>Casa</th>
               <th>Trasferta</th>
               <th>Mercato</th>
+              <th>Semaforo</th>
               <th>Quota</th>
               <th>ELO GAP</th>
               <th>Media Gol</th>
@@ -189,6 +190,20 @@
               <td class="team">{{ m.home_team }}</td>
               <td>{{ m.away_team }}</td>
               <td><span class="market-badge">{{ m.market }}</span></td>
+              <td>
+                {% if m.semaforo %}
+                  {% set s = m.semaforo|replace(",",".")|float %}
+                  {% if s >= 60 %}
+                    <span title="{{ m.semaforo }}%" style="font-size:22px;">🟢</span>
+                  {% elif s >= 50 %}
+                    <span title="{{ m.semaforo }}%" style="font-size:22px;">🟡</span>
+                  {% else %}
+                    <span title="{{ m.semaforo }}%" style="font-size:22px;">🔴</span>
+                  {% endif %}
+                {% else %}
+                  <span style="font-size:22px;">⚪</span>
+                {% endif %}
+              </td>
               <td><span class="prob-value">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="stat-value">{{ m.elo_gap }}</span></td>
               <td><span class="stat-value">{{ m.notes }}</span></td>
