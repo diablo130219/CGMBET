@@ -440,6 +440,18 @@ def import_csv():
     return redirect(url_for("index", strategy=strategy))
 
 
+
+
+@app.route("/update-semaforo/<int:match_id>", methods=["POST"])
+def update_semaforo(match_id):
+    valore = request.form.get("semaforo", "").strip()
+    strategy = request.form.get("strategy", "GG")
+    conn = get_db()
+    conn.execute("UPDATE matches SET semaforo = ? WHERE id = ?", (valore, match_id))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("index", strategy=strategy))
+
 @app.route("/clear/<strategy>", methods=["POST"])
 @login_required
 def clear_strategy(strategy):
