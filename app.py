@@ -13,9 +13,6 @@ app.secret_key = os.environ.get("SECRET_KEY", "cambia-questa-secret-key")
 
 DATABASE = os.environ.get("DATABASE_PATH", "cgmbet.db")
 
-APP_USERNAME = os.environ.get("APP_USERNAME", "admin")
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
-
 STRATEGIES = ["GG", "Over 2.5", "Over 1.5"]
 
 
@@ -56,8 +53,6 @@ def init_db():
 def login_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
-        if not session.get("logged_in"):
-            return redirect(url_for("login"))
         return view(*args, **kwargs)
     return wrapped
 
@@ -171,20 +166,9 @@ def get_counts(conn):
     return total_all, gg_count, over25_count, over15_count
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        if request.form.get("username") == APP_USERNAME and request.form.get("password") == APP_PASSWORD:
-            session["logged_in"] = True
-            return redirect(url_for("dashboard"))
-        flash("Credenziali non corrette.", "error")
-    return render_template("login.html")
-
-
 @app.route("/logout")
 def logout():
-    session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("dashboard"))
 
 
 
@@ -291,6 +275,10 @@ def dashboard():
 
 
 @app.route("/")
+def index_redirect():
+    return redirect(url_for("dashboard"))
+
+@app.route("/partite")
 @login_required
 def index():
     strategy = request.args.get("strategy", "GG")
