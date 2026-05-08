@@ -321,6 +321,11 @@ def dashboard():
 
     quota_totale = round(quota_totale, 2)
 
+    # Bankroll / importo fisso per mostrare la vincita potenziale in dashboard
+    bk = conn.execute("SELECT * FROM bankroll ORDER BY id DESC LIMIT 1").fetchone()
+    importo_fisso = bk['importo_fisso'] if bk else 0
+    vincita_potenziale = round(importo_fisso * quota_totale, 2) if quota_totale else 0
+
     conn.close()
 
     return render_template(
@@ -328,6 +333,8 @@ def dashboard():
         strategy_counts=strategy_counts,
         bolletta=bolletta,
         quota_totale=quota_totale,
+        importo_fisso=importo_fisso,
+        vincita_potenziale=vincita_potenziale,
         odds_distribution=odds_distribution,
         trend_labels=trend_labels,
         trend_data=trend_data,
