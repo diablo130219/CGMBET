@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Toon — Dashboard</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -71,7 +70,7 @@
       <div>
         <span class="comic-label">Panoramica generale</span>
         <h2>Dashboard</h2>
-        <p>Statistiche, distribuzione quote e andamento importazioni delle tue strategie CGMBet.</p>
+        <p>Panoramica essenziale con Bolletta Pazza e riepilogo delle strategie CGMBet.</p>
       </div>
       <div class="mascot-card">
         <div class="mascot">⚽</div>
@@ -87,12 +86,7 @@
       <div class="stat-card violet"><span>Slot Attivi</span><strong>3</strong><small>GG · Over · Over</small></div>
     </section>
 
-    <section class="charts-grid">
-      <div class="chart-card">
-        <h3>Partite per Strategia</h3>
-        <p>Distribuzione degli slot attivi nel database</p>
-        <div class="chart-wrap"><canvas id="strategyChart"></canvas></div>
-      </div>
+    <section class="bolletta-only-grid">
 
       <div class="chart-card bolletta-dashboard-card">
         <div class="bolletta-ticket-mini">
@@ -132,11 +126,6 @@
         </div>
       </div>
 
-      <div class="chart-card full">
-        <h3>Andamento Importazioni</h3>
-        <p>Partite aggiunte negli ultimi 14 giorni</p>
-        <div class="chart-wrap tall"><canvas id="trendChart"></canvas></div>
-      </div>
     </section>
 
     <section class="table-panel">
@@ -185,57 +174,5 @@
 
 <div class="version">CGMBet Toon v1.0</div>
 
-<script>
-new Chart(document.getElementById('strategyChart').getContext('2d'), {
-  type: 'doughnut',
-  data: {
-    labels: ['GG', 'Over 2.5', 'Over 1.5'],
-    datasets: [{
-      data: [{{ strategy_counts["GG"] }}, {{ strategy_counts["Over 2.5"] }}, {{ strategy_counts["Over 1.5"] }}],
-      backgroundColor: ['#7cffcb', '#ff7aa8', '#75c7ff'],
-      borderColor: ['#101828', '#101828', '#101828'],
-      borderWidth: 4,
-      hoverOffset: 12,
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    cutout: '62%',
-    plugins: {
-      legend: { position: 'bottom', labels: { color: '#101828', font: { size: 13, weight: 'bold' }, padding: 16 } }
-    }
-  }
-});
-
-new Chart(document.getElementById('trendChart').getContext('2d'), {
-  type: 'line',
-  data: {
-    labels: {{ trend_labels|tojson }},
-    datasets: [{
-      label: 'Partite importate',
-      data: {{ trend_data|tojson }},
-      borderColor: '#101828',
-      backgroundColor: 'rgba(124,255,203,.35)',
-      borderWidth: 4,
-      fill: true,
-      tension: 0.35,
-      pointBackgroundColor: '#ffdd57',
-      pointBorderColor: '#101828',
-      pointBorderWidth: 3,
-      pointRadius: 6,
-    }]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(16,24,40,.09)' }, ticks: { color: '#101828', font: { weight: 'bold' } } },
-      y: { grid: { color: 'rgba(16,24,40,.09)' }, ticks: { color: '#101828', font: { weight: 'bold' }, stepSize: 1 }, beginAtZero: true }
-    }
-  }
-});
-</script>
 </body>
 </html>
