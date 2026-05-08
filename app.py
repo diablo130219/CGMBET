@@ -24,11 +24,6 @@ def get_db():
 
 def init_db():
     conn = get_db()
-    try:
-        conn.execute("ALTER TABLE matches ADD COLUMN semaforo TEXT DEFAULT ''")
-        conn.commit()
-    except:
-        pass
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS bollette (
@@ -73,7 +68,6 @@ def init_db():
             over_home TEXT DEFAULT '',
             over_away TEXT DEFAULT '',
             notes TEXT DEFAULT '',
-            semaforo TEXT DEFAULT '',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
@@ -287,18 +281,16 @@ def dashboard():
         ).fetchone()[0]
         avg_odds[s] = round(avg, 2) if avg else 0
 
-    # BOLLETTA PAZZA — partite di oggi con semaforo >= 50
+    # BOLLETTA PAZZA — partite di oggi ordinate per score
     today_str = today.isoformat()
     rows_bolletta = conn.execute("""
         SELECT *, 
-        CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) as sem_val,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
         CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
         ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
         FROM matches
         WHERE match_date = ?
-        AND CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) >= 50
         ORDER BY 
         ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
           CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
@@ -320,11 +312,9 @@ def dashboard():
             'strategy': r['strategy'],
             'market': r['market'],
             'odd': r['odd'],
-            'semaforo': r['semaforo'],
             'match_time': r['match_time'],
             'championship': r['championship'],
             'score': round(score, 2),
-            'sem_val': r['sem_val'],
         })
         if r['odd'] and r['odd'] > 0:
             quota_totale *= r['odd']
@@ -474,16 +464,14 @@ def import_csv():
         # Media gol - colonna diversa per ogni strategia
         media_gol = media_gol_for_strategy(row, strategy)
 
-        # Semaforo Forebet
-        semaforo = pick(row, ["{SEMAFORO}", "SEMAFORO", "semaforo"])
 
         conn.execute(
             """
             INSERT INTO matches (
                 strategy, match_date, match_time, championship,
                 home_team, away_team, market, odd, elo_gap,
-                gg_home, gg_away, over_home, over_away, notes, semaforo
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                gg_home, gg_away, over_home, over_away, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 strategy,
@@ -500,7 +488,6 @@ def import_csv():
                 over_home_val,
                 over_away_val,
                 media_gol,
-                semaforo,
             ),
         )
         imported += 1
@@ -514,17 +501,6 @@ def import_csv():
 
 
 
-@app.route("/update-semaforo/<int:match_id>", methods=["POST"])
-def update_semaforo(match_id):
-    valore = request.form.get("semaforo", "").strip()
-    strategy = request.form.get("strategy", "GG")
-    conn = get_db()
-    conn.execute("UPDATE matches SET semaforo = ? WHERE id = ?", (valore, match_id))
-    conn.commit()
-    conn.close()
-    return redirect(url_for("index", strategy=strategy))
-
-
 
 @app.route("/bolletta")
 def bolletta_page():
@@ -534,14 +510,12 @@ def bolletta_page():
 
     rows_bolletta = conn.execute("""
         SELECT *,
-        CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) as sem_val,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
         CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
         ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
         FROM matches
         WHERE match_date = ?
-        AND CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) >= 50
         ORDER BY
         ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
           CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
@@ -557,8 +531,8 @@ def bolletta_page():
         bolletta.append({
             'id': r['id'], 'home_team': r['home_team'], 'away_team': r['away_team'],
             'strategy': r['strategy'], 'market': r['market'], 'odd': r['odd'],
-            'semaforo': r['semaforo'], 'match_time': r['match_time'],
-            'championship': r['championship'], 'score': round(score, 2), 'sem_val': r['sem_val'],
+            'match_time': r['match_time'],
+            'championship': r['championship'], 'score': round(score, 2),
         })
         if r['odd'] and r['odd'] > 0:
             quota_totale *= r['odd']
