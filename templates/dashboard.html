@@ -94,33 +94,41 @@
         <div class="chart-wrap"><canvas id="strategyChart"></canvas></div>
       </div>
 
-      <div class="chart-card">
-        <h3>Distribuzione Quote</h3>
-        <p>Bassa &lt;1.40 · Media 1.40–1.70 · Alta &gt;1.70</p>
-        <div class="odds-section">
-          {% for s, dist in odds_distribution.items() %}
-          {% set tot = dist.low + dist.mid + dist.high %}
-          <div class="odds-row">
-            <div class="odds-row-head">
-              <span>{{ s }}</span>
-              <span>{{ tot }} con quota</span>
-            </div>
-            <div class="odds-track">
-              {% if tot > 0 %}
-              <div class="odds-seg mint-bg" style="width:{{ (dist.low / tot * 100)|round }}%;"></div>
-              <div class="odds-seg violet-bg" style="width:{{ (dist.mid / tot * 100)|round }}%;"></div>
-              <div class="odds-seg pink-bg" style="width:{{ (dist.high / tot * 100)|round }}%;"></div>
-              {% else %}
-              <div class="odds-seg empty-bg" style="width:100%;"></div>
-              {% endif %}
-            </div>
-            <div class="odds-legend">
-              <span>Basse: {{ dist.low }}</span>
-              <span>Medie: {{ dist.mid }}</span>
-              <span>Alte: {{ dist.high }}</span>
-            </div>
+      <div class="chart-card bolletta-dashboard-card">
+        <div class="bolletta-ticket-mini">
+          <div class="ticket-top">
+            <span class="comic-label small-label">Bolletta Pazza</span>
+            <strong>🎰 Sideboard</strong>
+            <small>Selezione automatica di oggi</small>
           </div>
-          {% endfor %}
+
+          {% if bolletta %}
+          <div class="ticket-list">
+            {% for p in bolletta[:5] %}
+            <div class="ticket-row">
+              <div class="ticket-match">
+                <span class="ticket-market {% if p.strategy == 'GG' %}gg{% elif p.strategy == 'Over 2.5' %}o25{% else %}o15{% endif %}">{{ p.strategy }}</span>
+                <strong>{{ p.home_team }} - {{ p.away_team }}</strong>
+                <small>{{ p.match_time }} · {{ p.championship }}</small>
+              </div>
+              <div class="ticket-odd">{{ "%.2f"|format(p.odd or 0) }}</div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <div class="ticket-total">
+            <span>Quota totale</span>
+            <strong>{{ quota_totale }}</strong>
+          </div>
+
+          <a href="{{ url_for('bolletta_page') }}" class="toon-btn export ticket-btn">Apri Bolletta Pazza →</a>
+          {% else %}
+          <div class="ticket-empty">
+            <strong>Nessuna bolletta oggi</strong>
+            <span>Importa CSV con partite odierne per generare la sideboard.</span>
+          </div>
+          <a href="{{ url_for('bolletta_page') }}" class="toon-btn secondary ticket-btn">Vai alla Bolletta →</a>
+          {% endif %}
         </div>
       </div>
 
