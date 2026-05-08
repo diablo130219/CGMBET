@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Toon — Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-02">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -24,6 +25,7 @@
   </div>
   <div class="header-actions">
     <span class="live-badge">● Data Room Attiva</span>
+    <a class="toon-btn small" href="{{ url_for('logout') }}">Esci</a>
   </div>
 </header>
 
@@ -32,7 +34,10 @@
   <aside class="sidebar">
     <div class="sidebar-card logo-card">
       <div class="mini-logo">CG</div>
-      <div><strong>Dashboard</strong><small>Panoramica</small></div>
+      <div>
+        <strong>Dashboard</strong>
+        <small>Panoramica</small>
+      </div>
     </div>
 
     <a href="{{ url_for('dashboard') }}" class="nav-dashboard active">📊 Dashboard</a>
@@ -66,7 +71,7 @@
       <div>
         <span class="comic-label">Panoramica generale</span>
         <h2>Dashboard</h2>
-        <p>Gestisci le tue strategie CGMBet e visualizza la Bolletta Pazza del giorno.</p>
+        <p>Statistiche, distribuzione quote e andamento importazioni delle tue strategie CGMBet.</p>
       </div>
       <div class="mascot-card">
         <div class="mascot">⚽</div>
@@ -74,7 +79,6 @@
       </div>
     </section>
 
-    <!-- KPI -->
     <section class="stats-grid five">
       <div class="stat-card yellow"><span>Totale Database</span><strong>{{ total_all }}</strong><small>partite totali</small></div>
       <div class="stat-card mint"><span>Partite Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></div>
@@ -83,69 +87,50 @@
       <div class="stat-card violet"><span>Slot Attivi</span><strong>3</strong><small>GG · Over · Over</small></div>
     </section>
 
-    <!-- BOLLETTA PAZZA -->
-    <section class="chart-card full" style="margin-bottom:22px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
-        <div>
-          <span class="comic-label">Selezione automatica · solo semaforo ≥50%</span>
-          <h3>🎰 Bolletta Pazza di Oggi</h3>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;">
-          {% if bolletta %}
-          <div style="text-align:center;padding:10px 18px;background:var(--soft-yellow);border:2px solid #d4b84a;border-radius:16px;box-shadow:2px 2px 0 #d4b84a;">
-            <div style="font-size:10px;font-weight:900;color:#7a6010;text-transform:uppercase;letter-spacing:.1em;">Quota Totale</div>
-            <div style="font-size:30px;font-weight:900;color:#101828;letter-spacing:-2px;">{{ quota_totale }}</div>
-            <div style="font-size:11px;color:#5aab85;font-weight:800;">{{ bolletta|length }} partite</div>
+    <section class="charts-grid">
+      <div class="chart-card">
+        <h3>Partite per Strategia</h3>
+        <p>Distribuzione degli slot attivi nel database</p>
+        <div class="chart-wrap"><canvas id="strategyChart"></canvas></div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Distribuzione Quote</h3>
+        <p>Bassa &lt;1.40 · Media 1.40–1.70 · Alta &gt;1.70</p>
+        <div class="odds-section">
+          {% for s, dist in odds_distribution.items() %}
+          {% set tot = dist.low + dist.mid + dist.high %}
+          <div class="odds-row">
+            <div class="odds-row-head">
+              <span>{{ s }}</span>
+              <span>{{ tot }} con quota</span>
+            </div>
+            <div class="odds-track">
+              {% if tot > 0 %}
+              <div class="odds-seg mint-bg" style="width:{{ (dist.low / tot * 100)|round }}%;"></div>
+              <div class="odds-seg violet-bg" style="width:{{ (dist.mid / tot * 100)|round }}%;"></div>
+              <div class="odds-seg pink-bg" style="width:{{ (dist.high / tot * 100)|round }}%;"></div>
+              {% else %}
+              <div class="odds-seg empty-bg" style="width:100%;"></div>
+              {% endif %}
+            </div>
+            <div class="odds-legend">
+              <span>Basse: {{ dist.low }}</span>
+              <span>Medie: {{ dist.mid }}</span>
+              <span>Alte: {{ dist.high }}</span>
+            </div>
           </div>
-          {% endif %}
-          <a href="{{ url_for('bolletta_page') }}" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:2px 2px 0 #d4b84a;">
-            Gestisci →
-          </a>
+          {% endfor %}
         </div>
       </div>
 
-      {% if bolletta %}
-      <div class="table-wrap">
-        <table style="min-width:500px;">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Ora</th>
-              <th>Casa</th>
-              <th>Trasferta</th>
-              <th>Mercato</th>
-              <th>Quota</th>
-              <th>% Media</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for p in bolletta %}
-            <tr>
-              <td><strong>{{ loop.index }}</strong></td>
-              <td><strong>{{ p.match_time }}</strong></td>
-              <td class="team">{{ p.home_team }}</td>
-              <td>{{ p.away_team }}</td>
-              <td>
-                {% if p.strategy == 'GG' %}<span class="strategy-pill gg">GG</span>
-                {% elif p.strategy == 'Over 2.5' %}<span class="strategy-pill o25">Over 2.5</span>
-                {% else %}<span class="strategy-pill o15">Over 1.5</span>{% endif %}
-              </td>
-              <td><span class="prob-value">{{ "%.2f"|format(p.odd or 0) }}</span></td>
-              <td><span class="stat-value">{{ p.pct_media }}%</span></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+      <div class="chart-card full">
+        <h3>Andamento Importazioni</h3>
+        <p>Partite aggiunte negli ultimi 14 giorni</p>
+        <div class="chart-wrap tall"><canvas id="trendChart"></canvas></div>
       </div>
-      {% else %}
-      <div class="empty-state">
-        <strong>😴 Nessuna partita oggi</strong>
-        <span>Importa i CSV e inserisci il semaforo Forebet ≥50% per generare la bolletta!</span>
-      </div>
-      {% endif %}
     </section>
 
-    <!-- RIEPILOGO STRATEGIE -->
     <section class="table-panel">
       <div class="table-header">
         <div>
@@ -191,5 +176,58 @@
 </div>
 
 <div class="version">CGMBet Toon v1.0</div>
+
+<script>
+new Chart(document.getElementById('strategyChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: ['GG', 'Over 2.5', 'Over 1.5'],
+    datasets: [{
+      data: [{{ strategy_counts["GG"] }}, {{ strategy_counts["Over 2.5"] }}, {{ strategy_counts["Over 1.5"] }}],
+      backgroundColor: ['#7cffcb', '#ff7aa8', '#75c7ff'],
+      borderColor: ['#101828', '#101828', '#101828'],
+      borderWidth: 4,
+      hoverOffset: 12,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '62%',
+    plugins: {
+      legend: { position: 'bottom', labels: { color: '#101828', font: { size: 13, weight: 'bold' }, padding: 16 } }
+    }
+  }
+});
+
+new Chart(document.getElementById('trendChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: {{ trend_labels|tojson }},
+    datasets: [{
+      label: 'Partite importate',
+      data: {{ trend_data|tojson }},
+      borderColor: '#101828',
+      backgroundColor: 'rgba(124,255,203,.35)',
+      borderWidth: 4,
+      fill: true,
+      tension: 0.35,
+      pointBackgroundColor: '#ffdd57',
+      pointBorderColor: '#101828',
+      pointBorderWidth: 3,
+      pointRadius: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(16,24,40,.09)' }, ticks: { color: '#101828', font: { weight: 'bold' } } },
+      y: { grid: { color: 'rgba(16,24,40,.09)' }, ticks: { color: '#101828', font: { weight: 'bold' }, stepSize: 1 }, beginAtZero: true }
+    }
+  }
+});
+</script>
 </body>
 </html>
