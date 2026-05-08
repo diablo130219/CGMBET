@@ -882,3 +882,93 @@ body.login-body {
 .bolletta-only-grid .bolletta-ticket-mini {
   min-height: 420px;
 }
+
+/* ============================================
+   DASHBOARD — Bolletta Pazza extended like Sideboard
+   ============================================ */
+.bolletta-only-grid .bolletta-dashboard-card {
+  max-width: 1220px;
+}
+
+.bolletta-only-grid .bolletta-ticket-mini {
+  min-height: 720px;
+  height: auto;
+  padding: 26px;
+}
+
+.ticket-top-extended {
+  text-align: center;
+  align-items: center;
+  border-bottom: 2px dashed rgba(47,54,64,.22);
+  padding-bottom: 18px;
+}
+
+.ticket-top-extended strong {
+  font-size: 46px;
+}
+
+.ticket-list {
+  gap: 12px;
+}
+
+.bolletta-only-grid .ticket-list {
+  margin: 20px 0;
+}
+
+.bolletta-only-grid .ticket-row {
+  grid-template-columns: 1fr 72px;
+  padding: 14px 16px;
+}
+
+.bolletta-only-grid .ticket-match strong {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+  line-height: 1.15;
+}
+
+.bolletta-only-grid .ticket-match small {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: initial;
+}
+
+.ticket-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.ticket-total.compact,
+.ticket-total.ticket-win {
+  margin-top: 0;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 104px;
+}
+
+.ticket-total.compact strong {
+  font-size: 30px;
+}
+
+.ticket-total.ticket-win {
+  background: var(--mint);
+  border-color: #9fc9bb;
+}
+
+.ticket-total.ticket-win strong {
+  font-size: 36px;
+}
+
+@media (max-width: 900px) {
+  .ticket-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bolletta-only-grid .bolletta-ticket-mini {
+    min-height: auto;
+  }
+}
