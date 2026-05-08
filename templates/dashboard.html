@@ -115,7 +115,7 @@
               <th>Trasferta</th>
               <th>Mercato</th>
               <th>Quota</th>
-              <th>Semaforo</th>
+              <th>% Media</th>
             </tr>
           </thead>
           <tbody>
@@ -131,10 +131,7 @@
                 {% else %}<span class="strategy-pill o15">Over 1.5</span>{% endif %}
               </td>
               <td><span class="prob-value">{{ "%.2f"|format(p.odd or 0) }}</span></td>
-              <td>
-                {% if p.sem_val >= 60 %}<span style="font-size:18px;">🟢 {{ p.semaforo }}%</span>
-                {% else %}<span style="font-size:18px;">🟡 {{ p.semaforo }}%</span>{% endif %}
-              </td>
+              <td><span class="stat-value">{{ p.pct_media }}%</span></td>
             </tr>
             {% endfor %}
           </tbody>

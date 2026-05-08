@@ -170,7 +170,6 @@
               <th>Casa</th>
               <th>Trasferta</th>
               <th>Mercato</th>
-              <th>Semaforo</th>
               <th>Quota</th>
               <th>ELO GAP</th>
               <th>Media Gol</th>
@@ -192,68 +191,3 @@
               <td>{{ m.away_team }}</td>
               <td><span class="market-badge">{{ m.market }}</span></td>
               <td>
-                <div class="semaforo-wrap">
-                  {% if m.semaforo %}
-                    {% set s = m.semaforo|replace(",",".")|float %}
-                    {% if s >= 60 %}
-                      <span class="semaforo-dot" onclick="toggleSemaforo({{ m.id }})" title="Forebet {{ m.semaforo }}% — clicca per modificare" style="font-size:22px;cursor:pointer;">🟢</span>
-                    {% elif s >= 50 %}
-                      <span class="semaforo-dot" onclick="toggleSemaforo({{ m.id }})" title="Forebet {{ m.semaforo }}% — clicca per modificare" style="font-size:22px;cursor:pointer;">🟡</span>
-                    {% else %}
-                      <span class="semaforo-dot" onclick="toggleSemaforo({{ m.id }})" title="Forebet {{ m.semaforo }}% — clicca per modificare" style="font-size:22px;cursor:pointer;">🔴</span>
-                    {% endif %}
-                  {% else %}
-                    <span class="semaforo-dot" onclick="toggleSemaforo({{ m.id }})" title="Clicca per inserire % Forebet" style="font-size:22px;cursor:pointer;">⚪</span>
-                  {% endif %}
-                  <form id="sem-form-{{ m.id }}" action="{{ url_for('update_semaforo', match_id=m.id) }}" method="POST" style="display:none;margin-top:4px;">
-                    <input type="hidden" name="strategy" value="{{ strategy }}">
-                    <input type="number" name="semaforo" min="0" max="100" placeholder="%" value="{{ m.semaforo }}"
-                      style="width:60px;padding:4px 6px;border-radius:8px;border:2px solid #d8d2c5;font-size:12px;font-weight:800;"
-                      onkeydown="if(event.key==='Enter'){this.form.submit()}"
-                      onblur="this.form.submit()">
-                  </form>
-                </div>
-              </td>
-              <td><span class="prob-value">{{ "%.2f"|format(m.odd or 0) }}</span></td>
-              <td><span class="stat-value">{{ m.elo_gap }}</span></td>
-              <td><span class="stat-value">{{ m.notes }}</span></td>
-              {% if strategy == 'GG' %}
-              <td><span class="stat-value">{{ m.gg_home }}%</span></td>
-              <td><span class="stat-value">{{ m.gg_away }}%</span></td>
-              {% else %}
-              <td><span class="stat-value">{{ m.over_home }}%</span></td>
-              <td><span class="stat-value">{{ m.over_away }}%</span></td>
-              {% endif %}
-            </tr>
-            {% else %}
-            <tr>
-              <td colspan="10">
-                <div class="empty-state">
-                  <strong>Nessun dato caricato</strong>
-                  <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<div class="version">CGMBet Toon v1.0</div>
-<script>
-function toggleSemaforo(id) {
-  const form = document.getElementById('sem-form-' + id);
-  if (form.style.display === 'none') {
-    form.style.display = 'block';
-    form.querySelector('input[type="number"]').focus();
-  } else {
-    form.style.display = 'none';
-  }
-}
-</script>
-</body>
-</html>
