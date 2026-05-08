@@ -865,3 +865,20 @@ body.login-body {
   font-size: 30px;
   color: var(--ink);
 }
+
+
+/* Dashboard clean: solo Bolletta Pazza */
+.bolletta-only-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.bolletta-only-grid .bolletta-dashboard-card {
+  max-width: 980px;
+  width: 100%;
+  margin: 0 auto;
+}
+.bolletta-only-grid .bolletta-ticket-mini {
+  min-height: 420px;
+}
