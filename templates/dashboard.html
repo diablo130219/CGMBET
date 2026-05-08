@@ -90,15 +90,15 @@
 
       <div class="chart-card bolletta-dashboard-card">
         <div class="bolletta-ticket-mini">
-          <div class="ticket-top">
+          <div class="ticket-top ticket-top-extended">
             <span class="comic-label small-label">Bolletta Pazza</span>
-            <strong>🎰 Sideboard</strong>
-            <small>Selezione automatica di oggi</small>
+            <strong>🎰 Sideboard del Giorno</strong>
+            <small>Tutte le partite selezionate automaticamente per oggi</small>
           </div>
 
           {% if bolletta %}
           <div class="ticket-list">
-            {% for p in bolletta[:5] %}
+            {% for p in bolletta %}
             <div class="ticket-row">
               <div class="ticket-match">
                 <span class="ticket-market {% if p.strategy == 'GG' %}gg{% elif p.strategy == 'Over 2.5' %}o25{% else %}o15{% endif %}">{{ p.strategy }}</span>
@@ -110,12 +110,22 @@
             {% endfor %}
           </div>
 
-          <div class="ticket-total">
-            <span>Quota totale</span>
-            <strong>{{ quota_totale }}</strong>
+          <div class="ticket-summary-grid">
+            <div class="ticket-total compact">
+              <span>Importo</span>
+              <strong>€{{ "%.2f"|format(importo_fisso or 0) }}</strong>
+            </div>
+            <div class="ticket-total compact">
+              <span>Quota totale</span>
+              <strong>{{ quota_totale }}</strong>
+            </div>
+            <div class="ticket-total ticket-win">
+              <span>Vincita potenziale</span>
+              <strong>€{{ "%.2f"|format(vincita_potenziale or 0) }}</strong>
+            </div>
           </div>
 
-          <a href="{{ url_for('bolletta_page') }}" class="toon-btn export ticket-btn">Apri Bolletta Pazza →</a>
+          <a href="{{ url_for('bolletta_page') }}" class="toon-btn export ticket-btn">Apri Sideboard completa →</a>
           {% else %}
           <div class="ticket-empty">
             <strong>Nessuna bolletta oggi</strong>
