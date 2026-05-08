@@ -24,6 +24,11 @@ def get_db():
 
 def init_db():
     conn = get_db()
+    try:
+        conn.execute("ALTER TABLE matches ADD COLUMN semaforo TEXT DEFAULT ''")
+        conn.commit()
+    except:
+        pass
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS matches (
@@ -42,6 +47,7 @@ def init_db():
             over_home TEXT DEFAULT '',
             over_away TEXT DEFAULT '',
             notes TEXT DEFAULT '',
+            semaforo TEXT DEFAULT '',
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )
         """
@@ -396,13 +402,16 @@ def import_csv():
         # Media gol - colonna diversa per ogni strategia
         media_gol = media_gol_for_strategy(row, strategy)
 
+        # Semaforo Forebet
+        semaforo = pick(row, ["{SEMAFORO}", "SEMAFORO", "semaforo"])
+
         conn.execute(
             """
             INSERT INTO matches (
                 strategy, match_date, match_time, championship,
                 home_team, away_team, market, odd, elo_gap,
-                gg_home, gg_away, over_home, over_away, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                gg_home, gg_away, over_home, over_away, notes, semaforo
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 strategy,
@@ -418,7 +427,8 @@ def import_csv():
                 gg_away_val,
                 over_home_val,
                 over_away_val,
-                media_gol,  # salviamo media gol nel campo notes
+                media_gol,
+                semaforo,
             ),
         )
         imported += 1
