@@ -31,6 +31,32 @@ def init_db():
         pass
     conn.execute(
         """
+        CREATE TABLE IF NOT EXISTS bollette (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            partite TEXT NOT NULL,
+            quota_totale REAL DEFAULT 0,
+            importo REAL DEFAULT 0,
+            esito TEXT DEFAULT 'pending',
+            profitto REAL DEFAULT 0,
+            bankroll_pre REAL DEFAULT 0,
+            bankroll_post REAL DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bankroll (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            capitale REAL DEFAULT 0,
+            importo_fisso REAL DEFAULT 0,
+            updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+    )
+    conn.execute(
+        """
         CREATE TABLE IF NOT EXISTS matches (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             strategy TEXT NOT NULL,
@@ -261,11 +287,57 @@ def dashboard():
         ).fetchone()[0]
         avg_odds[s] = round(avg, 2) if avg else 0
 
+    # BOLLETTA PAZZA — partite di oggi con semaforo >= 50
+    today_str = today.isoformat()
+    rows_bolletta = conn.execute("""
+        SELECT *, 
+        CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) as sem_val,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
+        CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
+        ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
+        FROM matches
+        WHERE match_date = ?
+        AND CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) >= 50
+        ORDER BY 
+        ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
+          CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
+        (CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) * 10) -
+        (ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) / 100)
+        DESC
+        LIMIT 12
+    """, (today_str,)).fetchall()
+
+    # Calcola quota totale bolletta
+    bolletta = []
+    quota_totale = 1.0
+    for r in rows_bolletta:
+        score = ((r['pct_casa'] + r['pct_trasf']) / 2) + (r['media_gol_val'] * 10) - (r['elo_abs'] / 100)
+        bolletta.append({
+            'id': r['id'],
+            'home_team': r['home_team'],
+            'away_team': r['away_team'],
+            'strategy': r['strategy'],
+            'market': r['market'],
+            'odd': r['odd'],
+            'semaforo': r['semaforo'],
+            'match_time': r['match_time'],
+            'championship': r['championship'],
+            'score': round(score, 2),
+            'sem_val': r['sem_val'],
+        })
+        if r['odd'] and r['odd'] > 0:
+            quota_totale *= r['odd']
+
+    quota_totale = round(quota_totale, 2)
+
     conn.close()
 
     return render_template(
         "dashboard.html",
         strategy_counts=strategy_counts,
+        bolletta=bolletta,
+        quota_totale=quota_totale,
         odds_distribution=odds_distribution,
         trend_labels=trend_labels,
         trend_data=trend_data,
@@ -451,6 +523,167 @@ def update_semaforo(match_id):
     conn.commit()
     conn.close()
     return redirect(url_for("index", strategy=strategy))
+
+
+
+@app.route("/bolletta")
+def bolletta_page():
+    import json
+    today_str = date.today().isoformat()
+    conn = get_db()
+
+    rows_bolletta = conn.execute("""
+        SELECT *,
+        CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) as sem_val,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
+        CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
+        ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
+        FROM matches
+        WHERE match_date = ?
+        AND CAST(REPLACE(COALESCE(semaforo,'0'),',','.') AS REAL) >= 50
+        ORDER BY
+        ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
+          CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
+        (CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) * 10) -
+        (ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) / 100)
+        DESC LIMIT 12
+    """, (today_str,)).fetchall()
+
+    bolletta = []
+    quota_totale = 1.0
+    for r in rows_bolletta:
+        score = ((r['pct_casa'] + r['pct_trasf']) / 2) + (r['media_gol_val'] * 10) - (r['elo_abs'] / 100)
+        bolletta.append({
+            'id': r['id'], 'home_team': r['home_team'], 'away_team': r['away_team'],
+            'strategy': r['strategy'], 'market': r['market'], 'odd': r['odd'],
+            'semaforo': r['semaforo'], 'match_time': r['match_time'],
+            'championship': r['championship'], 'score': round(score, 2), 'sem_val': r['sem_val'],
+        })
+        if r['odd'] and r['odd'] > 0:
+            quota_totale *= r['odd']
+    quota_totale = round(quota_totale, 2)
+
+    # Storico bollette
+    storico = conn.execute(
+        "SELECT * FROM bollette ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()
+
+    # Bankroll
+    bk = conn.execute("SELECT * FROM bankroll ORDER BY id DESC LIMIT 1").fetchone()
+    capitale = bk['capitale'] if bk else 0
+    importo_fisso = bk['importo_fisso'] if bk else 0
+
+    # ROI totale
+    roi_rows = conn.execute(
+        "SELECT SUM(profitto) as tot_profitto FROM bollette WHERE esito != 'pending'"
+    ).fetchone()
+    tot_profitto = roi_rows['tot_profitto'] or 0
+    roi = round((tot_profitto / capitale * 100), 2) if capitale > 0 else 0
+
+    # Contatori
+    vinte = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='vinta'").fetchone()[0]
+    perse = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='persa'").fetchone()[0]
+
+    total_all, gg_count, over25_count, over15_count = get_counts(conn)
+    conn.close()
+
+    partite_json = json.dumps([{
+        'home': p['home_team'], 'away': p['away_team'],
+        'mercato': p['market'], 'quota': p['odd']
+    } for p in bolletta])
+
+    return render_template("bolletta.html",
+        bolletta=bolletta, quota_totale=quota_totale,
+        oggi=date.today().strftime("%d/%m/%Y"),
+        storico=storico, capitale=capitale,
+        importo_fisso=importo_fisso, roi=roi,
+        vinte=vinte, perse=perse,
+        tot_profitto=tot_profitto,
+        partite_json=partite_json,
+        total_all=total_all, gg_count=gg_count,
+        over25_count=over25_count, over15_count=over15_count,
+    )
+
+
+
+@app.route("/update-quota/<int:match_id>", methods=["POST"])
+def update_quota(match_id):
+    nuova_quota = request.form.get("quota", "").strip()
+    strategy = request.form.get("strategy", "")
+    source = request.form.get("source", "index")
+    try:
+        val = float(nuova_quota.replace(",", "."))
+        conn = get_db()
+        conn.execute("UPDATE matches SET odd = ? WHERE id = ?", (val, match_id))
+        conn.commit()
+        conn.close()
+    except:
+        pass
+    if source == "bolletta":
+        return redirect(url_for("bolletta_page"))
+    return redirect(url_for("index", strategy=strategy))
+
+
+@app.route("/salva-bolletta", methods=["POST"])
+def salva_bolletta():
+    import json
+    data = date.today().isoformat()
+    quota_totale = float(request.form.get("quota_totale", 0))
+    importo = float(request.form.get("importo", 0))
+    bankroll_pre = float(request.form.get("bankroll_pre", 0))
+    partite_json = request.form.get("partite_json", "[]")
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO bollette (data, partite, quota_totale, importo, bankroll_pre) VALUES (?,?,?,?,?)",
+        (data, partite_json, quota_totale, importo, bankroll_pre)
+    )
+    # Aggiorna bankroll
+    conn.execute("DELETE FROM bankroll")
+    conn.execute("INSERT INTO bankroll (capitale, importo_fisso) VALUES (?,?)",
+                 (bankroll_pre, importo))
+    conn.commit()
+    conn.close()
+    flash("✅ Bolletta salvata!", "success")
+    return redirect(url_for("bolletta_page"))
+
+
+@app.route("/esito-bolletta/<int:bolletta_id>", methods=["POST"])
+def esito_bolletta(bolletta_id):
+    esito = request.form.get("esito", "pending")
+    conn = get_db()
+    b = conn.execute("SELECT * FROM bollette WHERE id = ?", (bolletta_id,)).fetchone()
+    if b:
+        if esito == "vinta":
+            profitto = round(b["importo"] * b["quota_totale"] - b["importo"], 2)
+            bankroll_post = round(b["bankroll_pre"] + b["importo"] * b["quota_totale"], 2)
+        elif esito == "persa":
+            profitto = -b["importo"]
+            bankroll_post = round(b["bankroll_pre"] - b["importo"], 2)
+        else:
+            profitto = 0
+            bankroll_post = b["bankroll_pre"]
+        conn.execute(
+            "UPDATE bollette SET esito=?, profitto=?, bankroll_post=? WHERE id=?",
+            (esito, profitto, bankroll_post, bolletta_id)
+        )
+        # Aggiorna capitale corrente
+        conn.execute("UPDATE bankroll SET capitale=?", (bankroll_post,))
+        conn.commit()
+    conn.close()
+    return redirect(url_for("bolletta_page"))
+
+
+@app.route("/salva-bankroll", methods=["POST"])
+def salva_bankroll():
+    capitale = float(request.form.get("capitale", 0))
+    importo = float(request.form.get("importo_fisso", 0))
+    conn = get_db()
+    conn.execute("DELETE FROM bankroll")
+    conn.execute("INSERT INTO bankroll (capitale, importo_fisso) VALUES (?,?)", (capitale, importo))
+    conn.commit()
+    conn.close()
+    return redirect(url_for("bolletta_page"))
 
 @app.route("/clear/<strategy>", methods=["POST"])
 @login_required
