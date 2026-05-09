@@ -3,89 +3,83 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CGMBet Toon — Bolletta Pazza</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-02">
+  <title>CGMBet Arena — Bolletta Pazza</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=arena2026">
 </head>
 <body>
+<div class="app">
 
-<div class="comic-bg">
-  <span class="bubble b1">WIN!</span>
-  <span class="bubble b2">BET!</span>
-  <span class="bubble b3">GO!</span>
-</div>
-
-<header class="toon-header">
-  <div class="brand-block">
-    <div class="toon-logo">⚽</div>
-    <div><h1>CGMBet Toon</h1><p>Data Room delle Strategie</p></div>
-  </div>
-  <div class="header-actions">
-    <span class="live-badge">● Data Room Attiva</span>
-  </div>
-</header>
-
-<div class="layout">
-
-  <!-- SIDEBAR BANKROLL -->
   <aside class="sidebar">
-    <div class="sidebar-card logo-card">
-      <div class="mini-logo">💰</div>
-      <div><strong>Bankroll</strong><small>Gestione capitale</small></div>
-    </div>
-
-    <form action="{{ url_for('salva_bankroll') }}" method="POST">
-      <div class="nav-title">Capitale attuale (€)</div>
-      <input type="number" name="capitale" value="{{ capitale }}" step="0.01" min="0" placeholder="Es. 1000" style="width:100%;margin-bottom:10px;">
-      <div class="nav-title">Importo fisso bolletta (€)</div>
-      <input type="number" name="importo_fisso" value="{{ importo_fisso }}" step="0.01" min="0" placeholder="Es. 10" style="width:100%;margin-bottom:10px;">
-      <button type="submit" class="toon-btn" style="width:100%;justify-content:center;margin-bottom:14px;">💾 Salva</button>
-    </form>
-
-    <div class="sidebar-card" style="background:var(--soft-green);border-color:#5aab85;flex-direction:column;align-items:flex-start;gap:4px;">
-      <span style="font-size:10px;font-weight:900;color:#1a6645;text-transform:uppercase;letter-spacing:.1em;">Capitale</span>
-      <strong style="font-size:26px;color:#101828;">€{{ "%.2f"|format(capitale) }}</strong>
-    </div>
-
-    <div class="sidebar-card" style="margin-top:8px;flex-direction:column;align-items:flex-start;gap:4px;
-      {% if roi > 0 %}background:var(--soft-green);border-color:#5aab85;
-      {% elif roi < 0 %}background:var(--soft-pink);border-color:#c48a96;
-      {% else %}background:var(--soft-violet);border-color:#a99fd8;{% endif %}">
-      <span style="font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;">ROI Totale</span>
-      <strong style="font-size:26px;color:#101828;">{{ roi }}%</strong>
-      <small>Profitto: €{{ "%.2f"|format(tot_profitto) }}</small>
-    </div>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
-      <div class="sidebar-card" style="background:var(--soft-green);border-color:#5aab85;flex-direction:column;align-items:center;gap:2px;padding:12px;">
-        <span style="font-size:10px;font-weight:900;color:#1a6645;">VINTE</span>
-        <strong style="font-size:24px;color:#101828;">{{ vinte }}</strong>
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <div class="brand-mark">CG</div>
+      <div>
+        <strong>CGMBET</strong>
+        <span>ARENA DATA</span>
       </div>
-      <div class="sidebar-card" style="background:var(--soft-pink);border-color:#c48a96;flex-direction:column;align-items:center;gap:2px;padding:12px;">
-        <span style="font-size:10px;font-weight:900;color:#7a2535;">PERSE</span>
-        <strong style="font-size:24px;color:#101828;">{{ perse }}</strong>
+    </a>
+
+    <!-- BANKROLL -->
+    <div style="padding:0 4px;">
+      <div class="nav-label">Bankroll</div>
+      <form action="{{ url_for('salva_bankroll') }}" method="POST" style="display:grid;gap:8px;">
+        <input type="number" name="capitale" value="{{ capitale }}" step="0.01" min="0" placeholder="Capitale €">
+        <input type="number" name="importo_fisso" value="{{ importo_fisso }}" step="0.01" min="0" placeholder="Importo bolletta €">
+        <button type="submit" class="ghost-btn" style="width:100%;justify-content:center;">💾 Salva</button>
+      </form>
+
+      <div class="bankroll-card" style="margin-top:12px;">
+        <span>Capitale</span>
+        <strong>€{{ "%.2f"|format(capitale) }}</strong>
+        <span>ROI Totale</span>
+        <strong class="{% if roi > 0 %}roi-pos{% elif roi < 0 %}roi-neg{% endif %}">{{ roi }}%</strong>
+        <span>Profitto</span>
+        <strong style="font-size:20px;">€{{ "%.2f"|format(tot_profitto) }}</strong>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+        <div style="border:1px solid rgba(23,243,160,.22);border-radius:16px;padding:12px;text-align:center;background:rgba(23,243,160,.08);">
+          <small style="color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;">VINTE</small>
+          <div class="win-count">{{ vinte }}</div>
+        </div>
+        <div style="border:1px solid rgba(251,113,133,.22);border-radius:16px;padding:12px;text-align:center;background:rgba(251,113,133,.08);">
+          <small style="color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase;">PERSE</small>
+          <div class="loss-count">{{ perse }}</div>
+        </div>
       </div>
     </div>
 
-    <div class="nav-title" style="margin-top:18px;">Navigazione</div>
-    <a href="{{ url_for('dashboard') }}" class="nav-dashboard">📊 Dashboard</a>
-    <a href="{{ url_for('bolletta_page') }}" class="nav-dashboard active">🎰 Bolletta Pazza</a>
-    <div class="nav-title">Strategie</div>
-    <a href="{{ url_for('index', strategy='GG') }}" class="nav-item">
-      <div><strong>GG</strong><small>{{ gg_count }} match</small></div>
-      <span class="comic-dot green"></span>
-    </a>
-    <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-item">
-      <div><strong>Over 2.5</strong><small>{{ over25_count }} match</small></div>
-      <span class="comic-dot pink"></span>
-    </a>
-    <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-item">
-      <div><strong>Over 1.5</strong><small>{{ over15_count }} match</small></div>
-      <span class="comic-dot blue"></span>
-    </a>
+    <nav class="nav" style="margin-top:auto;">
+      <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link active"><span>🎰</span> Bolletta Pazza</a>
+      <div class="nav-label">Strategie</div>
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
+        <span class="sport-dot green"></span><div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link">
+        <span class="sport-dot orange"></span><div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link">
+        <span class="sport-dot blue"></span><div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
   </aside>
 
-  <!-- MAIN -->
-  <main class="main-content">
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Selezione automatica · % più alta del giorno</span>
+        <h1>🎰 Bolletta Pazza</h1>
+        <p>Le migliori partite di oggi per % di presa. Genera, modifica quote, salva e registra l'esito.</p>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <form action="{{ url_for('genera_bolletta') }}" method="POST">
+          <button type="submit" class="gen-btn">
+            🔄 {% if bolletta_generata %}Rigenera{% else %}Genera Bolletta{% endif %}
+          </button>
+        </form>
+        <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+      </div>
+    </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
@@ -93,57 +87,27 @@
       {% endfor %}
     {% endwith %}
 
-    <div class="hero-toon" style="margin-bottom:22px;">
-      <div>
-        <span class="comic-label">Selezione automatica · % più alta del giorno</span>
-        <h2>🎰 Bolletta Pazza</h2>
-        <p>Le migliori partite di oggi per % di presa. Genera la bolletta, rimuovi le partite che non vuoi, salva e registra l'esito!</p>
-      </div>
-      <div class="mascot-card">
-        <div class="mascot">🎰</div>
-        <span>{{ oggi }}</span>
-        <form action="{{ url_for('genera_bolletta') }}" method="POST" style="margin-top:8px;">
-          <button type="submit" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:2px 2px 0 #d4b84a;font-size:12px;padding:8px 14px;">
-            🔄 {% if bolletta_generata %}Rigenera{% else %}Genera Bolletta{% endif %}
-          </button>
-        </form>
-        {% if partite_oggi > 0 %}
-        <small style="color:#5aab85;font-size:11px;font-weight:700;">{{ partite_oggi }} partite disponibili</small>
-        {% endif %}
-      </div>
-    </div>
-
     {% if bolletta %}
 
-    <div class="stats-grid three" style="margin-bottom:22px;">
-      <div class="stat-card yellow">
-        <span>Partite selezionate</span>
-        <strong>{{ bolletta|length }}</strong>
-        <small>da tutte le strategie</small>
-      </div>
-      <div class="stat-card mint">
-        <span>Quota Totale</span>
-        <strong>{{ quota_totale }}</strong>
-        <small>moltiplicatore multipla</small>
-      </div>
-      <div class="stat-card blue">
-        <span>Potenziale vincita</span>
-        <strong>€{{ "%.2f"|format(importo_fisso * quota_totale) }}</strong>
-        <small>su €{{ "%.2f"|format(importo_fisso) }} scommessi</small>
-      </div>
-    </div>
+    <!-- KPI BOLLETTA -->
+    <section class="kpi-grid">
+      <article class="kpi-card"><span>Partite selezionate</span><strong>{{ bolletta|length }}</strong><small>da tutte le strategie</small></article>
+      <article class="kpi-card accent"><span>Quota Totale</span><strong>{{ quota_totale }}</strong><small>moltiplicatore multipla</small></article>
+      <article class="kpi-card"><span>Vincita potenziale</span><strong>€{{ "%.2f"|format(importo_fisso * quota_totale) }}</strong><small>su €{{ "%.2f"|format(importo_fisso) }}</small></article>
+    </section>
 
     <!-- TABELLA PARTITE -->
-    <div class="table-panel" style="margin-bottom:22px;">
-      <div class="table-header">
+    <section class="odds-table-card">
+      <div class="section-head">
         <div>
-          <span class="comic-label">Clicca sulla quota per modificarla</span>
+          <span class="eyebrow">Clicca sulla quota per modificarla</span>
           <h3>Partite — {{ oggi }}</h3>
         </div>
-        <div class="rows-badge">{{ bolletta|length }} partite</div>
+        <span class="count-pill">{{ bolletta|length }} partite</span>
       </div>
+
       <div class="table-wrap">
-        <table>
+        <table class="odds-table">
           <thead>
             <tr>
               <th>#</th><th>Ora</th><th>Campionato</th><th>Casa</th><th>Trasferta</th><th>Mercato</th><th>Quota</th><th>% Media</th><th></th>
@@ -158,25 +122,24 @@
               <td class="team">{{ p.home_team }}</td>
               <td>{{ p.away_team }}</td>
               <td>
-                {% if p.strategy == 'GG' %}<span class="strategy-pill gg">GG</span>
-                {% elif p.strategy == 'Over 2.5' %}<span class="strategy-pill o25">Over 2.5</span>
-                {% else %}<span class="strategy-pill o15">Over 1.5</span>{% endif %}
+                {% if p.strategy == 'GG' %}<span class="market-pill strat-pill pill-gg">GG</span>
+                {% elif p.strategy == 'Over 2.5' %}<span class="market-pill strat-pill pill-o25">Over 2.5</span>
+                {% else %}<span class="market-pill strat-pill pill-o15">Over 1.5</span>{% endif %}
               </td>
               <td>
-                <span class="prob-value" onclick="editQuota({{ p.id }})" title="Clicca per modificare" style="cursor:pointer;">{{ "%.2f"|format(p.odd or 0) }}</span>
-                <form id="quota-form-{{ p.id }}" action="{{ url_for('update_quota', match_id=p.id) }}" method="POST" style="display:none;margin-top:4px;">
+                <span class="prob-pill quota-edit" onclick="editQuota({{ p.id }})" title="Clicca per modificare">{{ "%.2f"|format(p.odd or 0) }}</span>
+                <form id="qf-{{ p.id }}" action="{{ url_for('update_quota', match_id=p.id) }}" method="POST" class="inline-form">
                   <input type="hidden" name="source" value="bolletta">
-                  <input type="number" name="quota" step="0.01" min="1" value="{{ p.odd }}"
-                    style="width:70px;padding:4px 6px;border-radius:8px;border:2px solid #d8d2c5;font-size:12px;font-weight:800;"
-                    onkeydown="if(event.key==='Enter'){this.form.submit()}" onblur="this.form.submit()">
+                  <input type="number" id="qi-{{ p.id }}" name="quota" step="0.01" min="1" value="{{ p.odd }}"
+                    class="quota-input"
+                    onkeydown="if(event.key==='Enter'){this.form.submit()}"
+                    onblur="this.form.submit()">
                 </form>
               </td>
+              <td><span class="stat-pill">{{ p.pct_media }}%</span></td>
               <td>
-                <span class="stat-value">{{ p.pct_media }}%</span>
-              </td>
-              <td>
-                <form action="{{ url_for('rimuovi_da_bolletta', match_id=p.id) }}" method="POST">
-                  <button type="submit" class="toon-btn danger" style="padding:5px 10px;font-size:11px;" title="Rimuovi dalla bolletta">✕</button>
+                <form action="{{ url_for('rimuovi_da_bolletta', match_id=p.id) }}" method="POST" class="inline-form">
+                  <button type="submit" class="del-btn" title="Rimuovi dalla bolletta">✕</button>
                 </form>
               </td>
             </tr>
@@ -184,65 +147,67 @@
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
 
-    <!-- RIEPILOGO + SALVA -->
-    <div class="hero-toon" style="margin-bottom:22px;background:linear-gradient(135deg,rgba(124,255,203,.15),rgba(255,221,87,.1));border:2px solid #7cffcb;">
-      <div style="flex:1;">
-        <span class="comic-label">Multipla del giorno</span>
-        <h3 style="font-size:20px;margin-bottom:12px;">📋 {{ oggi }}</h3>
-        {% for p in bolletta %}
-        <div style="padding:5px 0;border-bottom:1px solid rgba(0,0,0,.08);font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-          <strong>{{ p.home_team }} - {{ p.away_team }}</strong>
-          <span style="color:#5aab85;font-weight:800;">{{ p.market }}</span>
-          <span style="color:#666;">@{{ "%.2f"|format(p.odd or 0) }}</span>
+    <!-- RIEPILOGO MULTIPLA -->
+    <section class="bet-slip-wide">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Multipla del giorno</span>
+          <h3>📋 {{ oggi }}</h3>
         </div>
+        <div class="slip-summary" style="min-width:180px;text-align:center;">
+          <span>Quota Totale</span>
+          <strong>{{ quota_totale }}</strong>
+          <span>€{{ "%.2f"|format(importo_fisso) }} → €{{ "%.2f"|format(importo_fisso * quota_totale) }}</span>
+        </div>
+      </div>
+
+      <div class="slip-grid" style="margin-bottom:18px;">
+        {% for p in bolletta %}
+        <article class="slip-match">
+          <div class="slip-top">
+            <span>{{ p.strategy }}</span>
+            <strong>{{ "%.2f"|format(p.odd or 0) }}</strong>
+          </div>
+          <h4>{{ p.home_team }}</h4>
+          <p>vs {{ p.away_team }}</p>
+          <small>{{ p.championship }} · {{ p.match_time }}</small>
+        </article>
         {% endfor %}
       </div>
-      <div style="display:flex;flex-direction:column;align-items:center;gap:14px;min-width:160px;">
-        <div style="text-align:center;padding:14px 20px;background:rgba(255,255,255,.8);border:2px solid #d4b84a;border-radius:18px;box-shadow:3px 3px 0 #d4b84a;">
-          <div style="font-size:10px;font-weight:900;color:#7a6010;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px;">Quota Totale</div>
-          <div style="font-size:40px;font-weight:900;color:#101828;letter-spacing:-3px;">{{ quota_totale }}</div>
-          <div style="font-size:12px;color:#5aab85;font-weight:800;">€{{ "%.2f"|format(importo_fisso) }} → €{{ "%.2f"|format(importo_fisso * quota_totale) }}</div>
-        </div>
-        <form action="{{ url_for('salva_bolletta') }}" method="POST" style="width:100%;">
-          <input type="hidden" name="quota_totale" value="{{ quota_totale }}">
-          <input type="hidden" name="importo" value="{{ importo_fisso }}">
-          <input type="hidden" name="bankroll_pre" value="{{ capitale }}">
-          <input type="hidden" name="partite_json" value="{{ partite_json }}">
-          <button type="submit" class="toon-btn" style="width:100%;justify-content:center;background:var(--soft-green);border-color:#5aab85;box-shadow:3px 3px 0 #5aab85;">
-            💾 Salva Bolletta
-          </button>
-        </form>
-      </div>
-    </div>
+
+      <form action="{{ url_for('salva_bolletta') }}" method="POST">
+        <input type="hidden" name="quota_totale" value="{{ quota_totale }}">
+        <input type="hidden" name="importo" value="{{ importo_fisso }}">
+        <input type="hidden" name="bankroll_pre" value="{{ capitale }}">
+        <input type="hidden" name="partite_json" value="{{ partite_json }}">
+        <button type="submit" class="success-btn" style="width:100%;justify-content:center;padding:14px;">
+          💾 Salva Bolletta
+        </button>
+      </form>
+    </section>
 
     {% else %}
-    <div class="hero-toon" style="justify-content:center;text-align:center;">
-      <div>
-        <div style="font-size:64px;margin-bottom:16px;">🎰</div>
-        <h3>Bolletta non ancora generata</h3>
-        <p style="margin-top:8px;">Importa i CSV delle strategie, poi clicca <strong>Genera Bolletta</strong> per selezionare le migliori partite di oggi!</p>
-        <form action="{{ url_for('genera_bolletta') }}" method="POST" style="margin-top:16px;">
-          <button type="submit" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:3px 3px 0 #d4b84a;">
-            🔄 Genera Bolletta
-          </button>
-        </form>
+    <section class="odds-table-card" style="padding:48px;text-align:center;">
+      <div class="empty-state">
+        <strong>🎰 Bolletta non ancora generata</strong>
+        <span>Importa i CSV delle strategie, poi clicca <strong>Genera Bolletta</strong> per selezionare le migliori partite di oggi!</span>
       </div>
-    </div>
+    </section>
     {% endif %}
 
     <!-- STORICO -->
     {% if storico %}
-    <div class="table-panel">
-      <div class="table-header">
+    <section class="storico-card">
+      <div class="section-head">
         <div>
-          <span class="comic-label">Storico completo</span>
+          <span class="eyebrow">Storico completo</span>
           <h3>📅 Bollette Precedenti</h3>
         </div>
       </div>
       <div class="table-wrap">
-        <table>
+        <table class="odds-table">
           <thead>
             <tr>
               <th>Data</th><th>Importo</th><th>Quota</th><th>Bankroll Pre</th><th>Bankroll Post</th><th>Profitto</th><th>Esito</th>
@@ -253,23 +218,23 @@
             <tr>
               <td><strong>{{ b.data }}</strong></td>
               <td>€{{ "%.2f"|format(b.importo) }}</td>
-              <td><span class="prob-value">{{ "%.2f"|format(b.quota_totale) }}</span></td>
+              <td><span class="prob-pill">{{ "%.2f"|format(b.quota_totale) }}</span></td>
               <td>€{{ "%.2f"|format(b.bankroll_pre) }}</td>
               <td>{% if b.bankroll_post %}€{{ "%.2f"|format(b.bankroll_post) }}{% else %}—{% endif %}</td>
               <td>
-                {% if b.profitto > 0 %}<span style="color:#1a6645;font-weight:900;">+€{{ "%.2f"|format(b.profitto) }}</span>
-                {% elif b.profitto < 0 %}<span style="color:#7a2535;font-weight:900;">-€{{ "%.2f"|format(b.profitto|abs) }}</span>
-                {% else %}<span style="color:#666;">—</span>{% endif %}
+                {% if b.profitto > 0 %}<span style="color:var(--green);font-weight:900;">+€{{ "%.2f"|format(b.profitto) }}</span>
+                {% elif b.profitto < 0 %}<span style="color:var(--red);font-weight:900;">-€{{ "%.2f"|format(b.profitto|abs) }}</span>
+                {% else %}<span style="color:var(--muted);">—</span>{% endif %}
               </td>
               <td>
                 {% if b.esito == 'vinta' %}
-                  <span style="background:var(--soft-green);border:2px solid #5aab85;padding:4px 10px;border-radius:999px;font-weight:900;font-size:12px;color:#1a6645;">✅ Vinta</span>
+                  <span class="badge-vinta">✅ Vinta</span>
                 {% elif b.esito == 'persa' %}
-                  <span style="background:var(--soft-pink);border:2px solid #c48a96;padding:4px 10px;border-radius:999px;font-weight:900;font-size:12px;color:#7a2535;">❌ Persa</span>
+                  <span class="badge-persa">❌ Persa</span>
                 {% else %}
                   <form action="{{ url_for('esito_bolletta', bolletta_id=b.id) }}" method="POST" style="display:flex;gap:6px;">
-                    <button name="esito" value="vinta" class="toon-btn" style="padding:6px 10px;font-size:11px;background:var(--soft-green);border-color:#5aab85;box-shadow:2px 2px 0 #5aab85;">✅ Vinta</button>
-                    <button name="esito" value="persa" class="toon-btn" style="padding:6px 10px;font-size:11px;background:var(--soft-pink);border-color:#c48a96;box-shadow:2px 2px 0 #c48a96;">❌ Persa</button>
+                    <button name="esito" value="vinta" class="success-btn" style="padding:5px 10px;font-size:12px;">✅</button>
+                    <button name="esito" value="persa" class="danger-btn" style="padding:5px 10px;font-size:12px;">❌</button>
                   </form>
                 {% endif %}
               </td>
@@ -278,19 +243,19 @@
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
     {% endif %}
 
   </main>
 </div>
 
-<div class="version">CGMBet Toon v1.0</div>
+<div class="version">CGMBet Arena v1.0</div>
 
 <script>
 function editQuota(id) {
-  const form = document.getElementById('quota-form-' + id);
-  form.style.display = form.style.display === 'none' ? 'block' : 'none';
-  if (form.style.display === 'block') form.querySelector('input').focus();
+  const input = document.getElementById('qi-' + id);
+  input.style.display = input.style.display === 'none' || !input.style.display ? 'block' : 'none';
+  if (input.style.display === 'block') input.focus();
 }
 </script>
 </body>

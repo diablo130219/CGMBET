@@ -4,19 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Arena — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=orderedfix01">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=arena2026">
 </head>
 <body>
 <div class="app">
-  {% include "_sidebar.html" %}
+
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <div class="brand-mark">CG</div>
+      <div>
+        <strong>CGMBET</strong>
+        <span>ARENA DATA</span>
+      </div>
+    </a>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link">
+        <span>⌁</span> Dashboard
+      </a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link">
+        <span>🎰</span> Bolletta Pazza
+      </a>
+
+      <div class="nav-label">Strategie</div>
+
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link {% if strategy == 'GG' %}active{% endif %}">
+        <span class="sport-dot green"></span>
+        <div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link {% if strategy == 'Over 2.5' %}active{% endif %}">
+        <span class="sport-dot orange"></span>
+        <div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link {% if strategy == 'Over 1.5' %}active{% endif %}">
+        <span class="sport-dot blue"></span>
+        <div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
+
+    <div class="sidebar-ticket">
+      <span>Database</span>
+      <strong>{{ total_all }}</strong>
+      <small>partite totali</small>
+    </div>
+  </aside>
 
   <main class="content">
     <header class="topbar">
       <div>
         <span class="eyebrow">Strategy Market</span>
         <h1>{{ strategy }}</h1>
-        <p>Elenco partite con probabilità mercato, casa/trasferta ed ELO GAP.</p>
+        <p>Elenco partite, quote e statistiche dalla tua ricerca CGMBet.</p>
       </div>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -29,7 +69,7 @@
       <div class="market-copy">
         <span class="status-chip">LIVE DATA ROOM</span>
         <h2>{{ strategy }}</h2>
-        <p>Importa il CSV della strategia selezionata. La tabella mostra probabilità, casa, trasferta ed ELO.</p>
+        <p>Importa il CSV della strategia e lavora su una lista pulita, leggibile e pronta per la scelta operativa.</p>
       </div>
 
       <form class="import-card" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
@@ -40,24 +80,14 @@
       </form>
     </section>
 
+    <!-- KPI -->
     <section class="kpi-grid">
-      <article class="kpi-card">
-        <span>Visualizzate</span>
-        <strong>{{ total }}</strong>
-        <small>righe filtrate</small>
-      </article>
-      <article class="kpi-card">
-        <span>Totale strategia</span>
-        <strong>{{ total_strategy }}</strong>
-        <small>{{ strategy }}</small>
-      </article>
-      <article class="kpi-card accent">
-        <span>Filtro rapido</span>
-        <strong>3D / 7D</strong>
-        <small>prossimi giorni</small>
-      </article>
+      <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
+      <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
+      <article class="kpi-card accent"><span>Database totale</span><strong>{{ total_all }}</strong><small>tutti gli slot</small></article>
     </section>
 
+    <!-- FILTRI -->
     <section class="control-strip">
       <form class="filters" method="GET">
         <input type="hidden" name="strategy" value="{{ strategy }}">
@@ -80,6 +110,7 @@
       </div>
     </section>
 
+    <!-- TABELLA -->
     <section class="odds-table-card">
       <div class="section-head">
         <div>
@@ -98,10 +129,16 @@
               <th>Casa</th>
               <th>Trasferta</th>
               <th>Mercato</th>
-              <th>Probabilità</th>
-              <th>Prob. Casa</th>
-              <th>Prob. Trasferta</th>
+              <th>Quota</th>
               <th>ELO GAP</th>
+              <th>Media Gol</th>
+              {% if strategy == 'GG' %}
+              <th>GG Casa %</th>
+              <th>GG Trasf %</th>
+              {% else %}
+              <th>Over Casa %</th>
+              <th>Over Trasf %</th>
+              {% endif %}
             </tr>
           </thead>
           <tbody>
@@ -112,14 +149,20 @@
               <td class="team">{{ m.home_team }}</td>
               <td>{{ m.away_team }}</td>
               <td><span class="market-pill">{{ m.market }}</span></td>
-              <td><span class="prob-pill">{{ "%.0f"|format(m.odd or 0) }}%</span></td>
-              <td><span class="home-pill">{{ m.prob_home if m.prob_home else "—" }}</span></td>
-              <td><span class="away-pill">{{ m.prob_away if m.prob_away else "—" }}</span></td>
+              <td><span class="prob-pill">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="elo-pill">{{ m.elo_gap }}</span></td>
+              <td><span class="elo-pill">{{ m.notes }}</span></td>
+              {% if strategy == 'GG' %}
+              <td><span class="stat-pill">{{ m.gg_home }}%</span></td>
+              <td><span class="stat-pill">{{ m.gg_away }}%</span></td>
+              {% else %}
+              <td><span class="stat-pill">{{ m.over_home }}%</span></td>
+              <td><span class="stat-pill">{{ m.over_away }}%</span></td>
+              {% endif %}
             </tr>
             {% else %}
             <tr>
-              <td colspan="9">
+              <td colspan="11">
                 <div class="empty-state">
                   <strong>Nessun dato caricato</strong>
                   <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
@@ -133,5 +176,6 @@
     </section>
   </main>
 </div>
+<div class="version">CGMBet Arena v1.0</div>
 </body>
 </html>

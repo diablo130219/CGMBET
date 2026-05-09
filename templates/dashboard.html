@@ -4,28 +4,73 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Arena — Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=orderedfix01">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=arena2026">
 </head>
 <body>
 <div class="app">
-  {% include "_sidebar.html" %}
+
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <div class="brand-mark">CG</div>
+      <div>
+        <strong>CGMBET</strong>
+        <span>ARENA DATA</span>
+      </div>
+    </a>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link active">
+        <span>⌁</span> Dashboard
+      </a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link">
+        <span>🎰</span> Bolletta Pazza
+      </a>
+
+      <div class="nav-label">Strategie</div>
+
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
+        <span class="sport-dot green"></span>
+        <div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link">
+        <span class="sport-dot orange"></span>
+        <div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link">
+        <span class="sport-dot blue"></span>
+        <div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
+
+    <div class="sidebar-ticket">
+      <span>Database</span>
+      <strong>{{ total_all }}</strong>
+      <small>partite totali</small>
+    </div>
+  </aside>
 
   <main class="content">
     <header class="topbar">
       <div>
         <span class="eyebrow">Sportsbook Control Center</span>
         <h1>Dashboard</h1>
-        <p>Vista generale senza login: strategie, sideboard e bolletta pazza.</p>
+        <p>Vista generale strategie, bolletta e riepilogo dati.</p>
       </div>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
 
     <section class="dashboard-hero">
       <div class="hero-left">
         <span class="status-chip">CGMBET ARENA</span>
-        <h2>Data room betting moderna.</h2>
-        <p>Importa CSV, controlla probabilità e consulta la Bolletta Pazza direttamente nella sideboard.</p>
+        <h2>Betting data, in ordine.</h2>
+        <p>Importa i CSV, leggi i mercati e controlla i migliori match senza confusione.</p>
       </div>
-
       <div class="hero-odds">
         <div><span>GG</span><strong>{{ gg_count }}</strong></div>
         <div><span>Over 2.5</span><strong>{{ over25_count }}</strong></div>
@@ -33,13 +78,15 @@
       </div>
     </section>
 
+    <!-- KPI -->
     <section class="kpi-grid four">
       <article class="kpi-card"><span>Totale Database</span><strong>{{ total_all }}</strong><small>partite totali</small></article>
-      <article class="kpi-card"><span>Partite Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></article>
-      <article class="kpi-card"><span>Prossimi 7 Giorni</span><strong>{{ next7_count }}</strong><small>in programma</small></article>
-      <article class="kpi-card accent"><span>Strategie</span><strong>3</strong><small>GG · O2.5 · O1.5</small></article>
+      <article class="kpi-card"><span>Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></article>
+      <article class="kpi-card"><span>Prossimi 3 Giorni</span><strong>{{ next3_count }}</strong><small>in programma</small></article>
+      <article class="kpi-card accent"><span>Prossimi 7 Giorni</span><strong>{{ next7_count }}</strong><small>in programma</small></article>
     </section>
 
+    <!-- RIEPILOGO STRATEGIE -->
     <section class="strategy-summary">
       <div class="section-head">
         <div>
@@ -47,26 +94,27 @@
           <h3>Riepilogo strategie</h3>
         </div>
       </div>
-
       <div class="summary-grid">
         <a href="{{ url_for('index', strategy='GG') }}" class="summary-card">
           <span>GG</span>
           <strong>{{ strategy_counts["GG"] }}</strong>
-          <small>Probabilità media: {% if avg_odds["GG"] > 0 %}{{ avg_odds["GG"] }}%{% else %}—{% endif %}</small>
+          <small>Quota media: {{ avg_odds["GG"] if avg_odds["GG"] > 0 else "—" }}</small>
         </a>
         <a href="{{ url_for('index', strategy='Over 2.5') }}" class="summary-card">
           <span>Over 2.5</span>
           <strong>{{ strategy_counts["Over 2.5"] }}</strong>
-          <small>Probabilità media: {% if avg_odds["Over 2.5"] > 0 %}{{ avg_odds["Over 2.5"] }}%{% else %}—{% endif %}</small>
+          <small>Quota media: {{ avg_odds["Over 2.5"] if avg_odds["Over 2.5"] > 0 else "—" }}</small>
         </a>
         <a href="{{ url_for('index', strategy='Over 1.5') }}" class="summary-card">
           <span>Over 1.5</span>
           <strong>{{ strategy_counts["Over 1.5"] }}</strong>
-          <small>Probabilità media: {% if avg_odds["Over 1.5"] > 0 %}{{ avg_odds["Over 1.5"] }}%{% else %}—{% endif %}</small>
+          <small>Quota media: {{ avg_odds["Over 1.5"] if avg_odds["Over 1.5"] > 0 else "—" }}</small>
         </a>
       </div>
     </section>
+
   </main>
 </div>
+<div class="version">CGMBet Arena v1.0</div>
 </body>
 </html>
