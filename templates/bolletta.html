@@ -95,13 +95,21 @@
 
     <div class="hero-toon" style="margin-bottom:22px;">
       <div>
-        <span class="comic-label">Selezione automatica · semaforo ≥50%</span>
+        <span class="comic-label">Selezione automatica · % più alta del giorno</span>
         <h2>🎰 Bolletta Pazza</h2>
-        <p>Le migliori partite di oggi per score. Clicca sulla quota per modificarla. Salva e registra l'esito!</p>
+        <p>Le migliori partite di oggi per % di presa. Genera la bolletta, rimuovi le partite che non vuoi, salva e registra l'esito!</p>
       </div>
       <div class="mascot-card">
         <div class="mascot">🎰</div>
         <span>{{ oggi }}</span>
+        <form action="{{ url_for('genera_bolletta') }}" method="POST" style="margin-top:8px;">
+          <button type="submit" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:2px 2px 0 #d4b84a;font-size:12px;padding:8px 14px;">
+            🔄 {% if bolletta_generata %}Rigenera{% else %}Genera Bolletta{% endif %}
+          </button>
+        </form>
+        {% if partite_oggi > 0 %}
+        <small style="color:#5aab85;font-size:11px;font-weight:700;">{{ partite_oggi }} partite disponibili</small>
+        {% endif %}
       </div>
     </div>
 
@@ -167,10 +175,8 @@
                 <span class="stat-value">{{ p.pct_media }}%</span>
               </td>
               <td>
-                <form action="{{ url_for('delete_match', match_id=p.id) }}" method="POST"
-                      onsubmit="return confirm('Rimuovere questa partita dalla bolletta?')">
-                  <input type="hidden" name="source" value="bolletta">
-                  <button type="submit" class="toon-btn danger" style="padding:5px 10px;font-size:11px;">🗑</button>
+                <form action="{{ url_for('rimuovi_da_bolletta', match_id=p.id) }}" method="POST">
+                  <button type="submit" class="toon-btn danger" style="padding:5px 10px;font-size:11px;" title="Rimuovi dalla bolletta">✕</button>
                 </form>
               </td>
             </tr>
@@ -214,9 +220,14 @@
     {% else %}
     <div class="hero-toon" style="justify-content:center;text-align:center;">
       <div>
-        <div style="font-size:64px;margin-bottom:16px;">😴</div>
-        <h3>Nessuna partita oggi</h3>
-        <p style="margin-top:8px;">Importa i CSV e inserisci il semaforo Forebet ≥50%!</p>
+        <div style="font-size:64px;margin-bottom:16px;">🎰</div>
+        <h3>Bolletta non ancora generata</h3>
+        <p style="margin-top:8px;">Importa i CSV delle strategie, poi clicca <strong>Genera Bolletta</strong> per selezionare le migliori partite di oggi!</p>
+        <form action="{{ url_for('genera_bolletta') }}" method="POST" style="margin-top:16px;">
+          <button type="submit" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:3px 3px 0 #d4b84a;">
+            🔄 Genera Bolletta
+          </button>
+        </form>
       </div>
     </div>
     {% endif %}
