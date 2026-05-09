@@ -603,9 +603,30 @@ def bolletta_page():
 
     bolletta, quota_totale = get_bolletta_del_giorno(conn)
 
-    storico = conn.execute(
+    storico_rows = conn.execute(
         "SELECT * FROM bollette ORDER BY created_at DESC LIMIT 20"
     ).fetchall()
+
+    storico = []
+    for b in storico_rows:
+        try:
+            dettagli = json.loads(b["partite"] or "[]")
+        except Exception:
+            dettagli = []
+
+        storico.append({
+            "id": b["id"],
+            "data": b["data"],
+            "partite": b["partite"],
+            "quota_totale": b["quota_totale"],
+            "importo": b["importo"],
+            "esito": b["esito"],
+            "profitto": b["profitto"],
+            "bankroll_pre": b["bankroll_pre"],
+            "bankroll_post": b["bankroll_post"],
+            "created_at": b["created_at"],
+            "dettagli": dettagli,
+        })
 
     capitale, importo_fisso = get_bankroll(conn)
 
