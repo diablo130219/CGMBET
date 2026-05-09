@@ -27,8 +27,14 @@
       </form>
 
       <div class="bankroll-card">
-        <span>Capitale</span>
+        <span>Capitale iniziale</span>
         <strong>€{{ "%.2f"|format(capitale) }}</strong>
+        <span>Capitale attuale</span>
+        <strong>€{{ "%.2f"|format(capitale_attuale) }}</strong>
+        <span>% Presa</span>
+        <strong class="{% if presa_percent >= 50 %}roi-pos{% elif giocate > 0 %}roi-neg{% endif %}">{{ presa_percent }}%</strong>
+        <span>Vinte / Perse</span>
+        <strong class="profit-value">{{ vinte }} / {{ perse }}</strong>
         <span>ROI Totale</span>
         <strong class="{% if roi > 0 %}roi-pos{% elif roi < 0 %}roi-neg{% endif %}">{{ roi }}%</strong>
         <span>Profitto</span>
@@ -71,10 +77,11 @@
     {% endwith %}
 
     {% if bolletta %}
-    <section class="kpi-grid">
+    <section class="kpi-grid four">
       <article class="kpi-card"><span>Partite selezionate</span><strong>{{ bolletta|length }}</strong><small>scelte manualmente</small></article>
       <article class="kpi-card accent"><span>Quota Totale</span><strong>{{ quota_totale }}</strong><small>moltiplicatore multipla</small></article>
-      <article class="kpi-card"><span>Vincita potenziale</span><strong>€{{ "%.2f"|format(importo_fisso * quota_totale) }}</strong><small>su €{{ "%.2f"|format(importo_fisso) }}</small></article>
+      <article class="kpi-card"><span>Importo giocato</span><strong>€{{ "%.2f"|format(importo_fisso) }}</strong><small>modificabile dalla sidebar</small></article>
+      <article class="kpi-card accent"><span>Vincita potenziale</span><strong>€{{ "%.2f"|format(importo_fisso * quota_totale) }}</strong><small>se presa</small></article>
     </section>
 
     <section class="odds-table-card">
@@ -243,13 +250,20 @@
                   <span>Quota <b>{{ "%.2f"|format(b.quota_totale) }}</b></span>
                   <span>Profitto <b>€{{ "%.2f"|format(b.profitto) }}</b></span>
                 </div>
-                <form action="{{ url_for('esito_bolletta', bolletta_id=b.id) }}" method="POST" class="saved-result-form" onclick="event.stopPropagation()">
-                  <select name="esito" onchange="this.form.submit()">
-                    <option value="pending" {% if b.esito == 'pending' %}selected{% endif %}>Pending</option>
-                    <option value="vinta" {% if b.esito == 'vinta' %}selected{% endif %}>Vinta</option>
-                    <option value="persa" {% if b.esito == 'persa' %}selected{% endif %}>Persa</option>
-                  </select>
-                </form>
+                <div class="saved-actions" onclick="event.stopPropagation()">
+                  <form action="{{ url_for('esito_bolletta', bolletta_id=b.id) }}" method="POST" class="saved-result-form">
+                    <select name="esito" onchange="this.form.submit()">
+                      <option value="pending" {% if b.esito == 'pending' %}selected{% endif %}>Pending</option>
+                      <option value="vinta" {% if b.esito == 'vinta' %}selected{% endif %}>Vinta</option>
+                      <option value="persa" {% if b.esito == 'persa' %}selected{% endif %}>Persa</option>
+                    </select>
+                  </form>
+
+                  <form action="{{ url_for('elimina_bolletta_salvata', bolletta_id=b.id) }}" method="POST"
+                        onsubmit="return confirm('Eliminare questa bolletta salvata?');">
+                    <button type="submit" class="delete-saved-btn">🗑 Elimina</button>
+                  </form>
+                </div>
               </div>
             </summary>
             <div class="saved-slip-details">

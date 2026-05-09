@@ -4,6 +4,19 @@
     <strong>{{ bolletta|length if bolletta is defined else 0 }} eventi</strong>
   </div>
 
+  <form action="{{ url_for('aggiorna_importo_bolletta') }}" method="POST" class="side-stake-form">
+    <label>Importo giocato</label>
+    <div>
+      <input type="number" name="importo_fisso" value="{{ importo_fisso or 0 }}" step="0.50" min="0" placeholder="€">
+      <button type="submit">OK</button>
+    </div>
+  </form>
+
+  <div class="side-bankroll-mini">
+    <div><span>Capitale attuale</span><strong>€{{ "%.2f"|format(capitale_attuale or capitale or 0) }}</strong></div>
+    <div><span>Presa</span><strong>{{ presa_percent or 0 }}%</strong></div>
+  </div>
+
   {% if bolletta %}
   <div class="side-slip-list">
     {% for p in bolletta %}
