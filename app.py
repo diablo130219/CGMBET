@@ -281,53 +281,11 @@ def dashboard():
         ).fetchone()[0]
         avg_odds[s] = round(avg, 2) if avg else 0
 
-    # BOLLETTA PAZZA — partite di oggi con % più alta
-    today_str = today.isoformat()
-    rows_bolletta = conn.execute("""
-        SELECT *,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf
-        FROM matches
-        WHERE match_date = ?
-        AND (
-            CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) > 0
-            OR CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) > 0
-        )
-        ORDER BY
-        (CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
-         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2
-        DESC
-        LIMIT 12
-    """, (today_str,)).fetchall()
-
-    bolletta = []
-    quota_totale = 1.0
-    for r in rows_bolletta:
-        pct_media = (r['pct_casa'] + r['pct_trasf']) / 2
-        bolletta.append({
-            'id': r['id'],
-            'home_team': r['home_team'],
-            'away_team': r['away_team'],
-            'strategy': r['strategy'],
-            'market': r['market'],
-            'odd': r['odd'],
-            'match_time': r['match_time'],
-            'championship': r['championship'],
-            'pct_casa': r['pct_casa'],
-            'pct_trasf': r['pct_trasf'],
-            'pct_media': round(pct_media, 1),
-        })
-        if r['odd'] and r['odd'] > 0:
-            quota_totale *= r['odd']
-    quota_totale = round(quota_totale, 2)
-
     conn.close()
 
     return render_template(
         "dashboard.html",
         strategy_counts=strategy_counts,
-        bolletta=bolletta,
-        quota_totale=quota_totale,
         odds_distribution=odds_distribution,
         trend_labels=trend_labels,
         trend_data=trend_data,
