@@ -174,6 +174,37 @@ def get_bankroll(conn):
     return capitale, importo_fisso
 
 
+
+
+def get_bankroll_stats(conn):
+    capitale, importo_fisso = get_bankroll(conn)
+
+    row_profit = conn.execute(
+        "SELECT COALESCE(SUM(profitto), 0) FROM bollette WHERE esito != 'pending'"
+    ).fetchone()
+    tot_profitto = row_profit[0] or 0
+
+    vinte = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='vinta'").fetchone()[0]
+    perse = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='persa'").fetchone()[0]
+    giocate = vinte + perse
+
+    presa_percent = round((vinte / giocate * 100), 2) if giocate > 0 else 0
+    capitale_attuale = round(capitale + tot_profitto, 2)
+    roi = round((tot_profitto / capitale * 100), 2) if capitale > 0 else 0
+
+    return {
+        "capitale": capitale,
+        "importo_fisso": importo_fisso,
+        "tot_profitto": tot_profitto,
+        "capitale_attuale": capitale_attuale,
+        "roi": roi,
+        "vinte": vinte,
+        "perse": perse,
+        "giocate": giocate,
+        "presa_percent": presa_percent,
+    }
+
+
 def get_bolletta_del_giorno(conn):
     today_str = date.today().isoformat()
 
@@ -266,7 +297,9 @@ def dashboard():
         avg_odds[s] = round(avg, 2) if avg else 0
 
     bolletta, quota_totale = get_bolletta_del_giorno(conn)
-    capitale, importo_fisso = get_bankroll(conn)
+    stats = get_bankroll_stats(conn)
+    capitale = stats["capitale"]
+    importo_fisso = stats["importo_fisso"]
 
     conn.close()
 
@@ -285,6 +318,13 @@ def dashboard():
         bolletta_generata=len(bolletta) > 0,
         capitale=capitale,
         importo_fisso=importo_fisso,
+        capitale_attuale=stats["capitale_attuale"],
+        tot_profitto=stats["tot_profitto"],
+        roi=stats["roi"],
+        vinte=stats["vinte"],
+        perse=stats["perse"],
+        presa_percent=stats["presa_percent"],
+        giocate=stats["giocate"],
     )
 
 
@@ -334,7 +374,9 @@ def index():
     ]
 
     bolletta, quota_totale = get_bolletta_del_giorno(conn)
-    capitale, importo_fisso = get_bankroll(conn)
+    stats = get_bankroll_stats(conn)
+    capitale = stats["capitale"]
+    importo_fisso = stats["importo_fisso"]
 
     conn.close()
 
@@ -353,6 +395,14 @@ def index():
         bolletta=bolletta,
         quota_totale=quota_totale,
         importo_fisso=importo_fisso,
+        capitale=capitale,
+        capitale_attuale=stats["capitale_attuale"],
+        tot_profitto=stats["tot_profitto"],
+        roi=stats["roi"],
+        vinte=stats["vinte"],
+        perse=stats["perse"],
+        presa_percent=stats["presa_percent"],
+        giocate=stats["giocate"],
     )
 
 
@@ -628,17 +678,16 @@ def bolletta_page():
             "dettagli": dettagli,
         })
 
-    capitale, importo_fisso = get_bankroll(conn)
-
-    roi_row = conn.execute(
-        "SELECT SUM(profitto) FROM bollette WHERE esito != 'pending'"
-    ).fetchone()
-
-    tot_profitto = roi_row[0] or 0
-    roi = round((tot_profitto / capitale * 100), 2) if capitale > 0 else 0
-
-    vinte = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='vinta'").fetchone()[0]
-    perse = conn.execute("SELECT COUNT(*) FROM bollette WHERE esito='persa'").fetchone()[0]
+    stats = get_bankroll_stats(conn)
+    capitale = stats["capitale"]
+    importo_fisso = stats["importo_fisso"]
+    capitale_attuale = stats["capitale_attuale"]
+    tot_profitto = stats["tot_profitto"]
+    roi = stats["roi"]
+    vinte = stats["vinte"]
+    perse = stats["perse"]
+    presa_percent = stats["presa_percent"]
+    giocate = stats["giocate"]
 
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
     conn.close()
@@ -658,10 +707,13 @@ def bolletta_page():
         storico=storico,
         capitale=capitale,
         importo_fisso=importo_fisso,
+        capitale_attuale=capitale_attuale,
         roi=roi,
         tot_profitto=tot_profitto,
         vinte=vinte,
         perse=perse,
+        presa_percent=presa_percent,
+        giocate=giocate,
         partite_json=partite_json,
         total_all=total_all,
         gg_count=gg_count,
@@ -687,6 +739,29 @@ def update_quota(match_id):
         return redirect(url_for("bolletta_page"))
 
     return redirect(request.referrer or url_for("index"))
+
+
+
+@app.route("/aggiorna-importo-bolletta", methods=["POST"])
+@login_required
+def aggiorna_importo_bolletta():
+    importo_fisso = parse_float(request.form.get("importo_fisso"))
+    capitale_form = parse_float(request.form.get("capitale"))
+
+    conn = get_db()
+    capitale, _ = get_bankroll(conn)
+    if capitale_form > 0:
+        capitale = capitale_form
+
+    conn.execute(
+        "INSERT INTO bankroll (capitale, importo_fisso) VALUES (?, ?)",
+        (capitale, importo_fisso)
+    )
+    conn.commit()
+    conn.close()
+
+    flash("💶 Importo giocato aggiornato.", "success")
+    return redirect(request.referrer or url_for("bolletta_page"))
 
 
 @app.route("/salva-bankroll", methods=["POST"])
@@ -725,6 +800,19 @@ def salva_bolletta():
     conn.close()
 
     flash("💾 Bolletta salvata nello storico.", "success")
+    return redirect(url_for("bolletta_page"))
+
+
+
+@app.route("/elimina-bolletta/<int:bolletta_id>", methods=["POST"])
+@login_required
+def elimina_bolletta_salvata(bolletta_id):
+    conn = get_db()
+    conn.execute("DELETE FROM bollette WHERE id = ?", (bolletta_id,))
+    conn.commit()
+    conn.close()
+
+    flash("🗑 Bolletta salvata eliminata.", "success")
     return redirect(url_for("bolletta_page"))
 
 
