@@ -95,7 +95,7 @@
 
     <div class="hero-toon" style="margin-bottom:22px;">
       <div>
-        <span class="comic-label">Selezione automatica · score migliore</span>
+        <span class="comic-label">Selezione automatica · semaforo ≥50%</span>
         <h2>🎰 Bolletta Pazza</h2>
         <p>Le migliori partite di oggi per score. Clicca sulla quota per modificarla. Salva e registra l'esito!</p>
       </div>
@@ -138,7 +138,7 @@
         <table>
           <thead>
             <tr>
-              <th>#</th><th>Ora</th><th>Campionato</th><th>Casa</th><th>Trasferta</th><th>Mercato</th><th>Quota</th>
+              <th>#</th><th>Ora</th><th>Campionato</th><th>Casa</th><th>Trasferta</th><th>Mercato</th><th>Quota</th><th>% Media</th><th></th>
             </tr>
           </thead>
           <tbody>
@@ -161,6 +161,16 @@
                   <input type="number" name="quota" step="0.01" min="1" value="{{ p.odd }}"
                     style="width:70px;padding:4px 6px;border-radius:8px;border:2px solid #d8d2c5;font-size:12px;font-weight:800;"
                     onkeydown="if(event.key==='Enter'){this.form.submit()}" onblur="this.form.submit()">
+                </form>
+              </td>
+              <td>
+                <span class="stat-value">{{ p.pct_media }}%</span>
+              </td>
+              <td>
+                <form action="{{ url_for('delete_match', match_id=p.id) }}" method="POST"
+                      onsubmit="return confirm('Rimuovere questa partita dalla bolletta?')">
+                  <input type="hidden" name="source" value="bolletta">
+                  <button type="submit" class="toon-btn danger" style="padding:5px 10px;font-size:11px;">🗑</button>
                 </form>
               </td>
             </tr>
@@ -206,7 +216,7 @@
       <div>
         <div style="font-size:64px;margin-bottom:16px;">😴</div>
         <h3>Nessuna partita oggi</h3>
-        <p style="margin-top:8px;">Importa i CSV per generare la bolletta del giorno!</p>
+        <p style="margin-top:8px;">Importa i CSV e inserisci il semaforo Forebet ≥50%!</p>
       </div>
     </div>
     {% endif %}

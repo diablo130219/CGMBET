@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Toon — Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-02">
 </head>
 <body>
 
@@ -24,7 +24,6 @@
   </div>
   <div class="header-actions">
     <span class="live-badge">● Data Room Attiva</span>
-    <a class="toon-btn small" href="{{ url_for('logout') }}">Esci</a>
   </div>
 </header>
 
@@ -33,10 +32,7 @@
   <aside class="sidebar">
     <div class="sidebar-card logo-card">
       <div class="mini-logo">CG</div>
-      <div>
-        <strong>Dashboard</strong>
-        <small>Panoramica</small>
-      </div>
+      <div><strong>Dashboard</strong><small>Panoramica</small></div>
     </div>
 
     <a href="{{ url_for('dashboard') }}" class="nav-dashboard active">📊 Dashboard</a>
@@ -70,7 +66,7 @@
       <div>
         <span class="comic-label">Panoramica generale</span>
         <h2>Dashboard</h2>
-        <p>Panoramica essenziale con Bolletta Pazza e riepilogo delle strategie CGMBet.</p>
+        <p>Gestisci le tue strategie CGMBet e visualizza la Bolletta Pazza del giorno.</p>
       </div>
       <div class="mascot-card">
         <div class="mascot">⚽</div>
@@ -78,6 +74,7 @@
       </div>
     </section>
 
+    <!-- KPI -->
     <section class="stats-grid five">
       <div class="stat-card yellow"><span>Totale Database</span><strong>{{ total_all }}</strong><small>partite totali</small></div>
       <div class="stat-card mint"><span>Partite Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></div>
@@ -86,58 +83,69 @@
       <div class="stat-card violet"><span>Slot Attivi</span><strong>3</strong><small>GG · Over · Over</small></div>
     </section>
 
-    <section class="bolletta-only-grid">
-
-      <div class="chart-card bolletta-dashboard-card">
-        <div class="bolletta-ticket-mini">
-          <div class="ticket-top ticket-top-extended">
-            <span class="comic-label small-label">Bolletta Pazza</span>
-            <strong>🎰 Sideboard del Giorno</strong>
-            <small>Tutte le partite selezionate automaticamente per oggi</small>
-          </div>
-
+    <!-- BOLLETTA PAZZA -->
+    <section class="chart-card full" style="margin-bottom:22px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
+        <div>
+          <span class="comic-label">Selezione automatica · solo semaforo ≥50%</span>
+          <h3>🎰 Bolletta Pazza di Oggi</h3>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;">
           {% if bolletta %}
-          <div class="ticket-list">
-            {% for p in bolletta %}
-            <div class="ticket-row">
-              <div class="ticket-match">
-                <span class="ticket-market {% if p.strategy == 'GG' %}gg{% elif p.strategy == 'Over 2.5' %}o25{% else %}o15{% endif %}">{{ p.strategy }}</span>
-                <strong>{{ p.home_team }} - {{ p.away_team }}</strong>
-                <small>{{ p.match_time }} · {{ p.championship }}</small>
-              </div>
-              <div class="ticket-odd">{{ "%.2f"|format(p.odd or 0) }}</div>
-            </div>
-            {% endfor %}
+          <div style="text-align:center;padding:10px 18px;background:var(--soft-yellow);border:2px solid #d4b84a;border-radius:16px;box-shadow:2px 2px 0 #d4b84a;">
+            <div style="font-size:10px;font-weight:900;color:#7a6010;text-transform:uppercase;letter-spacing:.1em;">Quota Totale</div>
+            <div style="font-size:30px;font-weight:900;color:#101828;letter-spacing:-2px;">{{ quota_totale }}</div>
+            <div style="font-size:11px;color:#5aab85;font-weight:800;">{{ bolletta|length }} partite</div>
           </div>
-
-          <div class="ticket-summary-grid">
-            <div class="ticket-total compact">
-              <span>Importo</span>
-              <strong>€{{ "%.2f"|format(importo_fisso or 0) }}</strong>
-            </div>
-            <div class="ticket-total compact">
-              <span>Quota totale</span>
-              <strong>{{ quota_totale }}</strong>
-            </div>
-            <div class="ticket-total ticket-win">
-              <span>Vincita potenziale</span>
-              <strong>€{{ "%.2f"|format(vincita_potenziale or 0) }}</strong>
-            </div>
-          </div>
-
-          <a href="{{ url_for('bolletta_page') }}" class="toon-btn export ticket-btn">Apri Sideboard completa →</a>
-          {% else %}
-          <div class="ticket-empty">
-            <strong>Nessuna bolletta oggi</strong>
-            <span>Importa CSV con partite odierne per generare la sideboard.</span>
-          </div>
-          <a href="{{ url_for('bolletta_page') }}" class="toon-btn secondary ticket-btn">Vai alla Bolletta →</a>
           {% endif %}
+          <a href="{{ url_for('bolletta_page') }}" class="toon-btn" style="background:var(--soft-yellow);border-color:#d4b84a;box-shadow:2px 2px 0 #d4b84a;">
+            Gestisci →
+          </a>
         </div>
       </div>
 
+      {% if bolletta %}
+      <div class="table-wrap">
+        <table style="min-width:500px;">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ora</th>
+              <th>Casa</th>
+              <th>Trasferta</th>
+              <th>Mercato</th>
+              <th>Quota</th>
+              <th>% Media</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in bolletta %}
+            <tr>
+              <td><strong>{{ loop.index }}</strong></td>
+              <td><strong>{{ p.match_time }}</strong></td>
+              <td class="team">{{ p.home_team }}</td>
+              <td>{{ p.away_team }}</td>
+              <td>
+                {% if p.strategy == 'GG' %}<span class="strategy-pill gg">GG</span>
+                {% elif p.strategy == 'Over 2.5' %}<span class="strategy-pill o25">Over 2.5</span>
+                {% else %}<span class="strategy-pill o15">Over 1.5</span>{% endif %}
+              </td>
+              <td><span class="prob-value">{{ "%.2f"|format(p.odd or 0) }}</span></td>
+              <td><span class="stat-value">{{ p.pct_media }}%</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="empty-state">
+        <strong>😴 Nessuna partita oggi</strong>
+        <span>Importa i CSV e inserisci il semaforo Forebet ≥50% per generare la bolletta!</span>
+      </div>
+      {% endif %}
     </section>
 
+    <!-- RIEPILOGO STRATEGIE -->
     <section class="table-panel">
       <div class="table-header">
         <div>
@@ -183,6 +191,5 @@
 </div>
 
 <div class="version">CGMBet Toon v1.0</div>
-
 </body>
 </html>
