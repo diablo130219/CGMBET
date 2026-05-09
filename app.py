@@ -26,6 +26,16 @@ def init_db():
     conn = get_db()
     conn.execute(
         """
+        CREATE TABLE IF NOT EXISTS bolletta_oggi (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            match_id INTEGER NOT NULL,
+            posizione INTEGER DEFAULT 0
+        )
+        """
+    )
+    conn.execute(
+        """
         CREATE TABLE IF NOT EXISTS bollette (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT NOT NULL,
@@ -463,21 +473,18 @@ def bolletta_page():
     today_str = date.today().isoformat()
     conn = get_db()
 
+    # Legge la bolletta fissa del giorno
     rows_bolletta = conn.execute("""
-        SELECT *,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf
-        FROM matches
-        WHERE match_date = ?
-        AND (
-            CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) > 0
-            OR CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) > 0
-        )
-        ORDER BY
-        (CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
-         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2
-        DESC LIMIT 12
+        SELECT m.*,
+        CAST(REPLACE(COALESCE(CASE WHEN m.strategy='GG' THEN m.gg_home ELSE m.over_home END,'0'),',','.') AS REAL) as pct_casa,
+        CAST(REPLACE(COALESCE(CASE WHEN m.strategy='GG' THEN m.gg_away ELSE m.over_away END,'0'),',','.') AS REAL) as pct_trasf
+        FROM bolletta_oggi bo
+        JOIN matches m ON bo.match_id = m.id
+        WHERE bo.data = ?
+        ORDER BY bo.posizione ASC
     """, (today_str,)).fetchall()
+
+    bolletta_generata = len(rows_bolletta) > 0
 
     bolletta = []
     quota_totale = 1.0
@@ -493,6 +500,12 @@ def bolletta_page():
         if r['odd'] and r['odd'] > 0:
             quota_totale *= r['odd']
     quota_totale = round(quota_totale, 2)
+    # Partite disponibili oggi non ancora in bolletta
+    partite_oggi = conn.execute("""
+        SELECT COUNT(*) FROM matches
+        WHERE match_date = ?
+        AND id NOT IN (SELECT match_id FROM bolletta_oggi WHERE data = ?)
+    """, (today_str, today_str)).fetchone()[0]
 
     # Storico bollette
     storico = conn.execute(
@@ -525,6 +538,8 @@ def bolletta_page():
 
     return render_template("bolletta.html",
         bolletta=bolletta, quota_totale=quota_totale,
+        bolletta_generata=bolletta_generata,
+        partite_oggi=partite_oggi,
         oggi=date.today().strftime("%d/%m/%Y"),
         storico=storico, capitale=capitale,
         importo_fisso=importo_fisso, roi=roi,
@@ -628,6 +643,59 @@ def delete_match(match_id):
     if source == "bolletta":
         return redirect(url_for("bolletta_page"))
     return redirect(url_for("index", strategy=strategy))
+
+
+
+@app.route("/genera-bolletta", methods=["POST"])
+def genera_bolletta():
+    """Genera la bolletta del giorno e la salva in modo fisso."""
+    today_str = date.today().isoformat()
+    conn = get_db()
+
+    # Cancella bolletta precedente di oggi
+    conn.execute("DELETE FROM bolletta_oggi WHERE data = ?", (today_str,))
+
+    # Prende top 12 partite per % media
+    rows = conn.execute("""
+        SELECT id,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf
+        FROM matches
+        WHERE match_date = ?
+        AND (
+            CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) > 0
+            OR CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) > 0
+        )
+        ORDER BY
+        (CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
+         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2
+        DESC LIMIT 12
+    """, (today_str,)).fetchall()
+
+    for i, r in enumerate(rows):
+        conn.execute(
+            "INSERT INTO bolletta_oggi (data, match_id, posizione) VALUES (?,?,?)",
+            (today_str, r['id'], i + 1)
+        )
+
+    conn.commit()
+    conn.close()
+    flash(f"✅ Bolletta generata con {len(rows)} partite!", "success")
+    return redirect(url_for("bolletta_page"))
+
+
+@app.route("/rimuovi-da-bolletta/<int:match_id>", methods=["POST"])
+def rimuovi_da_bolletta(match_id):
+    """Rimuove una partita dalla bolletta del giorno senza eliminarla dal DB."""
+    today_str = date.today().isoformat()
+    conn = get_db()
+    conn.execute(
+        "DELETE FROM bolletta_oggi WHERE data = ? AND match_id = ?",
+        (today_str, match_id)
+    )
+    conn.commit()
+    conn.close()
+    return redirect(url_for("bolletta_page"))
 
 @app.route("/clear/<strategy>", methods=["POST"])
 @login_required
