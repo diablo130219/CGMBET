@@ -281,30 +281,29 @@ def dashboard():
         ).fetchone()[0]
         avg_odds[s] = round(avg, 2) if avg else 0
 
-    # BOLLETTA PAZZA — partite di oggi ordinate per score
+    # BOLLETTA PAZZA — partite di oggi con % più alta
     today_str = today.isoformat()
     rows_bolletta = conn.execute("""
-        SELECT *, 
+        SELECT *,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
-        CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
-        ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf
         FROM matches
         WHERE match_date = ?
-        ORDER BY 
-        ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
-          CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
-        (CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) * 10) -
-        (ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) / 100)
+        AND (
+            CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) > 0
+            OR CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) > 0
+        )
+        ORDER BY
+        (CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
+         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2
         DESC
         LIMIT 12
     """, (today_str,)).fetchall()
 
-    # Calcola quota totale bolletta
     bolletta = []
     quota_totale = 1.0
     for r in rows_bolletta:
-        score = ((r['pct_casa'] + r['pct_trasf']) / 2) + (r['media_gol_val'] * 10) - (r['elo_abs'] / 100)
+        pct_media = (r['pct_casa'] + r['pct_trasf']) / 2
         bolletta.append({
             'id': r['id'],
             'home_team': r['home_team'],
@@ -314,17 +313,13 @@ def dashboard():
             'odd': r['odd'],
             'match_time': r['match_time'],
             'championship': r['championship'],
-            'score': round(score, 2),
+            'pct_casa': r['pct_casa'],
+            'pct_trasf': r['pct_trasf'],
+            'pct_media': round(pct_media, 1),
         })
         if r['odd'] and r['odd'] > 0:
             quota_totale *= r['odd']
-
     quota_totale = round(quota_totale, 2)
-
-    # Bankroll / importo fisso per mostrare la vincita potenziale in dashboard
-    bk = conn.execute("SELECT * FROM bankroll ORDER BY id DESC LIMIT 1").fetchone()
-    importo_fisso = bk['importo_fisso'] if bk else 0
-    vincita_potenziale = round(importo_fisso * quota_totale, 2) if quota_totale else 0
 
     conn.close()
 
@@ -333,8 +328,6 @@ def dashboard():
         strategy_counts=strategy_counts,
         bolletta=bolletta,
         quota_totale=quota_totale,
-        importo_fisso=importo_fisso,
-        vincita_potenziale=vincita_potenziale,
         odds_distribution=odds_distribution,
         trend_labels=trend_labels,
         trend_data=trend_data,
@@ -350,9 +343,6 @@ def dashboard():
 
 
 @app.route("/")
-def index_redirect():
-    return redirect(url_for("dashboard"))
-
 @app.route("/partite")
 @login_required
 def index():
@@ -518,28 +508,29 @@ def bolletta_page():
     rows_bolletta = conn.execute("""
         SELECT *,
         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) as pct_casa,
-        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf,
-        CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) as media_gol_val,
-        ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) as elo_abs
+        CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) as pct_trasf
         FROM matches
         WHERE match_date = ?
+        AND (
+            CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) > 0
+            OR CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL) > 0
+        )
         ORDER BY
-        ((CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
-          CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2) +
-        (CAST(REPLACE(COALESCE(notes,'0'),',','.') AS REAL) * 10) -
-        (ABS(CAST(REPLACE(COALESCE(elo_gap,'0'),',','.') AS REAL)) / 100)
+        (CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_home ELSE over_home END,'0'),',','.') AS REAL) +
+         CAST(REPLACE(COALESCE(CASE WHEN strategy='GG' THEN gg_away ELSE over_away END,'0'),',','.') AS REAL)) / 2
         DESC LIMIT 12
     """, (today_str,)).fetchall()
 
     bolletta = []
     quota_totale = 1.0
     for r in rows_bolletta:
-        score = ((r['pct_casa'] + r['pct_trasf']) / 2) + (r['media_gol_val'] * 10) - (r['elo_abs'] / 100)
+        pct_media = (r['pct_casa'] + r['pct_trasf']) / 2
         bolletta.append({
             'id': r['id'], 'home_team': r['home_team'], 'away_team': r['away_team'],
             'strategy': r['strategy'], 'market': r['market'], 'odd': r['odd'],
-            'match_time': r['match_time'],
-            'championship': r['championship'], 'score': round(score, 2),
+            'match_time': r['match_time'], 'championship': r['championship'],
+            'pct_casa': r['pct_casa'], 'pct_trasf': r['pct_trasf'],
+            'pct_media': round(pct_media, 1),
         })
         if r['odd'] and r['odd'] > 0:
             quota_totale *= r['odd']
@@ -665,6 +656,20 @@ def salva_bankroll():
     conn.commit()
     conn.close()
     return redirect(url_for("bolletta_page"))
+
+
+
+@app.route("/delete-match/<int:match_id>", methods=["POST"])
+def delete_match(match_id):
+    source = request.form.get("source", "bolletta")
+    strategy = request.form.get("strategy", "GG")
+    conn = get_db()
+    conn.execute("DELETE FROM matches WHERE id = ?", (match_id,))
+    conn.commit()
+    conn.close()
+    if source == "bolletta":
+        return redirect(url_for("bolletta_page"))
+    return redirect(url_for("index", strategy=strategy))
 
 @app.route("/clear/<strategy>", methods=["POST"])
 @login_required
