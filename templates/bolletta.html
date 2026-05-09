@@ -219,6 +219,56 @@
       </div>
     </section>
     {% endif %}
+    {% if storico %}
+    <section class="storico-card">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Storico completo</span>
+          <h3>📅 Bollette salvate</h3>
+        </div>
+      </div>
+      <div class="saved-slips-list">
+        {% for b in storico %}
+        <article class="saved-slip-card">
+          <details>
+            <summary>
+              <div class="saved-slip-main">
+                <div>
+                  <span class="saved-date">{{ b.data }}</span>
+                  <strong>Bolletta #{{ b.id }}</strong>
+                  <small>{{ b.dettagli|length }} partite salvate</small>
+                </div>
+                <div class="saved-numbers">
+                  <span>Importo <b>€{{ "%.2f"|format(b.importo) }}</b></span>
+                  <span>Quota <b>{{ "%.2f"|format(b.quota_totale) }}</b></span>
+                  <span>Profitto <b>€{{ "%.2f"|format(b.profitto) }}</b></span>
+                </div>
+                <form action="{{ url_for('esito_bolletta', bolletta_id=b.id) }}" method="POST" class="saved-result-form" onclick="event.stopPropagation()">
+                  <select name="esito" onchange="this.form.submit()">
+                    <option value="pending" {% if b.esito == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="vinta" {% if b.esito == 'vinta' %}selected{% endif %}>Vinta</option>
+                    <option value="persa" {% if b.esito == 'persa' %}selected{% endif %}>Persa</option>
+                  </select>
+                </form>
+              </div>
+            </summary>
+            <div class="saved-slip-details">
+              <div class="saved-match-grid">
+                {% for p in b.dettagli %}
+                <div class="saved-match-card">
+                  <div class="saved-match-top"><span>{{ p.mercato }}</span><strong>{{ "%.2f"|format(p.quota or 0) }}</strong></div>
+                  <h4>{{ p.home }}</h4><p>vs {{ p.away }}</p>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </details>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
   </main>
 </div>
 
