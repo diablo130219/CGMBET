@@ -3,133 +3,157 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CGMBet Toon — Dashboard</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-02">
+  <title>CGMBet Arena — Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=sportsbook2026">
 </head>
 <body>
-
-<div class="comic-bg">
-  <span class="bubble b1">BOOM!</span>
-  <span class="bubble b2">DATA!</span>
-  <span class="bubble b3">WIN!</span>
-</div>
-
-<header class="toon-header">
-  <div class="brand-block">
-    <div class="toon-logo">⚽</div>
-    <div>
-      <h1>CGMBet Toon</h1>
-      <p>Dashboard fumettosa delle strategie</p>
-    </div>
-  </div>
-  <div class="header-actions">
-    <span class="live-badge">● Data Room Attiva</span>
-  </div>
-</header>
-
-<div class="layout">
-
+<div class="app">
   <aside class="sidebar">
-    <div class="sidebar-card logo-card">
-      <div class="mini-logo">CG</div>
-      <div><strong>Dashboard</strong><small>Panoramica</small></div>
-    </div>
-
-    <a href="{{ url_for('dashboard') }}" class="nav-dashboard active">📊 Dashboard</a>
-    <a href="{{ url_for('bolletta_page') }}" class="nav-dashboard" style="background:rgba(255,221,87,.12);border-color:#d4b84a;color:#7a6010;">🎰 Bolletta Pazza</a>
-
-    <div class="nav-title">Strategie</div>
-
-    <a href="{{ url_for('index', strategy='GG') }}" class="nav-item">
-      <div><strong>GG</strong><small>{{ gg_count }} match</small></div>
-      <span class="comic-dot green"></span>
-    </a>
-    <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-item">
-      <div><strong>Over 2.5</strong><small>{{ over25_count }} match</small></div>
-      <span class="comic-dot pink"></span>
-    </a>
-    <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-item">
-      <div><strong>Over 1.5</strong><small>{{ over15_count }} match</small></div>
-      <span class="comic-dot blue"></span>
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <div class="brand-mark">CG</div>
+      <div>
+        <strong>CGMBET</strong>
+        <span>ARENA DATA</span>
+      </div>
     </a>
 
-    <div class="sidebar-total">
-      <span>Totale database</span>
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link active">
+        <span>⌁</span>
+        Dashboard
+      </a>
+
+      <div class="nav-label">Strategie</div>
+
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
+        <span class="sport-dot green"></span>
+        <div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link">
+        <span class="sport-dot orange"></span>
+        <div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link">
+        <span class="sport-dot blue"></span>
+        <div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
+
+    <div class="sidebar-ticket">
+      <span>Database</span>
       <strong>{{ total_all }}</strong>
-      <small>partite caricate</small>
+      <small>partite totali</small>
     </div>
   </aside>
 
-  <main class="main-content">
-
-    <section class="hero-toon dashboard-hero">
+  <main class="content">
+    <header class="topbar">
       <div>
-        <span class="comic-label">Panoramica generale</span>
-        <h2>Dashboard</h2>
-        <p>Gestisci le tue strategie CGMBet e visualizza la Bolletta Pazza del giorno.</p>
+        <span class="eyebrow">Sportsbook Control Center</span>
+        <h1>Dashboard</h1>
+        <p>Vista generale delle strategie, bolletta pazza e riepilogo dati.</p>
       </div>
-      <div class="mascot-card">
-        <div class="mascot">⚽</div>
-        <span>Ready to analyze!</span>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+    </header>
+
+    <section class="dashboard-hero">
+      <div class="hero-left">
+        <span class="status-chip">CGMBET ARENA</span>
+        <h2>Betting data, in ordine.</h2>
+        <p>Un'interfaccia moderna per importare CSV, leggere i mercati e controllare i migliori match senza confusione.</p>
+      </div>
+
+      <div class="hero-odds">
+        <div><span>GG</span><strong>{{ gg_count }}</strong></div>
+        <div><span>Over 2.5</span><strong>{{ over25_count }}</strong></div>
+        <div><span>Over 1.5</span><strong>{{ over15_count }}</strong></div>
       </div>
     </section>
 
-    <!-- KPI -->
-    <section class="stats-grid five">
-      <div class="stat-card yellow"><span>Totale Database</span><strong>{{ total_all }}</strong><small>partite totali</small></div>
-      <div class="stat-card mint"><span>Partite Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></div>
-      <div class="stat-card mint"><span>Prossimi 3 Giorni</span><strong>{{ next3_count }}</strong><small>in programma</small></div>
-      <div class="stat-card blue"><span>Prossimi 7 Giorni</span><strong>{{ next7_count }}</strong><small>in programma</small></div>
-      <div class="stat-card violet"><span>Slot Attivi</span><strong>3</strong><small>GG · Over · Over</small></div>
+    <section class="kpi-grid four">
+      <article class="kpi-card"><span>Totale Database</span><strong>{{ total_all }}</strong><small>partite totali</small></article>
+      <article class="kpi-card"><span>Partite Oggi</span><strong>{{ today_count }}</strong><small>programmate oggi</small></article>
+      <article class="kpi-card"><span>Prossimi 7 Giorni</span><strong>{{ next7_count }}</strong><small>in programma</small></article>
+      <article class="kpi-card accent"><span>Strategie</span><strong>3</strong><small>GG · O2.5 · O1.5</small></article>
     </section>
 
-
-
-    <!-- RIEPILOGO STRATEGIE -->
-    <section class="table-panel">
-      <div class="table-header">
+    <section class="bet-slip-wide">
+      <div class="section-head">
         <div>
-          <span class="comic-label small-label">Riepilogo</span>
-          <h3>Tutte le Strategie</h3>
+          <span class="eyebrow">Sideboard</span>
+          <h3>Bolletta Pazza</h3>
+        </div>
+        <span class="count-pill">Widescreen</span>
+      </div>
+
+      <div class="slip-layout">
+        <div class="slip-grid">
+          {% set shown = namespace(count=0) %}
+          {% for s, label in [("GG", "GG"), ("Over 2.5", "OVER 2.5"), ("Over 1.5", "OVER 1.5")] %}
+            {% for m in sideboard_matches.get(s, []) %}
+              {% if shown.count < 9 %}
+              <article class="slip-match">
+                <div class="slip-top">
+                  <span>{{ label }}</span>
+                  <strong>{{ "%.0f"|format(m.odd or 0) }}%</strong>
+                </div>
+                <h4>{{ m.home_team }}</h4>
+                <p>vs {{ m.away_team }}</p>
+                <small>{{ m.championship }} · {{ m.match_date }} {{ m.match_time }}</small>
+              </article>
+              {% set shown.count = shown.count + 1 %}
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+
+          {% if shown.count == 0 %}
+          <article class="slip-match empty-slip">
+            <h4>Nessuna partita</h4>
+            <p>Importa i CSV per riempire la Bolletta Pazza.</p>
+          </article>
+          {% endif %}
+        </div>
+
+        <aside class="slip-summary">
+          <span>Importo</span>
+          <strong>€10,00</strong>
+          <span>Modalità</span>
+          <strong class="combo">Combo</strong>
+          <span>Vincita potenziale</span>
+          <strong class="win">Da calcolare</strong>
+        </aside>
+      </div>
+    </section>
+
+    <section class="strategy-summary">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Overview</span>
+          <h3>Riepilogo strategie</h3>
         </div>
       </div>
-      <div class="table-wrap soft">
-        <table>
-          <thead>
-            <tr>
-              <th>Strategia</th>
-              <th>Partite</th>
-              <th>Quota Media</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><span class="strategy-pill gg">GG</span></td>
-              <td><strong>{{ strategy_counts["GG"] }}</strong></td>
-              <td>{{ avg_odds["GG"] if avg_odds["GG"] > 0 else "—" }}</td>
-              <td><a href="{{ url_for('index', strategy='GG') }}" class="link-action">Vedi partite →</a></td>
-            </tr>
-            <tr>
-              <td><span class="strategy-pill o25">Over 2.5</span></td>
-              <td><strong>{{ strategy_counts["Over 2.5"] }}</strong></td>
-              <td>{{ avg_odds["Over 2.5"] if avg_odds["Over 2.5"] > 0 else "—" }}</td>
-              <td><a href="{{ url_for('index', strategy='Over 2.5') }}" class="link-action">Vedi partite →</a></td>
-            </tr>
-            <tr>
-              <td><span class="strategy-pill o15">Over 1.5</span></td>
-              <td><strong>{{ strategy_counts["Over 1.5"] }}</strong></td>
-              <td>{{ avg_odds["Over 1.5"] if avg_odds["Over 1.5"] > 0 else "—" }}</td>
-              <td><a href="{{ url_for('index', strategy='Over 1.5') }}" class="link-action">Vedi partite →</a></td>
-            </tr>
-          </tbody>
-        </table>
+
+      <div class="summary-grid">
+        <a href="{{ url_for('index', strategy='GG') }}" class="summary-card">
+          <span>GG</span>
+          <strong>{{ strategy_counts["GG"] }}</strong>
+          <small>Probabilità media: {% if avg_odds["GG"] > 0 %}{{ avg_odds["GG"] }}%{% else %}—{% endif %}</small>
+        </a>
+        <a href="{{ url_for('index', strategy='Over 2.5') }}" class="summary-card">
+          <span>Over 2.5</span>
+          <strong>{{ strategy_counts["Over 2.5"] }}</strong>
+          <small>Probabilità media: {% if avg_odds["Over 2.5"] > 0 %}{{ avg_odds["Over 2.5"] }}%{% else %}—{% endif %}</small>
+        </a>
+        <a href="{{ url_for('index', strategy='Over 1.5') }}" class="summary-card">
+          <span>Over 1.5</span>
+          <strong>{{ strategy_counts["Over 1.5"] }}</strong>
+          <small>Probabilità media: {% if avg_odds["Over 1.5"] > 0 %}{{ avg_odds["Over 1.5"] }}%{% else %}—{% endif %}</small>
+        </a>
       </div>
     </section>
-
   </main>
 </div>
-
-<div class="version">CGMBet Toon v1.0</div>
 </body>
 </html>

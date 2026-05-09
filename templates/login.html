@@ -3,39 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CGMBet Toon — Accesso</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=toon-01">
+  <title>CGMBet Arena — Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=sportsbook2026">
 </head>
-<body class="login-body">
+<body class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-visual">
+      <div class="brand-lockup">
+        <div class="brand-mark">CG</div>
+        <div>
+          <h1>CGMBET</h1>
+          <p>ARENA DATA</p>
+        </div>
+      </div>
+      <div class="auth-claim">
+        <span>Sportsbook UI 2026</span>
+        <h2>La tua control room per strategie e mercati.</h2>
+        <p>CSV, match, probabilità e sideboard in un'interfaccia moderna da piattaforma betting.</p>
+      </div>
+      <div class="auth-metrics">
+        <div><strong>GG</strong><small>Market</small></div>
+        <div><strong>O2.5</strong><small>Goals</small></div>
+        <div><strong>O1.5</strong><small>Fast</small></div>
+      </div>
+    </section>
 
-<div class="comic-bg">
-  <span class="bubble b1">LOGIN!</span>
-  <span class="bubble b2">GO!</span>
-  <span class="bubble b3">CG!</span>
-</div>
+    <section class="auth-card">
+      <div class="mobile-brand">
+        <div class="brand-mark">CG</div>
+        <strong>CGMBET</strong>
+      </div>
 
-<div class="login-card">
-  <div class="login-logo">⚽</div>
-  <h2>CGMBet Toon</h2>
-  <p>Accedi alla tua data room fumettosa.</p>
+      <h2>Accesso</h2>
+      <p>Entra nella dashboard.</p>
 
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% for category, message in messages %}
-      <div class="flash {{ category }}">💬 {{ message }}</div>
-    {% endfor %}
-  {% endwith %}
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="flash {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
 
-  <form method="POST">
-    <label>Username</label>
-    <input type="text" name="username" placeholder="Il tuo username" required autocomplete="username">
+      <form method="POST">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Il tuo username" required autocomplete="username">
 
-    <label>Password</label>
-    <input type="password" name="password" placeholder="La tua password" required autocomplete="current-password">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="La tua password" required autocomplete="current-password">
 
-    <button type="submit" class="toon-btn login-btn">Entra nella Dashboard</button>
-  </form>
-</div>
-
-<div class="version">CGMBet Toon v1.0</div>
+        <button type="submit" class="primary-btn full">Accedi alla piattaforma</button>
+      </form>
+    </section>
+  </main>
 </body>
 </html>
