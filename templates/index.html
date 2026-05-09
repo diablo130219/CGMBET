@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>CGMBet Arena — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=arena2026">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=manual-slip-v1">
 </head>
 <body>
 <div class="app">
@@ -19,12 +19,8 @@
     </a>
 
     <nav class="nav">
-      <a href="{{ url_for('dashboard') }}" class="nav-link">
-        <span>⌁</span> Dashboard
-      </a>
-      <a href="{{ url_for('bolletta_page') }}" class="nav-link">
-        <span>🎰</span> Bolletta Pazza
-      </a>
+      <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎰</span> Bolletta Pazza</a>
 
       <div class="nav-label">Strategie</div>
 
@@ -42,6 +38,8 @@
       </a>
     </nav>
 
+    {% include "_side_bolletta.html" %}
+
     <div class="sidebar-ticket">
       <span>Database</span>
       <strong>{{ total_all }}</strong>
@@ -54,7 +52,7 @@
       <div>
         <span class="eyebrow">Strategy Market</span>
         <h1>{{ strategy }}</h1>
-        <p>Elenco partite, quote e statistiche dalla tua ricerca CGMBet.</p>
+        <p>Da qui scegli manualmente le partite da inserire nella Bolletta Pazza.</p>
       </div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
@@ -69,7 +67,7 @@
       <div class="market-copy">
         <span class="status-chip">LIVE DATA ROOM</span>
         <h2>{{ strategy }}</h2>
-        <p>Importa il CSV della strategia e lavora su una lista pulita, leggibile e pronta per la scelta operativa.</p>
+        <p>Clicca su <strong>➕ Aggiungi</strong> per mandare una partita nella Bolletta Pazza.</p>
       </div>
 
       <form class="import-card" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
@@ -80,14 +78,12 @@
       </form>
     </section>
 
-    <!-- KPI -->
     <section class="kpi-grid">
       <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
       <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
-      <article class="kpi-card accent"><span>Database totale</span><strong>{{ total_all }}</strong><small>tutti gli slot</small></article>
+      <article class="kpi-card accent"><span>Bolletta Pazza</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small></article>
     </section>
 
-    <!-- FILTRI -->
     <section class="control-strip">
       <form class="filters" method="GET">
         <input type="hidden" name="strategy" value="{{ strategy }}">
@@ -110,7 +106,6 @@
       </div>
     </section>
 
-    <!-- TABELLA -->
     <section class="odds-table-card">
       <div class="section-head">
         <div>
@@ -139,6 +134,7 @@
               <th>Over Casa %</th>
               <th>Over Trasf %</th>
               {% endif %}
+              <th>Azione</th>
             </tr>
           </thead>
           <tbody>
@@ -152,6 +148,7 @@
               <td><span class="prob-pill">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="elo-pill">{{ m.elo_gap }}</span></td>
               <td><span class="elo-pill">{{ m.notes }}</span></td>
+
               {% if strategy == 'GG' %}
               <td><span class="stat-pill">{{ m.gg_home }}%</span></td>
               <td><span class="stat-pill">{{ m.gg_away }}%</span></td>
@@ -159,10 +156,24 @@
               <td><span class="stat-pill">{{ m.over_home }}%</span></td>
               <td><span class="stat-pill">{{ m.over_away }}%</span></td>
               {% endif %}
+
+              <td>
+                {% if m.id in bolletta_ids %}
+                  <form action="{{ url_for('rimuovi_da_bolletta', match_id=m.id) }}" method="POST" class="inline-form">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" class="added-btn">✓ Inserita</button>
+                  </form>
+                {% else %}
+                  <form action="{{ url_for('aggiungi_bolletta', match_id=m.id) }}" method="POST" class="inline-form">
+                    <input type="hidden" name="next" value="{{ request.full_path }}">
+                    <button type="submit" class="add-slip-btn">➕ Aggiungi</button>
+                  </form>
+                {% endif %}
+              </td>
             </tr>
             {% else %}
             <tr>
-              <td colspan="11">
+              <td colspan="13">
                 <div class="empty-state">
                   <strong>Nessun dato caricato</strong>
                   <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
@@ -176,6 +187,5 @@
     </section>
   </main>
 </div>
-<div class="version">CGMBet Arena v1.0</div>
 </body>
 </html>
