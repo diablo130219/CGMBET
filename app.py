@@ -3,19 +3,13 @@ import io
 import os
 import sqlite3
 from datetime import date, timedelta
-from functools import wraps
-from collections import defaultdict
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, send_file
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "cambia-questa-secret-key")
 
 DATABASE = os.environ.get("DATABASE_PATH", "cgmbet.db")
-
-APP_USERNAME = os.environ.get("APP_USERNAME", "admin")
-APP_PASSWORD = os.environ.get("APP_PASSWORD", "admin123")
-
 STRATEGIES = ["GG", "Over 2.5", "Over 1.5"]
 
 
@@ -23,6 +17,12 @@ def get_db():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+def ensure_column(conn, table, column, definition):
+    cols = [row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+    if column not in cols:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
 
 
 def init_db():
@@ -39,6 +39,8 @@ def init_db():
             away_team TEXT NOT NULL,
             market TEXT,
             odd REAL DEFAULT 0,
+            prob_home TEXT DEFAULT '',
+            prob_away TEXT DEFAULT '',
             elo_gap TEXT DEFAULT '',
             gg_home TEXT DEFAULT '',
             gg_away TEXT DEFAULT '',
@@ -49,23 +51,16 @@ def init_db():
         )
         """
     )
+    ensure_column(conn, "matches", "prob_home", "TEXT DEFAULT ''")
+    ensure_column(conn, "matches", "prob_away", "TEXT DEFAULT ''")
     conn.commit()
     conn.close()
-
-
-def login_required(view):
-    @wraps(view)
-    def wrapped(*args, **kwargs):
-        if not session.get("logged_in"):
-            return redirect(url_for("login"))
-        return view(*args, **kwargs)
-    return wrapped
 
 
 def parse_float(value):
     if value is None:
         return 0
-    value = str(value).replace(",", ".").strip()
+    value = str(value).replace(",", ".").strip().replace("%", "")
     try:
         return float(value)
     except ValueError:
@@ -87,14 +82,28 @@ def detect_delimiter(text):
     return ";" if first.count(";") >= first.count(",") else ","
 
 
-def odd_for_strategy(row, strategy):
+def probability_for_strategy(row, strategy):
     if strategy == "GG":
-        return pick(row, ["quota gg", "gg", "quota"])
+        return pick(row, ["quota gg", "prob gg", "score gg", "gg %", "gg", "quota"])
     if strategy == "Over 2.5":
-        return pick(row, ["quota over 2.5", "over 2.5", "quota"])
+        return pick(row, ["quota over 2.5", "prob over 2.5", "score over 2.5", "over 2.5", "quota"])
     if strategy == "Over 1.5":
-        return pick(row, ["quota over 1.5", "over 1.5", "quota"])
-    return pick(row, ["quota", "odd"])
+        return pick(row, ["quota over 1.5", "prob over 1.5", "score over 1.5", "over 1.5", "quota"])
+    return pick(row, ["quota", "prob", "score"])
+
+
+def home_probability(row):
+    return pick(row, [
+        "probabilità casa", "probabilita casa", "prob casa", "casa %",
+        "home probability", "home prob", "prob home", "1 %", "score casa"
+    ])
+
+
+def away_probability(row):
+    return pick(row, [
+        "probabilità trasferta", "probabilita trasferta", "prob trasferta", "trasferta %",
+        "away probability", "away prob", "prob away", "2 %", "score trasferta"
+    ])
 
 
 def get_counts(conn):
@@ -105,54 +114,34 @@ def get_counts(conn):
     return total_all, gg_count, over25_count, over15_count
 
 
-@app.route("/login", methods=["GET", "POST"])
+def get_sideboard_matches(conn):
+    sideboard = {}
+    for s in STRATEGIES:
+        sideboard[s] = conn.execute(
+            "SELECT * FROM matches WHERE strategy = ? ORDER BY match_date ASC, match_time ASC LIMIT 3",
+            (s,)
+        ).fetchall()
+    return sideboard
+
+
+@app.route("/login")
 def login():
-    if request.method == "POST":
-        if request.form.get("username") == APP_USERNAME and request.form.get("password") == APP_PASSWORD:
-            session["logged_in"] = True
-            return redirect(url_for("dashboard"))
-        flash("Credenziali non corrette.", "error")
-    return render_template("login.html")
+    return redirect(url_for("dashboard"))
 
 
 @app.route("/logout")
 def logout():
-    session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("dashboard"))
 
 
 @app.route("/dashboard")
-@login_required
 def dashboard():
     conn = get_db()
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
-
     strategy_counts = {"GG": gg_count, "Over 2.5": over25_count, "Over 1.5": over15_count}
 
-    # Distribuzione quote per strategia
-    odds_distribution = {}
-    for s in STRATEGIES:
-        rows = conn.execute("SELECT odd FROM matches WHERE strategy = ? AND odd > 0", (s,)).fetchall()
-        low = sum(1 for r in rows if r["odd"] < 1.40)
-        mid = sum(1 for r in rows if 1.40 <= r["odd"] <= 1.70)
-        high = sum(1 for r in rows if r["odd"] > 1.70)
-        odds_distribution[s] = {"low": low, "mid": mid, "high": high}
-
-    # Andamento importazioni ultimi 14 giorni
     today = date.today()
-    days = [(today - timedelta(days=i)).isoformat() for i in range(13, -1, -1)]
-    imports_by_day = defaultdict(int)
-    rows = conn.execute(
-        "SELECT DATE(created_at) as day, COUNT(*) as cnt FROM matches GROUP BY DATE(created_at)"
-    ).fetchall()
-    for r in rows:
-        imports_by_day[r["day"]] = r["cnt"]
-    trend_labels = [d[5:] for d in days]
-    trend_data = [imports_by_day.get(d, 0) for d in days]
-
-    today_count = conn.execute(
-        "SELECT COUNT(*) FROM matches WHERE match_date = ?", (today.isoformat(),)
-    ).fetchone()[0]
+    today_count = conn.execute("SELECT COUNT(*) FROM matches WHERE match_date = ?", (today.isoformat(),)).fetchone()[0]
     next7_count = conn.execute(
         "SELECT COUNT(*) FROM matches WHERE match_date BETWEEN ? AND ?",
         (today.isoformat(), (today + timedelta(days=7)).isoformat())
@@ -160,26 +149,15 @@ def dashboard():
 
     avg_odds = {}
     for s in STRATEGIES:
-        avg = conn.execute(
-            "SELECT AVG(odd) FROM matches WHERE strategy = ? AND odd > 0", (s,)
-        ).fetchone()[0]
+        avg = conn.execute("SELECT AVG(odd) FROM matches WHERE strategy = ? AND odd > 0", (s,)).fetchone()[0]
         avg_odds[s] = round(avg, 2) if avg else 0
 
-    sideboard_matches = {}
-    for s in STRATEGIES:
-        sideboard_matches[s] = conn.execute(
-            "SELECT * FROM matches WHERE strategy = ? ORDER BY match_date ASC, match_time ASC LIMIT 3",
-            (s,)
-        ).fetchall()
-
+    sideboard_matches = get_sideboard_matches(conn)
     conn.close()
 
     return render_template(
         "dashboard.html",
         strategy_counts=strategy_counts,
-        odds_distribution=odds_distribution,
-        trend_labels=trend_labels,
-        trend_data=trend_data,
         today_count=today_count,
         next7_count=next7_count,
         total_all=total_all,
@@ -192,7 +170,6 @@ def dashboard():
 
 
 @app.route("/")
-@login_required
 def index():
     strategy = request.args.get("strategy", "GG")
     search = request.args.get("search", "").strip()
@@ -226,6 +203,7 @@ def index():
     matches = conn.execute(query, params).fetchall()
     total_strategy = conn.execute("SELECT COUNT(*) FROM matches WHERE strategy = ?", (strategy,)).fetchone()[0]
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
+    sideboard_matches = get_sideboard_matches(conn)
     conn.close()
 
     return render_template(
@@ -240,11 +218,11 @@ def index():
         gg_count=gg_count,
         over25_count=over25_count,
         over15_count=over15_count,
+        sideboard_matches=sideboard_matches,
     )
 
 
 @app.route("/import", methods=["POST"])
-@login_required
 def import_csv():
     strategy = request.form.get("strategy", "GG")
     file = request.files.get("csv_file")
@@ -271,8 +249,8 @@ def import_csv():
             """
             INSERT INTO matches (
                 strategy, match_date, match_time, championship, home_team, away_team,
-                market, odd, elo_gap, gg_home, gg_away, over_home, over_away, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                market, odd, prob_home, prob_away, elo_gap, gg_home, gg_away, over_home, over_away, notes
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 strategy,
@@ -282,7 +260,9 @@ def import_csv():
                 home,
                 away,
                 strategy,
-                parse_float(odd_for_strategy(row, strategy)),
+                parse_float(probability_for_strategy(row, strategy)),
+                home_probability(row),
+                away_probability(row),
                 pick(row, ["elo gap", "elo"]),
                 pick(row, ["gg casa"]),
                 pick(row, ["gg trasferta"]),
@@ -301,7 +281,6 @@ def import_csv():
 
 
 @app.route("/clear/<strategy>", methods=["POST"])
-@login_required
 def clear_strategy(strategy):
     conn = get_db()
     conn.execute("DELETE FROM matches WHERE strategy = ?", (strategy,))
@@ -312,7 +291,6 @@ def clear_strategy(strategy):
 
 
 @app.route("/export/<strategy>")
-@login_required
 def export_strategy(strategy):
     conn = get_db()
     rows = conn.execute("SELECT * FROM matches WHERE strategy = ? ORDER BY match_date, match_time", (strategy,)).fetchall()
@@ -322,13 +300,14 @@ def export_strategy(strategy):
     writer = csv.writer(output, delimiter=";")
     writer.writerow([
         "Strategia", "Data", "Ora", "Campionato", "Casa", "Trasferta",
-        "Mercato", "Probabilità", "ELO GAP"
+        "Mercato", "Probabilità", "Prob Casa", "Prob Trasferta", "ELO GAP"
     ])
 
     for m in rows:
         writer.writerow([
             m["strategy"], m["match_date"], m["match_time"], m["championship"],
-            m["home_team"], m["away_team"], m["market"], m["odd"], m["elo_gap"]
+            m["home_team"], m["away_team"], m["market"], m["odd"],
+            m["prob_home"], m["prob_away"], m["elo_gap"]
         ])
 
     mem = io.BytesIO()
