@@ -1,0 +1,1 @@
+CGMBet Arena Data - Sportsbook modern UI 2026. Sostituisci tutto il repository, poi Render > Manual Deploy > Clear build cache & deploy.
