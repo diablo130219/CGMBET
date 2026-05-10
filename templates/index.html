@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>CGMBet Arena — {{ strategy }}</title>
+  <title>Kickora — {{ strategy }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=manual-slip-v1">
 </head>
 <body>
@@ -11,10 +11,10 @@
 
   <aside class="sidebar">
     <a class="brand" href="{{ url_for('dashboard') }}">
-      <div class="brand-mark">CG</div>
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
       <div>
-        <strong>CGMBET</strong>
-        <span>ARENA DATA</span>
+        <strong>KICKORA</strong>
+        <span>BET</span>
       </div>
     </a>
 
@@ -72,7 +72,7 @@
 
       <form class="import-card" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="strategy" value="{{ strategy }}">
-        <label>Import CSV CGMBet</label>
+        <label>Import CSV Kickora</label>
         <input type="file" name="csv_file" accept=".csv" required>
         <button type="submit" class="primary-btn">Importa CSV</button>
       </form>
@@ -176,7 +176,7 @@
               <td colspan="13">
                 <div class="empty-state">
                   <strong>Nessun dato caricato</strong>
-                  <span>Importa un CSV CGMBet per visualizzare i match della strategia {{ strategy }}.</span>
+                  <span>Importa un CSV Kickora per visualizzare i match della strategia {{ strategy }}.</span>
                 </div>
               </td>
             </tr>
