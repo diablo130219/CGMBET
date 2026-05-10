@@ -45,6 +45,7 @@
     <nav class="nav">
       <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
       <a href="{{ url_for('bolletta_page') }}" class="nav-link active"><span>🎰</span> Bolletta Pazza</a>
+      <a href="{{ url_for(\'sistema\') }}" class="nav-link"><span>🎯</span> Sistema Triple</a>
       <div class="nav-label">Strategie</div>
       <a href="{{ url_for('index', strategy='GG') }}" class="nav-link"><span class="sport-dot green"></span><div>GG <small>{{ gg_count }} match</small></div></a>
       <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link"><span class="sport-dot orange"></span><div>Over 2.5 <small>{{ over25_count }} match</small></div></a>
