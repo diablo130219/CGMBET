@@ -1407,3 +1407,14 @@ select option {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── KICKORA LOGO ── */
+.brand img {
+  border-radius: 14px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.brand-lockup img {
+  border-radius: 20px;
+  object-fit: cover;
+}
