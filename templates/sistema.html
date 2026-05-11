@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Triple</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=manual-slip-v1">
+  <style>
+    .flex-badge {
+      display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700;
+      background:rgba(124,77,255,.2);color:#7c4dff;margin-left:6px;vertical-align:middle;
+    }
+    .flex-row { border-left: 3px solid #7c4dff !important; }
+    .semaforo-flex { background:rgba(124,77,255,.15);color:#7c4dff; }
+  </style>
 </head>
 <body>
 <div class="app">
@@ -32,11 +40,11 @@
       </a>
     </nav>
 
-    {# ── SIDEBAR SISTEMA TRIPLE ── #}
+    {# ── SIDEBAR SISTEMA ── #}
     <section class="side-bet-slip">
       <div class="side-slip-head">
         <span>Sistema Triple</span>
-        <strong>{{ entra|length }} ENTRA</strong>
+        <strong>{{ entra|length }} ENTRA{% if flex_mode %} +{{ sistema.n_flex if sistema else 0 }} FLEX{% endif %}</strong>
       </div>
 
       <form action="{{ url_for('sistema') }}" method="GET" class="side-stake-form">
@@ -54,8 +62,13 @@
       </div>
 
       {% if sistema %}
+        {% if flex_mode %}
+        <div style="padding:6px 10px;background:rgba(124,77,255,.1);border-radius:8px;margin:6px 0;font-size:.78rem;color:#7c4dff;">
+          ⚡ Modalità FLEX attiva — {{ sistema.n_entra }} ENTRA + {{ sistema.n_flex }} BORDERLINE
+        </div>
+        {% endif %}
         <div class="side-slip-list">
-          <div class="side-slip-match" style="border-left:3px solid #00e676;">
+          <div class="side-slip-match" style="border-left:3px solid {% if flex_mode %}#7c4dff{% else %}#00e676{% endif %};">
             <div>
               <span>{{ sistema.n_partite }} partite — {{ sistema.n_triple }} triple</span>
               <strong>{{ sistema.garanzia }}</strong>
@@ -74,7 +87,6 @@
           </article>
           {% endfor %}
         </div>
-
         <div class="side-slip-footer">
           <div><span>Vincita min</span><strong>€{{ "%.2f"|format(sistema.vincita_min) }}</strong></div>
           <div>
@@ -84,22 +96,18 @@
             </strong>
           </div>
         </div>
-
       {% else %}
         <div class="side-slip-empty">
           <strong>Nessun sistema</strong>
-          <small>Servono almeno 4 partite ENTRA oggi.</small>
+          <small>Servono almeno 4 partite oggi.</small>
         </div>
       {% endif %}
     </section>
 
-    {# ── SIDEBAR BOLLETTA (inclusa) ── #}
     {% include "_side_bolletta.html" %}
 
     <div class="sidebar-ticket">
-      <span>Database</span>
-      <strong>{{ total_all }}</strong>
-      <small>partite totali</small>
+      <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>
     </div>
   </aside>
 
@@ -126,7 +134,6 @@
         <h2>{{ strategy }}</h2>
         <p>Scegli la strategia — il sistema calcola in automatico.</p>
       </div>
-
       <div class="import-card" style="gap:10px;">
         <label>Strategia attiva</label>
         <div style="display:flex;gap:8px;flex-wrap:wrap;">
@@ -134,28 +141,36 @@
           <a href="{{ url_for('sistema', strategy=s, budget=budget) }}"
              style="padding:8px 18px;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none;
                     background:{{ 'var(--accent,#00e676)' if strategy==s else 'rgba(255,255,255,.07)' }};
-                    color:{{ '#0d0f14' if strategy==s else 'var(--text,#e8eaf0)' }};border:1px solid {{ 'transparent' if strategy==s else 'rgba(255,255,255,.1)' }};">
+                    color:{{ '#0d0f14' if strategy==s else 'var(--text,#e8eaf0)' }};
+                    border:1px solid {{ 'transparent' if strategy==s else 'rgba(255,255,255,.1)' }};">
             {{ s }}
             {% if confronto[s] > 0 %}
             <span style="margin-left:4px;background:rgba(0,230,118,.2);color:#00e676;
-                         padding:1px 7px;border-radius:20px;font-size:.75rem;">
-              {{ confronto[s] }}✅
-            </span>
+                         padding:1px 7px;border-radius:20px;font-size:.75rem;">{{ confronto[s] }}✅</span>
             {% endif %}
           </a>
           {% endfor %}
         </div>
         {% if migliore %}
-        <small style="color:#00e676;">🏆 Più ricca oggi: <strong>{{ migliore }}</strong> — {{ confronto[migliore] }} partite ENTRA</small>
+        <small style="color:#00e676;">🏆 Più ricca oggi: <strong>{{ migliore }}</strong> — {{ confronto[migliore] }} ENTRA</small>
         {% endif %}
       </div>
     </section>
+
+    {# ── FLEX ALERT ── #}
+    {% if flex_mode and sistema %}
+    <div class="flash success" style="background:rgba(124,77,255,.1);border-left:4px solid #7c4dff;color:#c5b4ff;">
+      ⚡ <strong>Modalità FLEX attiva</strong> — Solo {{ sistema.n_entra }} partite ENTRA trovate.
+      Il sistema ha aggiunto {{ sistema.n_flex }} partita/e BORDERLINE (segnate in viola) per completare le 4 partite.
+      Usa con cautela.
+    </div>
+    {% endif %}
 
     {# ── KPI ── #}
     <section class="kpi-grid four">
       <article class="kpi-card"><span>Partite oggi</span><strong>{{ partite|length }}</strong><small>{{ strategy }}</small></article>
       <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ entra|length }}</strong><small>tutti i filtri ok</small></article>
-      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ partite|selectattr("filtri.semaforo","eq","borderline")|list|length }}</strong><small>1 filtro mancante</small></article>
+      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ borderline|length }}</strong><small>1 filtro mancante</small></article>
       <article class="kpi-card"><span>Triple generate</span><strong>{{ sistema.n_triple if sistema else 0 }}</strong><small>{{ sistema.garanzia if sistema else "—" }}</small></article>
     </section>
 
@@ -183,25 +198,22 @@
         <table class="odds-table">
           <thead>
             <tr>
-              <th>Partita</th>
-              <th>Ora</th>
-              <th>Campionato</th>
-              <th>Casa %</th>
-              <th>Trasf %</th>
+              <th>Partita</th><th>Ora</th><th>Campionato</th>
+              <th>Casa %</th><th>Trasf %</th>
               {% if soglie.media_gol %}<th>M.Gol</th>{% endif %}
-              <th>Quota</th>
-              <th>Filtri</th>
-              <th>Semaforo</th>
+              <th>Quota</th><th>Filtri</th><th>Semaforo</th>
             </tr>
           </thead>
           <tbody>
             {% if partite %}
               {% for p in partite %}
               {% set f = p.filtri %}
-              <tr>
+              {% set is_flex = p.get('flex', False) if p is mapping else False %}
+              <tr class="{{ 'flex-row' if is_flex else '' }}">
                 <td class="team">
                   <strong>{{ p.home_team }}</strong>
                   <small>vs {{ p.away_team }}</small>
+                  {% if is_flex %}<span class="flex-badge">FLEX</span>{% endif %}
                 </td>
                 <td><strong>{{ p.match_time }}</strong></td>
                 <td>{{ p.championship }}</td>
@@ -229,7 +241,9 @@
                 </td>
                 <td style="text-align:center;font-weight:700;">{{ f.score }}/{{ f.max }}</td>
                 <td>
-                  {% if f.semaforo == "entra" %}
+                  {% if is_flex %}
+                    <span class="market-pill semaforo-flex">⚡ FLEX</span>
+                  {% elif f.semaforo == "entra" %}
                     <span class="market-pill" style="background:rgba(0,230,118,.12);color:#00e676;">✅ ENTRA</span>
                   {% elif f.semaforo == "borderline" %}
                     <span class="market-pill" style="background:rgba(255,214,0,.12);color:#ffd600;">⚠️ BORDER</span>
@@ -240,14 +254,12 @@
               </tr>
               {% endfor %}
             {% else %}
-              <tr>
-                <td colspan="9">
-                  <div class="empty-state">
-                    <strong>Nessuna partita oggi per {{ strategy }}</strong>
-                    <span>Importa un CSV dalla sezione <a href="{{ url_for('index', strategy=strategy) }}">{{ strategy }}</a>.</span>
-                  </div>
-                </td>
-              </tr>
+              <tr><td colspan="9">
+                <div class="empty-state">
+                  <strong>Nessuna partita oggi per {{ strategy }}</strong>
+                  <span>Importa un CSV dalla sezione <a href="{{ url_for('index', strategy=strategy) }}">{{ strategy }}</a>.</span>
+                </div>
+              </td></tr>
             {% endif %}
           </tbody>
         </table>
@@ -259,12 +271,11 @@
     <section class="bet-slip-wide">
       <div class="section-head">
         <div>
-          <span class="eyebrow">Sistema automatico — {{ strategy }}</span>
+          <span class="eyebrow">Sistema automatico{% if flex_mode %} — ⚡ FLEX{% endif %} — {{ strategy }}</span>
           <h3>🎯 {{ sistema.n_partite }} Partite — {{ sistema.n_triple }} Triple</h3>
         </div>
         <div class="slip-summary">
-          <span>Budget</span>
-          <strong>€{{ "%.2f"|format(sistema.budget) }}</strong>
+          <span>Budget</span><strong>€{{ "%.2f"|format(sistema.budget) }}</strong>
           <span>{{ sistema.garanzia }}</span>
         </div>
       </div>
@@ -272,7 +283,8 @@
       <section class="kpi-grid four" style="margin-bottom:20px;">
         <article class="kpi-card"><span>Budget</span><strong>€{{ "%.2f"|format(sistema.budget) }}</strong><small>{{ sistema.n_triple }} triple</small></article>
         <article class="kpi-card accent"><span>Vincita min</span><strong>€{{ "%.2f"|format(sistema.vincita_min) }}</strong><small>garanzia 1 tripla</small></article>
-        <article class="kpi-card"><span>Profitto min</span>
+        <article class="kpi-card">
+          <span>Profitto min</span>
           <strong class="{{ 'roi-pos' if sistema.profitto_min > 0 else 'roi-neg' }}">
             {{ '+' if sistema.profitto_min > 0 }}€{{ "%.2f"|format(sistema.profitto_min) }}
           </strong>
@@ -283,7 +295,7 @@
 
       <div class="slip-grid">
         {% for t in sistema.triple %}
-        <article class="slip-match" style="border-top:3px solid #00e676;">
+        <article class="slip-match" style="border-top:3px solid {{ '#7c4dff' if flex_mode else '#00e676' }};">
           <div class="slip-top">
             <span>T{{ loop.index }}</span>
             <strong>@{{ "%.2f"|format(t.quota) }}</strong>
@@ -297,7 +309,7 @@
           </div>
           <div style="display:flex;justify-content:space-between;">
             <span style="font-size:.8rem;opacity:.6;">Vincita</span>
-            <strong style="color:#00e676;">€{{ "%.2f"|format(t.vincita) }}</strong>
+            <strong style="color:{{ '#7c4dff' if flex_mode else '#00e676' }};">€{{ "%.2f"|format(t.vincita) }}</strong>
           </div>
         </article>
         {% endfor %}
@@ -353,9 +365,10 @@
         <strong>🎯 Sistema non disponibile</strong>
         {% if partite|length > 0 %}
         <span>
-          {{ partite|length }} partite importate ma nessuna passa tutti i filtri.
-          {% set border_count = partite|selectattr("filtri.semaforo","eq","borderline")|list|length %}
-          {% if border_count > 0 %}{{ border_count }} partite BORDERLINE disponibili — abbassa le soglie o aspetta domani.{% endif %}
+          {{ partite|length }} partite importate ma non abbastanza per generare il sistema.
+          {% if borderline|length > 0 %}
+          {{ borderline|length }} partite BORDERLINE — la modalità FLEX ne usa automaticamente fino a 3.
+          {% endif %}
         </span>
         {% else %}
         <span>Nessuna partita oggi per {{ strategy }}. <a href="{{ url_for('index', strategy=strategy) }}">Importa il CSV →</a></span>
