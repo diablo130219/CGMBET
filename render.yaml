@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cgmbet-arena
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: APP_USERNAME
+        value: admin
+      - key: APP_PASSWORD
+        value: admin123
