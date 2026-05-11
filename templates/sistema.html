@@ -33,7 +33,7 @@
 
     <nav class="nav">
       <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
-      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎰</span> Bolletta Pazza</a>
+      <a href="{{ url_for('doppie_page') }}" class="nav-link"><span>🎲</span> Sistema Doppie</a>
       <a href="{{ url_for('sistema') }}" class="nav-link active"><span>🎯</span> Sistema Triple</a>
       <div class="nav-label">Strategie</div>
       <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
@@ -114,8 +114,6 @@
         </div>
       </div>
     </section>
-
-    {% include "_side_bolletta.html" %}
 
     <div class="sidebar-ticket">
       <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>

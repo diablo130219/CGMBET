@@ -175,7 +175,7 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Nuova doppia</span>
-          <h3>➕ Crea Doppia — <span class="kelly-badge">Kelly 25%</span></h3>
+          <h3>➕ Crea Doppia — <span class="kelly-badge">Stake personalizzato</span></h3>
         </div>
         {# Selector strategia #}
         <div style="display:flex;gap:8px;">
@@ -193,41 +193,70 @@
           Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly calcola automaticamente la puntata ottimale (max 10% bankroll).
         </p>
 
+        <form action="{{ url_for('salva_bankroll') }}" method="POST" style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr)) auto;gap:10px;align-items:end;margin-bottom:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;">
+          <div>
+            <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Bankroll iniziale</label>
+            <input type="number" name="capitale" value="{{ capitale }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
+          </div>
+          <div>
+            <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Stake fisso preferito</label>
+            <input type="number" name="importo_fisso" value="{{ importo_fisso or 0 }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
+          </div>
+          <button type="submit" class="ghost-btn">💾 Salva</button>
+        </form>
+
         <form action="{{ url_for('doppie_aggiungi') }}" method="POST">
           <input type="hidden" name="strategy" value="{{ strategy }}">
 
-          {% if matches %}
+          {% if all_matches %}
           <div class="match-select-grid">
             <div>
-              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1</label>
+              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1 anche GG/Over misti</label>
               <select name="match1_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 1 —</option>
-                {% for m in matches %}
-                <option value="{{ m.id }}">{{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                {% for m in all_matches %}
+                <option value="{{ m.id }}">[{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
             </div>
             <div>
-              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 2</label>
+              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 2 anche GG/Over misti</label>
               <select name="match2_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 2 —</option>
-                {% for m in matches %}
-                <option value="{{ m.id }}">{{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                {% for m in all_matches %}
+                <option value="{{ m.id }}">[{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:10px;margin:12px 0;">
+            <div>
+              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Tipo stake</label>
+              <select name="stake_mode" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
+                <option value="kelly">Kelly automatico</option>
+                <option value="manuale">Stake manuale</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Stake manuale €</label>
+              <input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
+            </div>
+            <div>
+              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Kelly %</label>
+              <input type="number" name="kelly_fraction" value="25" step="5" min="1" max="100" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
             </div>
           </div>
 
           <div style="background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.2);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:rgba(255,255,255,.7);">
-            💡 <strong style="color:#2979ff;">Kelly 25%</strong> — La puntata viene calcolata automaticamente:
-            <br>Bankroll attuale <strong>€{{ "%.2f"|format(bankroll) }}</strong> × Kelly × 25% (max 10% bankroll = €{{ "%.2f"|format(bankroll * 0.10) }})
+            💡 Ora puoi creare doppie miste: esempio <strong>GG + Over 2.5</strong> senza perdere la prima selezione. Bankroll attuale: <strong>€{{ "%.2f"|format(bankroll) }}</strong>.
           </div>
 
-          <button type="submit" class="primary-btn">🎲 Crea Doppia con Kelly</button>
+          <button type="submit" class="primary-btn">🎲 Crea Doppia</button>
           {% else %}
           <div class="empty-state">
-            <strong>Nessuna partita per {{ strategy }} oggi</strong>
-            <span>Importa un CSV dalla sezione <a href="{{ url_for('index', strategy=strategy) }}">{{ strategy }}</a>.</span>
+            <strong>Nessuna partita caricata oggi</strong>
+            <span>Importa i CSV nelle sezioni GG / Over.</span>
           </div>
           {% endif %}
         </form>
@@ -251,7 +280,7 @@
             <div style="flex:1;min-width:200px;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                 <span class="market-pill" style="background:rgba(41,121,255,.15);color:#2979ff;">Doppia #{{ loop.index }}</span>
-                <span class="kelly-badge">Kelly 25%</span>
+                <span class="kelly-badge">{{ 'Kelly' if (d.stake_mode or 'kelly') == 'kelly' else 'Manuale' }}</span>
                 {% if d.esito == 'vinta' %}
                   <span class="market-pill" style="color:#00e676;background:rgba(0,230,118,.1);">✅ VINTA</span>
                 {% elif d.esito == 'persa' %}
@@ -263,11 +292,13 @@
 
               <div style="font-size:.95rem;">
                 <strong>{{ d.home1 }} - {{ d.away1 }}</strong>
+                <span class="market-pill" style="margin-left:8px;background:rgba(255,255,255,.07);">{{ d.market1 or 'Mercato' }}</span>
                 <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd1) }}</span>
               </div>
               <div class="vs-divider">+</div>
               <div style="font-size:.95rem;">
                 <strong>{{ d.home2 }} - {{ d.away2 }}</strong>
+                <span class="market-pill" style="margin-left:8px;background:rgba(255,255,255,.07);">{{ d.market2 or 'Mercato' }}</span>
                 <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd2) }}</span>
               </div>
             </div>

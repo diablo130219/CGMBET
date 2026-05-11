@@ -135,6 +135,16 @@ def init_db():
         )
     """)
 
+    # Migrazioni leggere per database già esistenti
+    existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(doppie_sessioni)").fetchall()]
+    for col, ddl in {
+        "market1": "ALTER TABLE doppie_sessioni ADD COLUMN market1 TEXT DEFAULT ''",
+        "market2": "ALTER TABLE doppie_sessioni ADD COLUMN market2 TEXT DEFAULT ''",
+        "stake_mode": "ALTER TABLE doppie_sessioni ADD COLUMN stake_mode TEXT DEFAULT 'kelly'",
+    }.items():
+        if col not in existing_cols:
+            conn.execute(ddl)
+
     conn.commit()
     conn.close()
 
@@ -1149,11 +1159,20 @@ def sistema_esito(match_id):
     # Recupera dati partita
     m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
     if m:
-        conn.execute("""
-            INSERT INTO sistema_risultati (data, strategy, match_id, home_team, away_team, odd, esito, flex)
-            VALUES (?,?,?,?,?,?,?,0)
-            ON CONFLICT(data, match_id) DO UPDATE SET esito=excluded.esito
-        """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+        existing = conn.execute(
+            "SELECT id FROM sistema_risultati WHERE data=? AND match_id=?",
+            (data, match_id)
+        ).fetchone()
+        if existing:
+            conn.execute(
+                "UPDATE sistema_risultati SET esito=?, strategy=?, home_team=?, away_team=?, odd=? WHERE id=?",
+                (esito, strategy, m["home_team"], m["away_team"], m["odd"], existing["id"])
+            )
+        else:
+            conn.execute("""
+                INSERT INTO sistema_risultati (data, strategy, match_id, home_team, away_team, odd, esito, flex)
+                VALUES (?,?,?,?,?,?,?,0)
+            """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
         conn.commit()
 
     conn.close()
@@ -1230,15 +1249,19 @@ def doppie_page():
 
     conn = get_db()
 
-    # Partite di oggi per la strategia
+    # Partite di oggi del mercato attivo + tutte le partite per creare doppie miste
     matches = conn.execute(
         "SELECT * FROM matches WHERE strategy=? AND match_date=? ORDER BY odd ASC",
         (strategy, today.isoformat())
     ).fetchall()
+    all_matches = conn.execute(
+        "SELECT * FROM matches WHERE match_date=? ORDER BY strategy ASC, match_time ASC, odd ASC",
+        (today.isoformat(),)
+    ).fetchall()
 
     # Bankroll attuale
     bankroll = get_bankroll_doppie(conn)
-    capitale, _ = get_bankroll(conn)
+    capitale, importo_fisso = get_bankroll(conn)
 
     # Doppie di oggi
     doppie_oggi = get_doppie_oggi(conn)
@@ -1269,9 +1292,11 @@ def doppie_page():
     return render_template("doppie.html",
         strategy=strategy,
         matches=matches,
+        all_matches=all_matches,
         doppie_oggi=doppie_oggi,
         bankroll=bankroll,
         capitale=capitale,
+        importo_fisso=importo_fisso,
         stats_doppie=stats_doppie,
         roi_doppie=roi_doppie,
         storico=storico,
@@ -1289,6 +1314,11 @@ def doppie_aggiungi():
     strategy = request.form.get("strategy", "GG")
     match1_id = request.form.get("match1_id")
     match2_id = request.form.get("match2_id")
+    stake_mode = request.form.get("stake_mode", "kelly")
+    puntata_manual = parse_float(request.form.get("puntata_manual"))
+    kelly_fraction = parse_float(request.form.get("kelly_fraction", "25")) / 100
+    if kelly_fraction <= 0:
+        kelly_fraction = 0.25
     today = date.today().isoformat()
 
     if not match1_id or not match2_id or match1_id == match2_id:
@@ -1306,35 +1336,41 @@ def doppie_aggiungi():
 
     quota_doppia = round(float(m1["odd"] or 1) * float(m2["odd"] or 1), 2)
 
-    # Calcola Kelly 25%
+    # Bankroll e stake: manuale oppure Kelly frazionato
     bankroll = get_bankroll_doppie(conn)
-    # Probabilità stimata = media % delle due partite
-    if strategy == "GG":
-        p1 = parse_float(m1["gg_home"]) / 100
-        p2 = parse_float(m2["gg_home"]) / 100
-    else:
-        p1 = parse_float(m1["over_home"]) / 100
-        p2 = parse_float(m2["over_home"]) / 100
-    prob_doppia = p1 * p2  # probabilità congiunta
-    puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=0.25)
 
-    # Minimo €1, massimo 10% bankroll
-    puntata = max(1.0, min(puntata, bankroll * 0.10))
+    def prob_match(m):
+        if m["strategy"] == "GG":
+            return ((parse_float(m["gg_home"]) + parse_float(m["gg_away"])) / 2) / 100
+        return ((parse_float(m["over_home"]) + parse_float(m["over_away"])) / 2) / 100
+
+    prob_doppia = prob_match(m1) * prob_match(m2)
+    if stake_mode == "manuale" and puntata_manual > 0:
+        puntata = puntata_manual
+    else:
+        puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
+        stake_mode = "kelly"
+
+    # Minimo €1, massimo 10% bankroll se il bankroll è impostato
+    if bankroll > 0:
+        puntata = max(1.0, min(puntata, bankroll * 0.10))
+    else:
+        puntata = max(1.0, puntata)
     puntata = round(puntata, 2)
 
     conn.execute("""
         INSERT INTO doppie_sessioni
-        (data, match1_id, match2_id, home1, away1, odd1, home2, away2, odd2,
-         quota_doppia, puntata, kelly_fraction, bankroll_pre)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,0.25,?)
+        (data, match1_id, match2_id, home1, away1, odd1, market1, home2, away2, odd2, market2,
+         quota_doppia, puntata, kelly_fraction, bankroll_pre, stake_mode)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (today, match1_id, match2_id,
-          m1["home_team"], m1["away_team"], m1["odd"],
-          m2["home_team"], m2["away_team"], m2["odd"],
-          quota_doppia, puntata, bankroll))
+          m1["home_team"], m1["away_team"], m1["odd"], m1["strategy"],
+          m2["home_team"], m2["away_team"], m2["odd"], m2["strategy"],
+          quota_doppia, puntata, kelly_fraction, bankroll, stake_mode))
     conn.commit()
     conn.close()
 
-    flash(f"✅ Doppia aggiunta — puntata Kelly 25%: €{puntata}", "success")
+    flash(f"✅ Doppia aggiunta — puntata: €{puntata}", "success")
     return redirect(url_for("doppie_page", strategy=strategy))
 
 
