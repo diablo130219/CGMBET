@@ -74,6 +74,26 @@ def init_db():
     """)
 
     conn.execute("""
+        CREATE TABLE IF NOT EXISTS doppie_sessioni (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            match1_id INTEGER,
+            match2_id INTEGER,
+            home1 TEXT, away1 TEXT, odd1 REAL DEFAULT 0,
+            home2 TEXT, away2 TEXT, odd2 REAL DEFAULT 0,
+            quota_doppia REAL DEFAULT 0,
+            puntata REAL DEFAULT 0,
+            kelly_fraction REAL DEFAULT 0.25,
+            esito TEXT DEFAULT 'pending',
+            incasso REAL DEFAULT 0,
+            profitto REAL DEFAULT 0,
+            bankroll_pre REAL DEFAULT 0,
+            bankroll_post REAL DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS sistema_risultati (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             data TEXT NOT NULL,
@@ -1165,6 +1185,203 @@ def sistema_salva_sessione():
 
     flash("💾 Sessione sistema salvata.", "success")
     return redirect(url_for("sistema", strategy=strategy, budget=budget))
+
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SISTEMA DOPPIE — Kelly 25%
+# ══════════════════════════════════════════════════════════════════════════════
+
+def calcola_kelly(prob_stimata, quota, bankroll, fraction=0.25):
+    """Kelly frazionato. prob_stimata = % storica / 100"""
+    if quota <= 1 or prob_stimata <= 0:
+        return 0
+    b = quota - 1  # profitto netto per unità
+    q = 1 - prob_stimata
+    kelly = (b * prob_stimata - q) / b
+    kelly = max(0, kelly)  # no Kelly negativo
+    puntata = bankroll * kelly * fraction
+    return round(puntata, 2)
+
+
+def get_doppie_oggi(conn):
+    today = date.today().isoformat()
+    rows = conn.execute(
+        "SELECT * FROM doppie_sessioni WHERE data=? ORDER BY id ASC",
+        (today,)
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_bankroll_doppie(conn):
+    """Bankroll attuale = capitale iniziale + somma profitti doppie"""
+    capitale, _ = get_bankroll(conn)
+    profitti = conn.execute(
+        "SELECT COALESCE(SUM(profitto),0) FROM doppie_sessioni WHERE esito != 'pending'"
+    ).fetchone()[0]
+    return round(capitale + profitti, 2)
+
+
+@app.route("/doppie")
+@login_required
+def doppie_page():
+    strategy = request.args.get("strategy", "GG")
+    today = date.today()
+
+    conn = get_db()
+
+    # Partite di oggi per la strategia
+    matches = conn.execute(
+        "SELECT * FROM matches WHERE strategy=? AND match_date=? ORDER BY odd ASC",
+        (strategy, today.isoformat())
+    ).fetchall()
+
+    # Bankroll attuale
+    bankroll = get_bankroll_doppie(conn)
+    capitale, _ = get_bankroll(conn)
+
+    # Doppie di oggi
+    doppie_oggi = get_doppie_oggi(conn)
+
+    # Stats doppie
+    stats_doppie = conn.execute("""
+        SELECT
+            COUNT(*) as totale,
+            COALESCE(SUM(CASE WHEN esito='vinta' THEN 1 ELSE 0 END),0) as vinte,
+            COALESCE(SUM(CASE WHEN esito='persa' THEN 1 ELSE 0 END),0) as perse,
+            COALESCE(SUM(profitto),0) as tot_profitto,
+            COALESCE(SUM(puntata),0) as tot_investito
+        FROM doppie_sessioni WHERE esito != 'pending'
+    """).fetchone()
+
+    roi_doppie = 0
+    if stats_doppie["tot_investito"] > 0:
+        roi_doppie = round(stats_doppie["tot_profitto"] / stats_doppie["tot_investito"] * 100, 1)
+
+    # Storico ultime 20
+    storico = conn.execute(
+        "SELECT * FROM doppie_sessioni ORDER BY created_at DESC LIMIT 20"
+    ).fetchall()
+
+    total_all, gg_count, over25_count, over15_count = get_counts(conn)
+    conn.close()
+
+    return render_template("doppie.html",
+        strategy=strategy,
+        matches=matches,
+        doppie_oggi=doppie_oggi,
+        bankroll=bankroll,
+        capitale=capitale,
+        stats_doppie=stats_doppie,
+        roi_doppie=roi_doppie,
+        storico=storico,
+        oggi=today.strftime("%d/%m/%Y"),
+        total_all=total_all,
+        gg_count=gg_count,
+        over25_count=over25_count,
+        over15_count=over15_count,
+    )
+
+
+@app.route("/doppie/aggiungi", methods=["POST"])
+@login_required
+def doppie_aggiungi():
+    strategy = request.form.get("strategy", "GG")
+    match1_id = request.form.get("match1_id")
+    match2_id = request.form.get("match2_id")
+    today = date.today().isoformat()
+
+    if not match1_id or not match2_id or match1_id == match2_id:
+        flash("⚠️ Seleziona 2 partite diverse.", "error")
+        return redirect(url_for("doppie_page", strategy=strategy))
+
+    conn = get_db()
+    m1 = conn.execute("SELECT * FROM matches WHERE id=?", (match1_id,)).fetchone()
+    m2 = conn.execute("SELECT * FROM matches WHERE id=?", (match2_id,)).fetchone()
+
+    if not m1 or not m2:
+        flash("⚠️ Partite non trovate.", "error")
+        conn.close()
+        return redirect(url_for("doppie_page", strategy=strategy))
+
+    quota_doppia = round(float(m1["odd"] or 1) * float(m2["odd"] or 1), 2)
+
+    # Calcola Kelly 25%
+    bankroll = get_bankroll_doppie(conn)
+    # Probabilità stimata = media % delle due partite
+    if strategy == "GG":
+        p1 = parse_float(m1["gg_home"]) / 100
+        p2 = parse_float(m2["gg_home"]) / 100
+    else:
+        p1 = parse_float(m1["over_home"]) / 100
+        p2 = parse_float(m2["over_home"]) / 100
+    prob_doppia = p1 * p2  # probabilità congiunta
+    puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=0.25)
+
+    # Minimo €1, massimo 10% bankroll
+    puntata = max(1.0, min(puntata, bankroll * 0.10))
+    puntata = round(puntata, 2)
+
+    conn.execute("""
+        INSERT INTO doppie_sessioni
+        (data, match1_id, match2_id, home1, away1, odd1, home2, away2, odd2,
+         quota_doppia, puntata, kelly_fraction, bankroll_pre)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,0.25,?)
+    """, (today, match1_id, match2_id,
+          m1["home_team"], m1["away_team"], m1["odd"],
+          m2["home_team"], m2["away_team"], m2["odd"],
+          quota_doppia, puntata, bankroll))
+    conn.commit()
+    conn.close()
+
+    flash(f"✅ Doppia aggiunta — puntata Kelly 25%: €{puntata}", "success")
+    return redirect(url_for("doppie_page", strategy=strategy))
+
+
+@app.route("/doppie/esito/<int:doppia_id>", methods=["POST"])
+@login_required
+def doppie_esito(doppia_id):
+    esito = request.form.get("esito", "pending")
+    strategy = request.form.get("strategy", "GG")
+
+    conn = get_db()
+    d = conn.execute("SELECT * FROM doppie_sessioni WHERE id=?", (doppia_id,)).fetchone()
+
+    if d:
+        incasso = 0
+        profitto = 0
+        bankroll_post = d["bankroll_pre"]
+
+        if esito == "vinta":
+            incasso = round(d["puntata"] * d["quota_doppia"], 2)
+            profitto = round(incasso - d["puntata"], 2)
+            bankroll_post = round(d["bankroll_pre"] + profitto, 2)
+        elif esito == "persa":
+            profitto = -d["puntata"]
+            bankroll_post = round(d["bankroll_pre"] - d["puntata"], 2)
+
+        conn.execute("""
+            UPDATE doppie_sessioni
+            SET esito=?, incasso=?, profitto=?, bankroll_post=?
+            WHERE id=?
+        """, (esito, incasso, profitto, bankroll_post, doppia_id))
+        conn.commit()
+
+    conn.close()
+    flash("✅ Esito aggiornato.", "success")
+    return redirect(url_for("doppie_page", strategy=strategy))
+
+
+@app.route("/doppie/elimina/<int:doppia_id>", methods=["POST"])
+@login_required
+def doppie_elimina(doppia_id):
+    strategy = request.form.get("strategy", "GG")
+    conn = get_db()
+    conn.execute("DELETE FROM doppie_sessioni WHERE id=?", (doppia_id,))
+    conn.commit()
+    conn.close()
+    flash("🗑 Doppia eliminata.", "success")
+    return redirect(url_for("doppie_page", strategy=strategy))
 
 
 if __name__ == "__main__":

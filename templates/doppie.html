@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kickora — Sistema Doppie</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v1">
+  <style>
+    .kelly-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(41,121,255,.15);color:#2979ff;}
+    .doppia-card{background:var(--card,#13161e);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;margin-bottom:12px;}
+    .doppia-card.vinta{border-left:4px solid #00e676;}
+    .doppia-card.persa{border-left:4px solid #ff1744;}
+    .doppia-card.pending{border-left:4px solid rgba(255,255,255,.15);}
+    .vs-divider{display:flex;align-items:center;gap:10px;margin:8px 0;color:rgba(255,255,255,.3);font-size:.8rem;}
+    .vs-divider::before,.vs-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
+    .esito-btn{padding:6px 14px;border-radius:8px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;transition:.15s;}
+    .esito-btn.vinta{background:rgba(0,230,118,.15);color:#00e676;}
+    .esito-btn.vinta:hover,.esito-btn.vinta.active{background:#00e676;color:#0d0f14;}
+    .esito-btn.persa{background:rgba(255,23,68,.15);color:#ff1744;}
+    .esito-btn.persa:hover,.esito-btn.persa.active{background:#ff1744;color:#fff;}
+    .bankroll-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px;}
+    .bankroll-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#00e676,#00c853);transition:.3s;}
+    .match-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+    .match-select-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;cursor:pointer;transition:.15s;}
+    .match-select-card:hover{border-color:rgba(41,121,255,.4);background:rgba(41,121,255,.06);}
+    .match-select-card.selected{border-color:#2979ff;background:rgba(41,121,255,.1);}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
+      <div><strong>KICKORA</strong><span>BET</span></div>
+    </a>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
+      <a href="{{ url_for('doppie_page') }}" class="nav-link active"><span>🎲</span> Sistema Doppie</a>
+      <a href="{{ url_for('sistema') }}" class="nav-link"><span>🎯</span> Sistema Triple</a>
+      <div class="nav-label">Strategie</div>
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
+        <span class="sport-dot green"></span><div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link">
+        <span class="sport-dot orange"></span><div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link">
+        <span class="sport-dot blue"></span><div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
+
+    {# SIDEBAR BANKROLL DOPPIE #}
+    <section class="side-bet-slip">
+      <div class="side-slip-head">
+        <span>Bankroll Doppie</span>
+        <strong>€{{ "%.2f"|format(bankroll) }}</strong>
+      </div>
+
+      <div class="side-bankroll-mini">
+        <div><span>Capitale iniziale</span><strong>€{{ "%.2f"|format(capitale) }}</strong></div>
+        <div>
+          <span>Profitto totale</span>
+          <strong class="{{ 'roi-pos' if (stats_doppie.tot_profitto or 0) > 0 else 'roi-neg' }}">
+            {{ '+' if (stats_doppie.tot_profitto or 0) > 0 }}€{{ "%.2f"|format(stats_doppie.tot_profitto or 0) }}
+          </strong>
+        </div>
+      </div>
+
+      {# Barra bankroll #}
+      {% if capitale > 0 %}
+      <div style="padding:0 10px 8px;">
+        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:4px;">
+          Bankroll: {{ "%.0f"|format(bankroll/capitale*100) }}% del capitale
+        </div>
+        <div class="bankroll-bar">
+          <div class="bankroll-fill" style="width:{{ [bankroll/capitale*100, 100]|min }}%;"></div>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="side-bankroll-mini">
+        <div><span>Doppie vinte</span><strong style="color:#00e676;">{{ stats_doppie.vinte or 0 }}</strong></div>
+        <div><span>Doppie perse</span><strong style="color:#ff1744;">{{ stats_doppie.perse or 0 }}</strong></div>
+        <div><span>ROI</span>
+          <strong class="{{ 'roi-pos' if roi_doppie > 0 else 'roi-neg' }}">{{ roi_doppie }}%</strong>
+        </div>
+        <div><span>Kelly usato</span><strong style="color:#2979ff;">25%</strong></div>
+      </div>
+
+      {# Doppie di oggi nella sidebar #}
+      {% if doppie_oggi %}
+      <div class="side-slip-list">
+        {% for d in doppie_oggi %}
+        <article class="side-slip-match">
+          <div>
+            <span style="font-size:.72rem;color:rgba(255,255,255,.4);">@{{ "%.2f"|format(d.quota_doppia) }}</span>
+            <strong style="font-size:.82rem;">{{ d.home1 }} + {{ d.home2 }}</strong>
+            <small>Punta €{{ "%.2f"|format(d.puntata) }}</small>
+          </div>
+          <div class="side-slip-right">
+            {% if d.esito == 'vinta' %}
+              <b class="roi-pos">✅</b>
+            {% elif d.esito == 'persa' %}
+              <b class="roi-neg">❌</b>
+            {% else %}
+              <b style="color:rgba(255,255,255,.3);">⏳</b>
+            {% endif %}
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="side-slip-empty">
+        <strong>Nessuna doppia oggi</strong>
+        <small>Seleziona 2 partite e crea una doppia.</small>
+      </div>
+      {% endif %}
+    </section>
+
+    <div class="sidebar-ticket">
+      <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Kelly 25% frazionato</span>
+        <h1>🎲 Sistema Doppie</h1>
+        <p>Seleziona 2 partite — il Kelly calcola la puntata ottimale in base al bankroll.</p>
+      </div>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {# ── KPI BANKROLL ── #}
+    <section class="kpi-grid four">
+      <article class="kpi-card accent">
+        <span>Bankroll attuale</span>
+        <strong>€{{ "%.2f"|format(bankroll) }}</strong>
+        <small>capitale + profitti</small>
+      </article>
+      <article class="kpi-card">
+        <span>Doppie oggi</span>
+        <strong>{{ doppie_oggi|length }}</strong>
+        <small>create oggi</small>
+      </article>
+      <article class="kpi-card">
+        <span>Win rate</span>
+        <strong>
+          {% if (stats_doppie.vinte or 0) + (stats_doppie.perse or 0) > 0 %}
+            {{ "%.0f"|format((stats_doppie.vinte or 0) / ((stats_doppie.vinte or 0) + (stats_doppie.perse or 0)) * 100) }}%
+          {% else %}—{% endif %}
+        </strong>
+        <small>{{ stats_doppie.vinte or 0 }}V / {{ stats_doppie.perse or 0 }}P</small>
+      </article>
+      <article class="kpi-card">
+        <span>ROI totale</span>
+        <strong class="{{ 'roi-pos' if roi_doppie > 0 else ('roi-neg' if roi_doppie < 0 else '') }}">
+          {{ roi_doppie }}%
+        </strong>
+        <small>su €{{ "%.2f"|format(stats_doppie.tot_investito or 0) }} investiti</small>
+      </article>
+    </section>
+
+    {# ── CREA DOPPIA ── #}
+    <section class="odds-table-card">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Nuova doppia</span>
+          <h3>➕ Crea Doppia — <span class="kelly-badge">Kelly 25%</span></h3>
+        </div>
+        {# Selector strategia #}
+        <div style="display:flex;gap:8px;">
+          {% for s in ["GG","Over 2.5","Over 1.5"] %}
+          <a href="{{ url_for('doppie_page', strategy=s) }}"
+             style="padding:6px 14px;border-radius:8px;font-weight:600;font-size:.85rem;text-decoration:none;
+                    background:{{ 'var(--accent,#00e676)' if strategy==s else 'rgba(255,255,255,.07)' }};
+                    color:{{ '#0d0f14' if strategy==s else 'inherit' }};">{{ s }}</a>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div style="padding:16px;">
+        <p style="font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:12px;">
+          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly calcola automaticamente la puntata ottimale (max 10% bankroll).
+        </p>
+
+        <form action="{{ url_for('doppie_aggiungi') }}" method="POST">
+          <input type="hidden" name="strategy" value="{{ strategy }}">
+
+          {% if matches %}
+          <div class="match-select-grid">
+            <div>
+              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1</label>
+              <select name="match1_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
+                <option value="">— Scegli partita 1 —</option>
+                {% for m in matches %}
+                <option value="{{ m.id }}">{{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 2</label>
+              <select name="match2_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
+                <option value="">— Scegli partita 2 —</option>
+                {% for m in matches %}
+                <option value="{{ m.id }}">{{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div style="background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.2);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:rgba(255,255,255,.7);">
+            💡 <strong style="color:#2979ff;">Kelly 25%</strong> — La puntata viene calcolata automaticamente:
+            <br>Bankroll attuale <strong>€{{ "%.2f"|format(bankroll) }}</strong> × Kelly × 25% (max 10% bankroll = €{{ "%.2f"|format(bankroll * 0.10) }})
+          </div>
+
+          <button type="submit" class="primary-btn">🎲 Crea Doppia con Kelly</button>
+          {% else %}
+          <div class="empty-state">
+            <strong>Nessuna partita per {{ strategy }} oggi</strong>
+            <span>Importa un CSV dalla sezione <a href="{{ url_for('index', strategy=strategy) }}">{{ strategy }}</a>.</span>
+          </div>
+          {% endif %}
+        </form>
+      </div>
+    </section>
+
+    {# ── DOPPIE DI OGGI ── #}
+    {% if doppie_oggi %}
+    <section class="odds-table-card">
+      <div class="section-head">
+        <div><span class="eyebrow">{{ oggi }}</span><h3>🎲 Doppie di oggi</h3></div>
+        <span class="count-pill">{{ doppie_oggi|length }} doppie</span>
+      </div>
+
+      <div style="padding:16px;">
+        {% for d in doppie_oggi %}
+        <div class="doppia-card {{ d.esito }}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+
+            {# Partite della doppia #}
+            <div style="flex:1;min-width:200px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span class="market-pill" style="background:rgba(41,121,255,.15);color:#2979ff;">Doppia #{{ loop.index }}</span>
+                <span class="kelly-badge">Kelly 25%</span>
+                {% if d.esito == 'vinta' %}
+                  <span class="market-pill" style="color:#00e676;background:rgba(0,230,118,.1);">✅ VINTA</span>
+                {% elif d.esito == 'persa' %}
+                  <span class="market-pill" style="color:#ff1744;background:rgba(255,23,68,.1);">❌ PERSA</span>
+                {% else %}
+                  <span class="market-pill" style="color:#888;">⏳ In attesa</span>
+                {% endif %}
+              </div>
+
+              <div style="font-size:.95rem;">
+                <strong>{{ d.home1 }} - {{ d.away1 }}</strong>
+                <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd1) }}</span>
+              </div>
+              <div class="vs-divider">+</div>
+              <div style="font-size:.95rem;">
+                <strong>{{ d.home2 }} - {{ d.away2 }}</strong>
+                <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd2) }}</span>
+              </div>
+            </div>
+
+            {# Numeri #}
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;min-width:240px;">
+              <div>
+                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">Quota</div>
+                <div style="font-size:1.2rem;font-weight:700;">{{ "%.2f"|format(d.quota_doppia) }}</div>
+              </div>
+              <div>
+                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">Puntata</div>
+                <div style="font-size:1.2rem;font-weight:700;color:#ffd600;">€{{ "%.2f"|format(d.puntata) }}</div>
+              </div>
+              <div>
+                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">
+                  {% if d.esito == 'vinta' %}Incassato{% elif d.esito == 'persa' %}Perso{% else %}Vincita potenziale{% endif %}
+                </div>
+                <div style="font-size:1.2rem;font-weight:700;color:{{ '#00e676' if d.esito == 'vinta' else ('#ff1744' if d.esito == 'persa' else '#888') }};">
+                  {% if d.esito == 'vinta' %}€{{ "%.2f"|format(d.incasso) }}
+                  {% elif d.esito == 'persa' %}-€{{ "%.2f"|format(d.puntata) }}
+                  {% else %}€{{ "%.2f"|format(d.puntata * d.quota_doppia) }}{% endif %}
+                </div>
+              </div>
+            </div>
+
+            {# Bottoni esito + elimina #}
+            <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
+              <div style="display:flex;gap:6px;">
+                <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" style="display:inline;">
+                  <input type="hidden" name="strategy" value="{{ strategy }}">
+                  <input type="hidden" name="esito" value="vinta">
+                  <button type="submit" class="esito-btn vinta {{ 'active' if d.esito == 'vinta' else '' }}">✅ Vinta</button>
+                </form>
+                <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" style="display:inline;">
+                  <input type="hidden" name="strategy" value="{{ strategy }}">
+                  <input type="hidden" name="esito" value="persa">
+                  <button type="submit" class="esito-btn persa {{ 'active' if d.esito == 'persa' else '' }}">❌ Persa</button>
+                </form>
+              </div>
+              <form action="{{ url_for('doppie_elimina', doppia_id=d.id) }}" method="POST"
+                    onsubmit="return confirm('Eliminare questa doppia?')">
+                <input type="hidden" name="strategy" value="{{ strategy }}">
+                <button type="submit" class="ghost-btn" style="font-size:.78rem;padding:4px 10px;">🗑 Elimina</button>
+              </form>
+              {% if d.esito != 'pending' %}
+              <div style="font-size:.78rem;color:{{ '#00e676' if d.profitto > 0 else '#ff1744' }};">
+                Profitto: {{ '+' if d.profitto > 0 }}€{{ "%.2f"|format(d.profitto) }}
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {# ── STORICO DOPPIE ── #}
+    {% if storico %}
+    <section class="storico-card">
+      <div class="section-head">
+        <div><span class="eyebrow">Storico completo</span><h3>📅 Doppie precedenti</h3></div>
+        <span class="count-pill">{{ stats_doppie.totale or 0 }} totali</span>
+      </div>
+      <div class="table-wrap">
+        <table class="odds-table">
+          <thead>
+            <tr><th>Data</th><th>Partite</th><th>Quota</th><th>Puntata</th><th>Incasso</th><th>Profitto</th><th>Bankroll post</th><th>Esito</th></tr>
+          </thead>
+          <tbody>
+            {% for d in storico %}
+            <tr>
+              <td><strong>{{ d.data }}</strong></td>
+              <td style="font-size:.82rem;">{{ d.home1 }} + {{ d.home2 }}</td>
+              <td><span class="prob-pill">{{ "%.2f"|format(d.quota_doppia) }}</span></td>
+              <td style="color:#ffd600;">€{{ "%.2f"|format(d.puntata) }}</td>
+              <td>€{{ "%.2f"|format(d.incasso) }}</td>
+              <td>
+                <span style="color:{{ '#00e676' if d.profitto > 0 else ('#ff1744' if d.profitto < 0 else '#888') }};">
+                  {{ '+' if d.profitto > 0 }}€{{ "%.2f"|format(d.profitto) }}
+                </span>
+              </td>
+              <td>€{{ "%.2f"|format(d.bankroll_post) }}</td>
+              <td>
+                <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" class="esito-form">
+                  <input type="hidden" name="strategy" value="{{ strategy }}">
+                  <select name="esito" onchange="this.form.submit()"
+                          style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 8px;color:inherit;font-size:.82rem;">
+                    <option value="pending" {{ 'selected' if d.esito == 'pending' }}>⏳ Pending</option>
+                    <option value="vinta"   {{ 'selected' if d.esito == 'vinta' }}>✅ Vinta</option>
+                    <option value="persa"   {{ 'selected' if d.esito == 'persa' }}>❌ Persa</option>
+                  </select>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+
+  </main>
+</div>
+</body>
+</html>
