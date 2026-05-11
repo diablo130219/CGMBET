@@ -49,12 +49,8 @@
   </aside>
 
   <main class="content">
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Strategy Market</span>
-        <h1>{{ strategy }}</h1>
-        <p>Da qui scegli manualmente le partite da inserire nella Bolletta Pazza.</p>
-      </div>
+    <header class="topbar page-clean-topbar">
+      <div></div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
@@ -66,16 +62,12 @@
 
 
     {% set hero_class = 'hero-gg' if strategy == 'GG' else ('hero-over25' if strategy == 'Over 2.5' else 'hero-over15') %}
-    <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic">
+    <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic kickora-unified-hero">
       <div class="hero-logo-zone">
-        {% if strategy == 'GG' %}
-          <div class="strategy-emblem">GG<small>STRATEGY</small></div>
-        {% elif strategy == 'Over 2.5' %}
-          <div class="strategy-emblem">OVER<br>2.5<small>ENGINE</small></div>
-        {% else %}
-          <div class="strategy-emblem">OVER<br>1.5<small>CONTROL</small></div>
-        {% endif %}
+        <div class="hero-logo-ring"></div>
+        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
       </div>
+
       <div class="hero-main-zone">
         {% if strategy == 'GG' %}
           <span class="hero-kicker">GG Strategy</span>
@@ -94,14 +86,21 @@
           <div class="hero-badges"><span class="hero-badge blue">Safe Mode</span><span class="hero-badge blue">Low Risk</span><span class="hero-badge blue">Smart Entry</span></div>
         {% endif %}
       </div>
-      <div class="hero-side-zone">
+
+      <div class="hero-side-zone hero-strategy-side">
+        {% if strategy == 'GG' %}
+          <div class="strategy-side-emblem gg-emblem">GG<small>STRATEGY</small></div>
+        {% elif strategy == 'Over 2.5' %}
+          <div class="strategy-side-emblem over25-emblem">OVER<br>2.5<small>ENGINE</small></div>
+        {% else %}
+          <div class="strategy-side-emblem over15-emblem">OVER<br>1.5<small>CONTROL</small></div>
+        {% endif %}
         <article class="hero-side-card floating-card"><span>Partite trovate</span><strong>{{ total }}</strong><small>righe visualizzate</small></article>
         <article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>
         <article class="hero-side-card floating-card"><span>Quota media</span><strong>{% if total_strategy > 0 %}{{ avg_odds[strategy] if avg_odds is defined and avg_odds[strategy] > 0 else '0.00' }}{% else %}0.00{% endif %}</strong><small>della strategia</small></article>
       </div>
       <div class="hero-graphic"></div>
     </section>
-
 
     <section class="market-hero">
       <div class="market-copy">
