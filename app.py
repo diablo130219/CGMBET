@@ -424,7 +424,26 @@ def index():
     query += " ORDER BY match_date ASC, match_time ASC, championship ASC"
 
     conn = get_db()
-    matches = conn.execute(query, params).fetchall()
+    raw_matches = conn.execute(query, params).fetchall()
+
+    # Ripristino statistiche filtro partita: ENTRA / BORDERLINE / SCARTA
+    matches = []
+    stat_entra = 0
+    stat_borderline = 0
+    stat_scarta = 0
+    for m in raw_matches:
+        md = dict(m)
+        filtri = calcola_score(m, strategy)
+        md["filtri"] = filtri
+        if filtri["semaforo"] == "entra":
+            stat_entra += 1
+        elif filtri["semaforo"] == "borderline":
+            stat_borderline += 1
+        else:
+            stat_scarta += 1
+
+        matches.append(md)
+
     total_strategy = conn.execute("SELECT COUNT(*) FROM matches WHERE strategy=?", (strategy,)).fetchone()[0]
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
 
@@ -450,6 +469,9 @@ def index():
         date_filter=date_filter,
         total=len(matches),
         total_strategy=total_strategy,
+        stat_entra=stat_entra,
+        stat_borderline=stat_borderline,
+        stat_scarta=stat_scarta,
         total_all=total_all,
         gg_count=gg_count,
         over25_count=over25_count,

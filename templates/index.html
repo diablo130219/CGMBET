@@ -81,6 +81,9 @@
 
     <section class="kpi-grid">
       <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
+      <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>
+      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>
+      <article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>
       <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
       <article class="kpi-card accent"><span>Bolletta Pazza</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small></article>
     </section>
@@ -128,6 +131,7 @@
               <th>Quota</th>
               <th>ELO GAP</th>
               <th>Media Gol</th>
+              <th>Filtro</th>
               {% if strategy == 'GG' %}
               <th>GG Casa %</th>
               <th>GG Trasf %</th>
@@ -149,6 +153,16 @@
               <td><span class="prob-pill">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="elo-pill">{{ m.elo_gap }}</span></td>
               <td><span class="elo-pill">{{ m.notes }}</span></td>
+              <td>
+                {% if m.filtri.semaforo == "entra" %}
+                  <span class="market-pill" style="background:rgba(0,230,118,.12);color:#00e676;">✅ ENTRA</span>
+                {% elif m.filtri.semaforo == "borderline" %}
+                  <span class="market-pill" style="background:rgba(255,193,7,.12);color:#ffd54f;">⚠️ BORDER</span>
+                {% else %}
+                  <span class="market-pill" style="background:rgba(255,82,82,.12);color:#ff5252;">❌ SCARTA</span>
+                {% endif %}
+                <small>{{ m.filtri.score }}/{{ m.filtri.max }} filtri</small>
+              </td>
 
               {% if strategy == 'GG' %}
               <td><span class="stat-pill">{{ m.gg_home }}%</span></td>
