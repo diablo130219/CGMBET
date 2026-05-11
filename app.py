@@ -74,6 +74,39 @@ def init_db():
     """)
 
     conn.execute("""
+        CREATE TABLE IF NOT EXISTS sistema_risultati (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            strategy TEXT NOT NULL,
+            match_id INTEGER NOT NULL,
+            home_team TEXT,
+            away_team TEXT,
+            odd REAL DEFAULT 0,
+            esito TEXT DEFAULT 'pending',
+            flex INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(data, match_id)
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS sistema_sessioni (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            data TEXT NOT NULL,
+            strategy TEXT NOT NULL,
+            budget REAL DEFAULT 0,
+            n_partite INTEGER DEFAULT 0,
+            n_triple INTEGER DEFAULT 0,
+            triple_vinte INTEGER DEFAULT 0,
+            incasso REAL DEFAULT 0,
+            profitto REAL DEFAULT 0,
+            roi REAL DEFAULT 0,
+            flex_mode INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
         CREATE TABLE IF NOT EXISTS bankroll (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             capitale REAL DEFAULT 0,
@@ -966,6 +999,31 @@ def sistema():
         (strategy, today.isoformat())
     ).fetchall()
 
+    # Carica risultati di oggi
+    risultati_oggi = {}
+    for r in conn.execute(
+        "SELECT match_id, esito FROM sistema_risultati WHERE data=? AND strategy=?",
+        (today.isoformat(), strategy)
+    ).fetchall():
+        risultati_oggi[r["match_id"]] = r["esito"]
+
+    # Storico sessioni
+    storico_sessioni = conn.execute(
+        "SELECT * FROM sistema_sessioni WHERE strategy=? ORDER BY created_at DESC LIMIT 10",
+        (strategy,)
+    ).fetchall()
+
+    # Stats totali sistema
+    stats_sistema = conn.execute("""
+        SELECT
+            COUNT(*) as totale_sessioni,
+            COALESCE(SUM(profitto),0) as tot_profitto,
+            COALESCE(SUM(budget),0) as tot_investito,
+            COALESCE(SUM(triple_vinte),0) as tot_triple_vinte,
+            COALESCE(SUM(n_triple),0) as tot_triple_giocate
+        FROM sistema_sessioni WHERE strategy=?
+    """, (strategy,)).fetchone()
+
     partite_scored = []
     for m in matches:
         det = calcola_score(m, strategy)
@@ -988,7 +1046,26 @@ def sistema():
     partite_scored.sort(key=lambda x: ordine[x["filtri"]["semaforo"]])
 
     entra = [p for p in partite_scored if p["filtri"]["semaforo"] == "entra"]
-    sistema_result = calcola_sistema(entra, budget) if entra else None
+    borderline = [p for p in partite_scored if p["filtri"]["semaforo"] == "borderline"]
+
+    # Modalità FLEX — se ENTRA < 4, completa con le migliori BORDERLINE
+    flex_mode = False
+    partite_sistema = entra[:]
+    if len(partite_sistema) < 4 and borderline:
+        # Ordina borderline per score decrescente
+        borderline_sorted = sorted(borderline, key=lambda x: x["filtri"]["score"], reverse=True)
+        needed = 4 - len(partite_sistema)
+        flex_aggiunte = borderline_sorted[:needed]
+        for p in flex_aggiunte:
+            p["flex"] = True  # marca come flex
+        partite_sistema += flex_aggiunte
+        flex_mode = len(flex_aggiunte) > 0
+
+    sistema_result = calcola_sistema(partite_sistema, budget) if len(partite_sistema) >= 4 else None
+    if sistema_result:
+        sistema_result["flex_mode"] = flex_mode
+        sistema_result["n_entra"] = len(entra)
+        sistema_result["n_flex"] = len(partite_sistema) - len(entra)
 
     confronto = {}
     for s in STRATEGIES:
@@ -1007,9 +1084,15 @@ def sistema():
 
     return render_template("sistema.html",
         strategy=strategy,
+        risultati_oggi=risultati_oggi,
+        storico_sessioni=storico_sessioni,
+        stats_sistema=stats_sistema,
         budget=budget,
         partite=partite_scored,
         entra=entra,
+        borderline=borderline,
+        partite_sistema=partite_sistema,
+        flex_mode=flex_mode,
         sistema=sistema_result,
         soglie=SOGLIE[strategy],
         confronto=confronto,
@@ -1031,6 +1114,57 @@ def sistema():
         over25_count=over25_count,
         over15_count=over15_count,
     )
+
+
+@app.route("/sistema/esito/<int:match_id>", methods=["POST"])
+@login_required
+def sistema_esito(match_id):
+    esito = request.form.get("esito", "pending")
+    data = date.today().isoformat()
+    strategy = request.form.get("strategy", "Over 2.5")
+    budget = parse_float(request.form.get("budget", "10"))
+
+    conn = get_db()
+
+    # Recupera dati partita
+    m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
+    if m:
+        conn.execute("""
+            INSERT INTO sistema_risultati (data, strategy, match_id, home_team, away_team, odd, esito, flex)
+            VALUES (?,?,?,?,?,?,?,0)
+            ON CONFLICT(data, match_id) DO UPDATE SET esito=excluded.esito
+        """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+        conn.commit()
+
+    conn.close()
+    return redirect(url_for("sistema", strategy=strategy, budget=budget))
+
+
+@app.route("/sistema/salva-sessione", methods=["POST"])
+@login_required
+def sistema_salva_sessione():
+    data = date.today().isoformat()
+    strategy = request.form.get("strategy", "Over 2.5")
+    budget = parse_float(request.form.get("budget", "10"))
+    n_partite = int(request.form.get("n_partite", 0))
+    n_triple = int(request.form.get("n_triple", 0))
+    triple_vinte = int(request.form.get("triple_vinte", 0))
+    incasso = parse_float(request.form.get("incasso", "0"))
+    profitto = parse_float(request.form.get("profitto", "0"))
+    roi = parse_float(request.form.get("roi", "0"))
+    flex_mode = int(request.form.get("flex_mode", "0"))
+
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO sistema_sessioni
+        (data, strategy, budget, n_partite, n_triple, triple_vinte, incasso, profitto, roi, flex_mode)
+        VALUES (?,?,?,?,?,?,?,?,?,?)
+    """, (data, strategy, budget, n_partite, n_triple, triple_vinte, incasso, profitto, roi, flex_mode))
+    conn.commit()
+    conn.close()
+
+    flash("💾 Sessione sistema salvata.", "success")
+    return redirect(url_for("sistema", strategy=strategy, budget=budget))
 
 
 if __name__ == "__main__":
