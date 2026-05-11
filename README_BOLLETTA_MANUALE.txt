@@ -1,1 +1,0 @@
-Funzione aggiunta: pulsante ➕ Aggiungi alla Bolletta Pazza dall'elenco partite, rimozione dalla sidebar e dalla pagina Bolletta, prevenzione duplicati, svuota bolletta, salvataggio storico.
