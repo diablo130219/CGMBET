@@ -1864,3 +1864,153 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;backg
   .hero-logo { width: 88% !important; }
   .login-claim .brand-slogan { font-size: 44px !important; }
 }
+
+
+/* === KICKORA DASHBOARD LOGO HERO V13 === */
+.sidebar .brand{
+  padding: 14px 12px;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(0,255,185,.13), rgba(181,46,255,.08));
+  border: 1px solid rgba(0,255,185,.20);
+  box-shadow: 0 0 28px rgba(0,255,185,.08), inset 0 0 20px rgba(255,255,255,.03);
+}
+.sidebar-logo-img{
+  width: 68px;
+  height: 68px;
+  border-radius: 22px;
+  object-fit: cover;
+  box-shadow: 0 0 22px rgba(0,255,185,.38), 0 0 48px rgba(158,64,255,.16);
+  animation: kickoraLogoFloat 4.5s ease-in-out infinite;
+}
+.sidebar .brand strong{
+  font-size: 17px;
+  letter-spacing: 1px;
+}
+.sidebar .brand span{
+  color: rgba(255,255,255,.68);
+  letter-spacing: 2px;
+}
+.premium-topbar h1{
+  font-size: clamp(34px, 3.3vw, 68px);
+  line-height: .92;
+  background: linear-gradient(90deg, #ffffff 0%, #00ffd0 42%, #c84dff 78%, #ffffff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 34px rgba(0,255,208,.14);
+}
+.brand-hero-v13{
+  position: relative;
+  min-height: 360px;
+  display: grid;
+  grid-template-columns: minmax(260px, 430px) 1.1fr minmax(260px, 380px);
+  align-items: center;
+  gap: 34px;
+  padding: 34px 38px;
+  overflow: hidden;
+  border: 1px solid rgba(0,255,196,.20);
+  background:
+    radial-gradient(circle at 18% 45%, rgba(0,255,185,.26), transparent 31%),
+    radial-gradient(circle at 78% 15%, rgba(195,57,255,.25), transparent 34%),
+    linear-gradient(135deg, rgba(0,18,20,.92), rgba(7,11,26,.94) 46%, rgba(21,6,33,.88));
+  box-shadow: 0 0 55px rgba(0,255,185,.10), inset 0 0 80px rgba(255,255,255,.025);
+}
+.brand-hero-v13:before{
+  content:"";
+  position:absolute; inset:-2px;
+  background:
+    linear-gradient(90deg, transparent, rgba(0,255,213,.20), transparent),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 1px, transparent 1px 82px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 52px);
+  opacity:.55;
+  pointer-events:none;
+}
+.brand-orb-wrap{
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 330px;
+  z-index: 1;
+}
+.dashboard-main-logo{
+  width: min(360px, 26vw);
+  min-width: 260px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 0 2px rgba(0,255,200,.38), 0 0 38px rgba(0,255,200,.45), 0 0 90px rgba(164,61,255,.20);
+  animation: kickoraLogoFloat 5.2s ease-in-out infinite;
+}
+.brand-energy-ring{
+  position:absolute;
+  width: min(410px, 30vw);
+  min-width: 300px;
+  aspect-ratio:1/1;
+  border-radius:50%;
+  border:1px solid rgba(0,255,200,.45);
+  box-shadow: 0 0 30px rgba(0,255,200,.38), inset 0 0 34px rgba(0,255,200,.10);
+  animation: kickoraSpin 12s linear infinite;
+}
+.brand-energy-ring:after{
+  content:"";
+  position:absolute; inset:14px;
+  border-radius:50%;
+  border:1px dashed rgba(202,78,255,.35);
+}
+.orbit-dot{position:absolute;width:11px;height:11px;border-radius:50%;background:#00ffd0;box-shadow:0 0 18px #00ffd0;}
+.dot-a{top:42px;right:52px;animation: kickoraFloatSmall 3s ease-in-out infinite;}
+.dot-b{bottom:56px;left:48px;background:#c94cff;box-shadow:0 0 18px #c94cff;animation: kickoraFloatSmall 3.8s ease-in-out infinite reverse;}
+.hero-copy-v13{position:relative;z-index:1;}
+.pulse-chip{box-shadow:0 0 18px rgba(0,255,200,.28);animation:kickoraPulse 2.4s ease-in-out infinite;}
+.hero-copy-v13 h2{
+  margin: 18px 0 14px;
+  font-size: clamp(44px, 4.8vw, 88px);
+  line-height: .88;
+  letter-spacing: -3px;
+}
+.hero-copy-v13 h2 span{display:block;color:#fff;text-shadow:0 0 24px rgba(255,255,255,.10);}
+.hero-copy-v13 h2 span:nth-child(2){color:#00ffd0;text-shadow:0 0 24px rgba(0,255,208,.38);}
+.hero-copy-v13 h2 span:nth-child(3){color:#c85cff;text-shadow:0 0 28px rgba(200,92,255,.42);}
+.hero-copy-v13 p{
+  max-width: 620px;
+  color: rgba(235,245,255,.72);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.hero-action-row{display:flex;gap:14px;flex-wrap:wrap;margin-top:22px;}
+.hero-primary-btn,.hero-secondary-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:46px;padding:0 18px;border-radius:16px;text-decoration:none;font-weight:900;
+  border:1px solid rgba(255,255,255,.12);
+}
+.hero-primary-btn{background:linear-gradient(90deg,#00ffb8,#33d6ff,#d83cff);color:#061018;box-shadow:0 0 30px rgba(0,255,200,.22);}
+.hero-secondary-btn{background:rgba(255,255,255,.06);color:#fff;box-shadow:inset 0 0 18px rgba(255,255,255,.03);}
+.hero-ai-cards-v13{position:relative;z-index:1;display:grid;gap:14px;}
+.hero-ai-cards-v13 article{
+  padding:18px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+  border:1px solid rgba(0,255,200,.18);
+  box-shadow:0 0 30px rgba(0,0,0,.22), inset 0 0 22px rgba(255,255,255,.025);
+  backdrop-filter: blur(14px);
+}
+.hero-ai-cards-v13 span{display:block;color:#00ffd0;font-size:11px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;}
+.hero-ai-cards-v13 strong{display:block;font-size:42px;line-height:1;margin:8px 0 4px;color:#fff;}
+.hero-ai-cards-v13 small{color:rgba(235,245,255,.62);}
+.kpi-card,.summary-card,.sidebar-ticket,.nav-link{transition:transform .22s ease, box-shadow .22s ease, border-color .22s ease;}
+.kpi-card:hover,.summary-card:hover,.sidebar-ticket:hover,.nav-link:hover{transform:translateY(-2px);box-shadow:0 0 26px rgba(0,255,200,.10);}
+@keyframes kickoraLogoFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.015)}}
+@keyframes kickoraFloatSmall{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes kickoraSpin{to{transform:rotate(360deg)}}
+@keyframes kickoraPulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.35)}}
+@media (max-width: 1100px){
+  .brand-hero-v13{grid-template-columns:1fr; text-align:center;}
+  .hero-copy-v13 p{margin-left:auto;margin-right:auto;}
+  .hero-action-row{justify-content:center;}
+  .hero-ai-cards-v13{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width: 720px){
+  .dashboard-main-logo{width:260px;min-width:220px;}
+  .brand-energy-ring{width:290px;min-width:260px;}
+  .hero-ai-cards-v13{grid-template-columns:1fr;}
+  .hero-copy-v13 h2{font-size:46px;letter-spacing:-1.5px;}
+}
