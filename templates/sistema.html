@@ -1,0 +1,508 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kickora — Sistema Triple</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=sistema-v3">
+  <style>
+    .flex-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(124,77,255,.2);color:#7c4dff;margin-left:6px;}
+    .flex-row{border-left:3px solid #7c4dff !important;}
+    .esito-form{display:inline-flex;gap:4px;align-items:center;}
+    .esito-btn{padding:4px 10px;border-radius:6px;font-size:.78rem;font-weight:700;border:none;cursor:pointer;transition:.15s;}
+    .esito-btn.vinta{background:rgba(0,230,118,.15);color:#00e676;}
+    .esito-btn.vinta.active, .esito-btn.vinta:hover{background:#00e676;color:#0d0f14;}
+    .esito-btn.persa{background:rgba(255,23,68,.15);color:#ff1744;}
+    .esito-btn.persa.active, .esito-btn.persa:hover{background:#ff1744;color:#fff;}
+    .esito-btn.pending{background:rgba(255,255,255,.07);color:#888;}
+    .esito-btn.pending.active, .esito-btn.pending:hover{background:rgba(255,255,255,.15);color:#ccc;}
+    .storico-sessioni{margin-top:20px;}
+    .sessione-row-vinta{border-left:3px solid #00e676;}
+    .sessione-row-persa{border-left:3px solid #ff1744;}
+    .sessione-row-pari{border-left:3px solid #ffd600;}
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('dashboard') }}">
+      <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
+      <div><strong>KICKORA</strong><span>BET</span></div>
+    </a>
+
+    <nav class="nav">
+      <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎰</span> Bolletta Pazza</a>
+      <a href="{{ url_for('sistema') }}" class="nav-link active"><span>🎯</span> Sistema Triple</a>
+      <div class="nav-label">Strategie</div>
+      <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
+        <span class="sport-dot green"></span><div>GG <small>{{ gg_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link">
+        <span class="sport-dot orange"></span><div>Over 2.5 <small>{{ over25_count }} match</small></div>
+      </a>
+      <a href="{{ url_for('index', strategy='Over 1.5') }}" class="nav-link">
+        <span class="sport-dot blue"></span><div>Over 1.5 <small>{{ over15_count }} match</small></div>
+      </a>
+    </nav>
+
+    <section class="side-bet-slip">
+      <div class="side-slip-head">
+        <span>Sistema Triple</span>
+        <strong>{{ entra|length }} ENTRA{% if flex_mode %} +{{ sistema.n_flex if sistema else 0 }} FLEX{% endif %}</strong>
+      </div>
+
+      <form action="{{ url_for('sistema') }}" method="GET" class="side-stake-form">
+        <input type="hidden" name="strategy" value="{{ strategy }}">
+        <label>Budget totale (€)</label>
+        <div>
+          <input type="number" name="budget" value="{{ budget }}" step="0.50" min="1" placeholder="€">
+          <button type="submit">OK</button>
+        </div>
+      </form>
+
+      <div class="side-bankroll-mini">
+        <div><span>Investito totale</span><strong>€{{ "%.2f"|format(stats_sistema.tot_investito or 0) }}</strong></div>
+        <div><span>Profitto sistema</span>
+          <strong class="{{ 'roi-pos' if (stats_sistema.tot_profitto or 0) > 0 else 'roi-neg' }}">
+            {{ '+' if (stats_sistema.tot_profitto or 0) > 0 }}€{{ "%.2f"|format(stats_sistema.tot_profitto or 0) }}
+          </strong>
+        </div>
+      </div>
+
+      {% if sistema %}
+        {% if flex_mode %}
+        <div style="padding:5px 8px;background:rgba(124,77,255,.1);border-radius:6px;margin:4px 0;font-size:.75rem;color:#7c4dff;">
+          ⚡ FLEX — {{ sistema.n_entra }} ENTRA + {{ sistema.n_flex }} BORDER
+        </div>
+        {% endif %}
+        <div class="side-slip-list">
+          {% for t in sistema.triple %}
+          <article class="side-slip-match">
+            <div>
+              <span>T{{ loop.index }} @{{ "%.2f"|format(t.quota) }}</span>
+              <strong>Punta €{{ "%.2f"|format(t.puntata) }}</strong>
+              <small>→ €{{ "%.2f"|format(t.vincita) }}</small>
+            </div>
+            <div class="side-slip-right">
+              <b class="roi-pos">€{{ "%.2f"|format(t.vincita) }}</b>
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+        <div class="side-slip-footer">
+          <div><span>Vincita min</span><strong>€{{ "%.2f"|format(sistema.vincita_min) }}</strong></div>
+          <div><span>Profitto min</span>
+            <strong class="{{ 'roi-pos' if sistema.profitto_min > 0 else 'roi-neg' }}">
+              {{ '+' if sistema.profitto_min > 0 }}€{{ "%.2f"|format(sistema.profitto_min) }}
+            </strong>
+          </div>
+        </div>
+      {% else %}
+        <div class="side-slip-empty">
+          <strong>Nessun sistema</strong>
+          <small>Servono almeno 4 partite oggi.</small>
+        </div>
+      {% endif %}
+
+      {# Stats sistema #}
+      <div class="side-bankroll-mini" style="margin-top:8px;">
+        <div><span>Sessioni totali</span><strong>{{ stats_sistema.totale_sessioni or 0 }}</strong></div>
+        <div><span>Triple vinte/giocate</span>
+          <strong>{{ stats_sistema.tot_triple_vinte or 0 }}/{{ stats_sistema.tot_triple_giocate or 0 }}</strong>
+        </div>
+      </div>
+    </section>
+
+    {% include "_side_bolletta.html" %}
+
+    <div class="sidebar-ticket">
+      <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Filtro automatico</span>
+        <h1>🎯 Sistema Triple</h1>
+        <p>Segna l'esito di ogni partita — il sistema calcola automaticamente quante triple hai vinto.</p>
+      </div>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    {# ── HERO STRATEGIA ── #}
+    <section class="market-hero">
+      <div class="market-copy">
+        <span class="status-chip">AUTO FILTER</span>
+        <h2>{{ strategy }}</h2>
+        <p>Scegli la strategia — segna i risultati per calcolare il ROI.</p>
+      </div>
+      <div class="import-card" style="gap:10px;">
+        <label>Strategia attiva</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          {% for s in ["GG","Over 2.5","Over 1.5"] %}
+          <a href="{{ url_for('sistema', strategy=s, budget=budget) }}"
+             style="padding:8px 18px;border-radius:8px;font-weight:600;font-size:.9rem;text-decoration:none;
+                    background:{{ 'var(--accent,#00e676)' if strategy==s else 'rgba(255,255,255,.07)' }};
+                    color:{{ '#0d0f14' if strategy==s else 'var(--text,#e8eaf0)' }};
+                    border:1px solid {{ 'transparent' if strategy==s else 'rgba(255,255,255,.1)' }};">
+            {{ s }}
+            {% if confronto[s] > 0 %}
+            <span style="margin-left:4px;background:rgba(0,230,118,.2);color:#00e676;padding:1px 7px;border-radius:20px;font-size:.75rem;">{{ confronto[s] }}✅</span>
+            {% endif %}
+          </a>
+          {% endfor %}
+        </div>
+        {% if migliore %}
+        <small style="color:#00e676;">🏆 Più ricca oggi: <strong>{{ migliore }}</strong></small>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if flex_mode and sistema %}
+    <div class="flash success" style="background:rgba(124,77,255,.1);border-left:4px solid #7c4dff;color:#c5b4ff;">
+      ⚡ <strong>Modalità FLEX</strong> — {{ sistema.n_entra }} ENTRA + {{ sistema.n_flex }} BORDERLINE aggiunte automaticamente.
+    </div>
+    {% endif %}
+
+    {# ── KPI ── #}
+    <section class="kpi-grid four">
+      <article class="kpi-card"><span>Partite oggi</span><strong>{{ partite|length }}</strong><small>{{ strategy }}</small></article>
+      <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ entra|length }}</strong><small>tutti i filtri ok</small></article>
+      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ borderline|length }}</strong><small>1 filtro mancante</small></article>
+      <article class="kpi-card"><span>Triple generate</span><strong>{{ sistema.n_triple if sistema else 0 }}</strong><small>{{ sistema.garanzia if sistema else "—" }}</small></article>
+    </section>
+
+    {# ── SOGLIE ── #}
+    <section class="odds-table-card" style="margin-bottom:16px;">
+      <div class="section-head">
+        <div><span class="eyebrow">Filtri attivi</span><h3>Soglie — {{ strategy }}</h3></div>
+        <span class="count-pill">{{ soglie.max_filtri }}/{{ soglie.max_filtri }} per ENTRA</span>
+      </div>
+      <div style="display:flex;gap:24px;flex-wrap:wrap;padding:12px 16px;font-size:.9rem;color:var(--muted,#888);">
+        <span>🏠 Casa ≥ <strong style="color:var(--text);">{{ soglie.casa }}%</strong></span>
+        <span>✈️ Trasf ≥ <strong style="color:var(--text);">{{ soglie.trasf }}%</strong></span>
+        {% if soglie.media_gol %}<span>⚽ Media Gol ≥ <strong style="color:var(--text);">{{ soglie.media_gol }}</strong></span>{% endif %}
+        <span>📊 Quota <strong style="color:var(--text);">{{ soglie.quota_min }}–{{ soglie.quota_max }}</strong></span>
+      </div>
+    </section>
+
+    {# ── TABELLA PARTITE CON ESITO ── #}
+    <section class="odds-table-card">
+      <div class="section-head">
+        <div><span class="eyebrow">Match board — {{ oggi }}</span><h3>Partite + Risultati</h3></div>
+        <span class="count-pill">{{ partite|length }} partite</span>
+      </div>
+      <div class="table-wrap">
+        <table class="odds-table">
+          <thead>
+            <tr>
+              <th>Partita</th><th>Ora</th><th>Camp.</th>
+              <th>Casa%</th><th>Trasf%</th>
+              {% if soglie.media_gol %}<th>M.Gol</th>{% endif %}
+              <th>Quota</th><th>Filtri</th><th>Semaforo</th>
+              <th>Esito</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if partite %}
+              {% for p in partite %}
+              {% set f = p.filtri %}
+              {% set is_flex = p.get('flex', False) if p is mapping else False %}
+              {% set esito_corrente = risultati_oggi.get(p.id, 'pending') %}
+              <tr class="{{ 'flex-row' if is_flex else '' }}">
+                <td class="team">
+                  <strong>{{ p.home_team }}</strong>
+                  <small>vs {{ p.away_team }}</small>
+                  {% if is_flex %}<span class="flex-badge">FLEX</span>{% endif %}
+                </td>
+                <td><strong>{{ p.match_time }}</strong></td>
+                <td>{{ p.championship }}</td>
+                <td><span class="stat-pill" style="color:{{ '#00e676' if f.casa.ok else '#ff1744' }};">{{ "%.0f"|format(f.casa.val) }}%</span></td>
+                <td><span class="stat-pill" style="color:{{ '#00e676' if f.trasf.ok else '#ff1744' }};">{{ "%.0f"|format(f.trasf.val) }}%</span></td>
+                {% if soglie.media_gol %}
+                <td><span class="elo-pill" style="color:{{ '#00e676' if f.media_gol.ok else '#ff1744' }};">{{ "%.2f"|format(f.media_gol.val) }}</span></td>
+                {% endif %}
+                <td><span class="prob-pill" style="color:{{ '#00e676' if f.quota.ok else '#ff1744' }};">{{ "%.2f"|format(f.quota.val) }}</span></td>
+                <td style="text-align:center;font-weight:700;">{{ f.score }}/{{ f.max }}</td>
+                <td>
+                  {% if is_flex %}
+                    <span class="market-pill" style="background:rgba(124,77,255,.12);color:#7c4dff;">⚡ FLEX</span>
+                  {% elif f.semaforo == "entra" %}
+                    <span class="market-pill" style="background:rgba(0,230,118,.12);color:#00e676;">✅ ENTRA</span>
+                  {% elif f.semaforo == "borderline" %}
+                    <span class="market-pill" style="background:rgba(255,214,0,.12);color:#ffd600;">⚠️ BORDER</span>
+                  {% else %}
+                    <span class="market-pill" style="background:rgba(255,23,68,.12);color:#ff1744;">❌ SCARTA</span>
+                  {% endif %}
+                </td>
+                {# ── BOTTONI ESITO ── #}
+                <td>
+                  <div class="esito-form">
+                    <form action="{{ url_for('sistema_esito', match_id=p.id) }}" method="POST" style="display:inline;">
+                      <input type="hidden" name="strategy" value="{{ strategy }}">
+                      <input type="hidden" name="budget" value="{{ budget }}">
+                      <input type="hidden" name="esito" value="vinta">
+                      <button type="submit" class="esito-btn vinta {{ 'active' if esito_corrente == 'vinta' else '' }}">✅</button>
+                    </form>
+                    <form action="{{ url_for('sistema_esito', match_id=p.id) }}" method="POST" style="display:inline;">
+                      <input type="hidden" name="strategy" value="{{ strategy }}">
+                      <input type="hidden" name="budget" value="{{ budget }}">
+                      <input type="hidden" name="esito" value="persa">
+                      <button type="submit" class="esito-btn persa {{ 'active' if esito_corrente == 'persa' else '' }}">❌</button>
+                    </form>
+                    <form action="{{ url_for('sistema_esito', match_id=p.id) }}" method="POST" style="display:inline;">
+                      <input type="hidden" name="strategy" value="{{ strategy }}">
+                      <input type="hidden" name="budget" value="{{ budget }}">
+                      <input type="hidden" name="esito" value="pending">
+                      <button type="submit" class="esito-btn pending {{ 'active' if esito_corrente == 'pending' else '' }}">⏳</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr><td colspan="10">
+                <div class="empty-state">
+                  <strong>Nessuna partita oggi per {{ strategy }}</strong>
+                  <span>Importa un CSV dalla sezione <a href="{{ url_for('index', strategy=strategy) }}">{{ strategy }}</a>.</span>
+                </div>
+              </td></tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    {# ── SISTEMA TRIPLE ── #}
+    {% if sistema %}
+
+    {# Calcola triple vinte in base agli esiti segnati #}
+    {% set partite_vinte = risultati_oggi.values()|selectattr('__eq__', 'vinta')|list|length %}
+    {% set partite_oggi_ids = partite_sistema|map(attribute='id')|list %}
+
+    <section class="bet-slip-wide">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Sistema — {{ strategy }}{% if flex_mode %} ⚡ FLEX{% endif %}</span>
+          <h3>🎯 {{ sistema.n_partite }} Partite — {{ sistema.n_triple }} Triple</h3>
+        </div>
+        <div class="slip-summary">
+          <span>Budget</span><strong>€{{ "%.2f"|format(sistema.budget) }}</strong>
+          <span>{{ sistema.garanzia }}</span>
+        </div>
+      </div>
+
+      {# KPI sistema #}
+      <section class="kpi-grid four" style="margin-bottom:20px;">
+        <article class="kpi-card"><span>Budget</span><strong>€{{ "%.2f"|format(sistema.budget) }}</strong><small>{{ sistema.n_triple }} triple</small></article>
+        <article class="kpi-card accent"><span>Vincita min</span><strong>€{{ "%.2f"|format(sistema.vincita_min) }}</strong><small>1 tripla garantita</small></article>
+        <article class="kpi-card">
+          <span>Profitto min</span>
+          <strong class="{{ 'roi-pos' if sistema.profitto_min > 0 else 'roi-neg' }}">
+            {{ '+' if sistema.profitto_min > 0 }}€{{ "%.2f"|format(sistema.profitto_min) }}
+          </strong>
+          <small>ROI {{ sistema.roi_min }}%</small>
+        </article>
+        <article class="kpi-card"><span>Vincita max</span><strong>€{{ "%.2f"|format(sistema.vincita_max) }}</strong><small>tutte vinte</small></article>
+      </section>
+
+      {# Le triple con stato esito #}
+      <div class="slip-grid">
+        {% for t in sistema.triple %}
+        {# Calcola se questa tripla è vinta in base agli esiti delle partite #}
+        {% set tripla_ok = true %}
+        {% for nome in t.partite %}
+          {% for p in partite_sistema %}
+            {% if (p.home_team + ' - ' + p.away_team) == nome %}
+              {% if risultati_oggi.get(p.id, 'pending') == 'persa' %}
+                {% set tripla_ok = false %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+        {% set tutti_definiti = true %}
+        {% for nome in t.partite %}
+          {% for p in partite_sistema %}
+            {% if (p.home_team + ' - ' + p.away_team) == nome %}
+              {% if risultati_oggi.get(p.id, 'pending') == 'pending' %}
+                {% set tutti_definiti = false %}
+              {% endif %}
+            {% endif %}
+          {% endfor %}
+        {% endfor %}
+
+        <article class="slip-match" style="border-top:3px solid {% if tutti_definiti and tripla_ok %}#00e676{% elif tutti_definiti and not tripla_ok %}#ff1744{% elif flex_mode %}#7c4dff{% else %}#00e676{% endif %};">
+          <div class="slip-top">
+            <span>T{{ loop.index }}</span>
+            <strong>@{{ "%.2f"|format(t.quota) }}</strong>
+            {% if tutti_definiti %}
+              {% if tripla_ok %}
+                <span style="color:#00e676;font-size:.8rem;">✅ VINTA</span>
+              {% else %}
+                <span style="color:#ff1744;font-size:.8rem;">❌ PERSA</span>
+              {% endif %}
+            {% endif %}
+          </div>
+          {% for nome in t.partite %}
+          <h4 style="font-size:.82rem;margin:4px 0;line-height:1.3;">{{ nome }}</h4>
+          {% endfor %}
+          <div style="margin-top:10px;display:flex;justify-content:space-between;">
+            <span style="font-size:.8rem;opacity:.6;">Punta</span>
+            <strong style="color:#ffd600;">€{{ "%.2f"|format(t.puntata) }}</strong>
+          </div>
+          <div style="display:flex;justify-content:space-between;">
+            <span style="font-size:.8rem;opacity:.6;">Vincita</span>
+            <strong style="color:{% if tutti_definiti and tripla_ok %}#00e676{% elif tutti_definiti %}#ff1744{% else %}#7c4dff if flex_mode else #00e676{% endif %};">
+              {% if tutti_definiti and tripla_ok %}€{{ "%.2f"|format(t.vincita) }}{% elif tutti_definiti %}€0.00{% else %}€{{ "%.2f"|format(t.vincita) }}{% endif %}
+            </strong>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+
+      {# Scenari #}
+      <div class="storico-card" style="margin-top:20px;">
+        <div class="section-head">
+          <div><span class="eyebrow">Simulazione</span><h3>📊 Scenari</h3></div>
+        </div>
+        <div class="table-wrap">
+          <table class="odds-table">
+            <thead>
+              <tr><th>Scenario</th><th>Triple</th><th>Incasso</th><th>Profitto</th><th>ROI</th><th>Esito</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>✅ Tutte {{ sistema.n_triple }}/{{ sistema.n_triple }}</td>
+                <td style="text-align:center;">{{ sistema.n_triple }}</td>
+                <td><span class="prob-pill">€{{ "%.2f"|format(sistema.vincita_max) }}</span></td>
+                <td><span class="stat-pill" style="color:#00e676;">+€{{ "%.2f"|format(sistema.profitto_max) }}</span></td>
+                <td>{{ "%.1f"|format(sistema.profitto_max/sistema.budget*100) }}%</td>
+                <td><span class="market-pill" style="color:#00e676;background:rgba(0,230,118,.1);">PROFITTO</span></td>
+              </tr>
+              <tr>
+                <td>⚡ Garanzia (1 tripla)</td>
+                <td style="text-align:center;">1</td>
+                <td><span class="prob-pill">€{{ "%.2f"|format(sistema.vincita_min) }}</span></td>
+                <td><span class="stat-pill" style="color:{{ '#00e676' if sistema.profitto_min > 0 else '#ffd600' }};">
+                  {{ '+' if sistema.profitto_min > 0 }}€{{ "%.2f"|format(sistema.profitto_min) }}</span></td>
+                <td>{{ sistema.roi_min }}%</td>
+                <td><span class="market-pill" style="color:{{ '#00e676' if sistema.profitto_min > 0 else '#ffd600' }};background:{{ 'rgba(0,230,118,.1)' if sistema.profitto_min > 0 else 'rgba(255,214,0,.1)' }};">
+                  {{ 'PROFITTO' if sistema.profitto_min > 0 else 'PARI' }}</span></td>
+              </tr>
+              <tr>
+                <td>❌ 0 triple vinte</td>
+                <td style="text-align:center;">0</td>
+                <td><span class="prob-pill">€0.00</span></td>
+                <td><span class="stat-pill" style="color:#ff1744;">-€{{ "%.2f"|format(sistema.budget) }}</span></td>
+                <td style="color:#ff1744;">-100%</td>
+                <td><span class="market-pill" style="color:#ff1744;background:rgba(255,23,68,.1);">PERDITA</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {# Salva sessione #}
+      <form action="{{ url_for('sistema_salva_sessione') }}" method="POST" style="margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <input type="hidden" name="strategy" value="{{ strategy }}">
+        <input type="hidden" name="budget" value="{{ budget }}">
+        <input type="hidden" name="n_partite" value="{{ sistema.n_partite }}">
+        <input type="hidden" name="n_triple" value="{{ sistema.n_triple }}">
+        <input type="hidden" name="flex_mode" value="{{ '1' if flex_mode else '0' }}">
+        <label style="font-size:.9rem;opacity:.7;">Triple vinte oggi:</label>
+        <input type="number" name="triple_vinte" min="0" max="{{ sistema.n_triple }}" value="0"
+               style="width:60px;text-align:center;" required>
+        <label style="font-size:.9rem;opacity:.7;">Incasso €:</label>
+        <input type="number" name="incasso" min="0" step="0.01" value="0"
+               style="width:90px;" required>
+        <input type="hidden" name="profitto" value="0">
+        <input type="hidden" name="roi" value="0">
+        <button type="submit" class="success-btn">💾 Salva sessione</button>
+      </form>
+
+    </section>
+
+    {% else %}
+    <section class="odds-table-card empty-main">
+      <div class="empty-state">
+        <strong>🎯 Sistema non disponibile</strong>
+        {% if partite|length > 0 %}
+        <span>{{ partite|length }} partite importate — {{ borderline|length }} BORDERLINE disponibili per la modalità FLEX.</span>
+        {% else %}
+        <span>Nessuna partita oggi. <a href="{{ url_for('index', strategy=strategy) }}">Importa il CSV →</a></span>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    {# ── STORICO SESSIONI ── #}
+    {% if storico_sessioni %}
+    <section class="storico-card storico-sessioni">
+      <div class="section-head">
+        <div><span class="eyebrow">Storico</span><h3>📅 Sessioni Sistema — {{ strategy }}</h3></div>
+        <span class="count-pill">{{ stats_sistema.totale_sessioni }} sessioni</span>
+      </div>
+
+      {# Stats globali #}
+      <div class="kpi-grid four" style="margin-bottom:16px;">
+        <article class="kpi-card"><span>Sessioni</span><strong>{{ stats_sistema.totale_sessioni or 0 }}</strong></article>
+        <article class="kpi-card"><span>Investito</span><strong>€{{ "%.2f"|format(stats_sistema.tot_investito or 0) }}</strong></article>
+        <article class="kpi-card">
+          <span>Profitto totale</span>
+          <strong class="{{ 'roi-pos' if (stats_sistema.tot_profitto or 0) > 0 else 'roi-neg' }}">
+            {{ '+' if (stats_sistema.tot_profitto or 0) > 0 }}€{{ "%.2f"|format(stats_sistema.tot_profitto or 0) }}
+          </strong>
+        </article>
+        <article class="kpi-card">
+          <span>Triple vinte/giocate</span>
+          <strong>{{ stats_sistema.tot_triple_vinte or 0 }}/{{ stats_sistema.tot_triple_giocate or 0 }}</strong>
+          <small>{{ "%.0f"|format((stats_sistema.tot_triple_vinte or 0) / (stats_sistema.tot_triple_giocate or 1) * 100) }}% win rate</small>
+        </article>
+      </div>
+
+      <div class="table-wrap">
+        <table class="odds-table">
+          <thead>
+            <tr><th>Data</th><th>Partite</th><th>Triple</th><th>Vinte</th><th>Incasso</th><th>Profitto</th><th>ROI</th><th>Flex</th></tr>
+          </thead>
+          <tbody>
+            {% for s in storico_sessioni %}
+            {% set prof = s.incasso - s.budget %}
+            <tr class="{{ 'sessione-row-vinta' if s.incasso > s.budget else ('sessione-row-pari' if s.incasso == s.budget else 'sessione-row-persa') }}">
+              <td><strong>{{ s.data }}</strong></td>
+              <td style="text-align:center;">{{ s.n_partite }}</td>
+              <td style="text-align:center;">{{ s.n_triple }}</td>
+              <td style="text-align:center;">
+                <strong style="color:{{ '#00e676' if s.triple_vinte > 0 else '#ff1744' }};">{{ s.triple_vinte }}</strong>
+              </td>
+              <td><span class="prob-pill">€{{ "%.2f"|format(s.incasso) }}</span></td>
+              <td>
+                <span class="stat-pill" style="color:{{ '#00e676' if prof > 0 else '#ff1744' }};">
+                  {{ '+' if prof > 0 }}€{{ "%.2f"|format(prof) }}
+                </span>
+              </td>
+              <td style="color:{{ '#00e676' if prof > 0 else '#ff1744' }};">
+                {{ "%.1f"|format(prof/s.budget*100 if s.budget > 0 else 0) }}%
+              </td>
+              <td>{{ '⚡' if s.flex_mode else '—' }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% endif %}
+
+  </main>
+</div>
+</body>
+</html>
