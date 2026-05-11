@@ -1041,6 +1041,9 @@ def calcola_sistema(partite, budget):
 @app.route("/sistema")
 @login_required
 def sistema():
+    # Sistema Triple sostituito da Bolletta Pazza
+    return redirect(url_for("bolletta_page"))
+
     strategy = request.args.get("strategy", "Over 2.5")
     budget   = parse_float(request.args.get("budget", "10"))
     today    = date.today()
