@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=over25-identico-v20">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9">
 </head>
-<body class="{% if strategy == 'Over 2.5' %}over25-page{% endif %}">
+<body class="{% if strategy == 'Over 2.5' %}over25-page{% elif strategy == 'GG' %}gg-page{% elif strategy == 'Over 1.5' %}over15-page{% endif %}">
 <div class="app">
 
   <aside class="sidebar">
@@ -21,7 +21,7 @@
     <nav class="nav">
       <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
       <a href="{{ url_for('doppie_page') }}" class="nav-link"><span>🎲</span> Sistema Doppie</a>
-      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎟️</span> Bolletta Pazza</a>
+      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎰</span> Bolletta Pazza</a>
 
       <div class="nav-label">Strategie</div>
 
@@ -49,18 +49,10 @@
   </aside>
 
   <main class="content">
-    {% if strategy != 'Over 2.5' %}
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Strategy Market</span>
-        <h1>{{ strategy }}</h1>
-        <p>Da qui scegli manualmente le partite da inserire nella Bolletta Pazza.</p>
-      </div>
+    <header class="topbar page-clean-topbar">
+      <div></div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
-    {% else %}
-    <a href="{{ url_for('logout') }}" class="ghost-btn over25-logout">Logout</a>
-    {% endif %}
 
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
@@ -68,40 +60,48 @@
       {% endfor %}
     {% endwith %}
 
-    {% if strategy == 'Over 2.5' %}
-    <section class="over25-hero-panel">
-      <div class="over25-logo-zone">
-        <img src="{{ url_for('static', filename='over25_engine_logo.jpg') }}" alt="Over 2.5 Engine" class="over25-engine-logo">
+
+    {% set hero_class = 'hero-gg' if strategy == 'GG' else ('hero-over25' if strategy == 'Over 2.5' else 'hero-over15') %}
+    <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic kickora-unified-hero">
+      <div class="hero-logo-zone">
+        <div class="hero-logo-ring"></div>
+        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
       </div>
-      <div class="over25-hero-copy">
-        <span class="over25-chip">OVER 2.5 ENGINE</span>
-        <h1>Partite ad alto <span>ritmo</span><br>e <span>potenziale goal.</span></h1>
-        <p>Trova match con statistiche offensive<br>elevate e alta probabilità Over 2.5.</p>
-        <div class="over25-badges">
-          <b>⚡ FAST MATCH</b><b>⚽ HIGH TEMPO</b><b>☄ GOAL STORM</b>
-        </div>
+
+      <div class="hero-main-zone">
+        {% if strategy == 'GG' %}
+          <span class="hero-kicker">GG Strategy</span>
+          <h2 class="hero-title">Both Teams<br>to Score <span class="accent">AI</span></h2>
+          <p>Analisi offensiva e trend goal combinati. Trova le partite con alta probabilità di goal da entrambe le squadre.</p>
+          <div class="hero-badges"><span class="hero-badge green">High Attack</span><span class="hero-badge green">Safe GG</span><span class="hero-badge orange">Value Pick</span></div>
+        {% elif strategy == 'Over 2.5' %}
+          <span class="hero-kicker">Over 2.5 Engine</span>
+          <h2 class="hero-title">Partite ad alto <span class="accent">ritmo</span><br>e potenziale goal.</h2>
+          <p>Individua match ad alta intensità offensiva e potenziale goal superiore alla media.</p>
+          <div class="hero-badges"><span class="hero-badge orange">Fast Match</span><span class="hero-badge orange">High Tempo</span><span class="hero-badge orange">Goal Storm</span></div>
+        {% else %}
+          <span class="hero-kicker">Over 1.5 Control</span>
+          <h2 class="hero-title">Strategia stabile<br>basata sulla <span class="accent">continuità.</span></h2>
+          <p>Approccio più controllato per cercare valore con soglie goal più stabili e costanti.</p>
+          <div class="hero-badges"><span class="hero-badge blue">Safe Mode</span><span class="hero-badge blue">Low Risk</span><span class="hero-badge blue">Smart Entry</span></div>
+        {% endif %}
       </div>
-      <div class="over25-hero-stats">
-        <article><div><span>PARTITE TROVATE</span><strong>{{ total }}</strong><small>match Over 2.5</small></div><i>⌕</i></article>
-        <article><div><span>PERCENTUALE OVER 2.5</span><strong>{% if total > 0 %}{{ ((total_strategy / total) * 100)|round|int }}{% else %}0{% endif %}%</strong><small>su {{ total }} partite analizzate</small></div><i>⌁</i></article>
-        <article><div><span>QUOTA MEDIA</span><strong>0.00</strong><small>quota media</small></div><i>◎</i></article>
+
+      <div class="hero-side-zone hero-strategy-side">
+        {% if strategy == 'GG' %}
+          <div class="strategy-side-emblem gg-emblem">GG<small>STRATEGY</small></div>
+        {% elif strategy == 'Over 2.5' %}
+          <div class="strategy-side-emblem over25-emblem">OVER<br>2.5<small>ENGINE</small></div>
+        {% else %}
+          <div class="strategy-side-emblem over15-emblem">OVER<br>1.5<small>CONTROL</small></div>
+        {% endif %}
+        <article class="hero-side-card floating-card"><span>Partite trovate</span><strong>{{ total }}</strong><small>righe visualizzate</small></article>
+        <article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>
+        <article class="hero-side-card floating-card"><span>Quota media</span><strong>{% if total_strategy > 0 %}{{ avg_odds[strategy] if avg_odds is defined and avg_odds[strategy] > 0 else '0.00' }}{% else %}0.00{% endif %}</strong><small>della strategia</small></article>
       </div>
+      <div class="hero-graphic"></div>
     </section>
 
-    <section class="over25-room-grid">
-      <div class="over25-live-card">
-        <span class="over25-live-dot">● LIVE OVER 2.5 ROOM</span>
-        <h2>Over 2.5</h2>
-        <p>Clicca su <strong>➕ Aggiungi</strong> per mandare<br>una partita nella Bolletta Pazza.</p>
-      </div>
-      <form class="over25-import-card" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="strategy" value="{{ strategy }}">
-        <label>IMPORT CSV KICKORA</label>
-        <input type="file" name="csv_file" accept=".csv" required>
-        <button type="submit">☁ Importa CSV</button>
-      </form>
-    </section>
-    {% else %}
     <section class="market-hero">
       <div class="market-copy">
         <span class="status-chip">LIVE DATA ROOM</span>
@@ -116,24 +116,15 @@
         <button type="submit" class="primary-btn">Importa CSV</button>
       </form>
     </section>
-    {% endif %}
 
-    {% if strategy == 'Over 2.5' %}
-    <section class="over25-kpi-row">
-      <article><span>○ VISUALIZZATE</span><strong>{{ total }}</strong><small>righe filtrate</small><i>◉</i></article>
-      <article><span>● ENTRA</span><strong>{{ total_strategy }}</strong><small>da giocare</small><i>▷</i></article>
-      <article><span>× SCARTATE</span><strong>0</strong><small>da evitare</small><i>✕</i></article>
-      <article><span>● DOPPELLINE</span><strong>0</strong><small>da valutare</small><i>∞</i></article>
-      <article><span>⌁ TOTALE STRATEGIA</span><strong>{{ total_strategy }}</strong><small>Over 2.5</small><i>⌁</i></article>
-      <article><span>▱ BOLLETTA PAZZA</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small><i>▱</i></article>
-    </section>
-    {% else %}
     <section class="kpi-grid">
       <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
+      <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>
+      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>
+      <article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>
       <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
       <article class="kpi-card accent"><span>Bolletta Pazza</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small></article>
     </section>
-    {% endif %}
 
     <section class="control-strip">
       <form class="filters" method="GET">
@@ -178,6 +169,7 @@
               <th>Quota</th>
               <th>ELO GAP</th>
               <th>Media Gol</th>
+              <th>Filtro</th>
               {% if strategy == 'GG' %}
               <th>GG Casa %</th>
               <th>GG Trasf %</th>
@@ -199,6 +191,16 @@
               <td><span class="prob-pill">{{ "%.2f"|format(m.odd or 0) }}</span></td>
               <td><span class="elo-pill">{{ m.elo_gap }}</span></td>
               <td><span class="elo-pill">{{ m.notes }}</span></td>
+              <td>
+                {% if m.filtri.semaforo == "entra" %}
+                  <span class="market-pill" style="background:rgba(0,230,118,.12);color:#00e676;">✅ ENTRA</span>
+                {% elif m.filtri.semaforo == "borderline" %}
+                  <span class="market-pill" style="background:rgba(255,193,7,.12);color:#ffd54f;">⚠️ BORDER</span>
+                {% else %}
+                  <span class="market-pill" style="background:rgba(255,82,82,.12);color:#ff5252;">❌ SCARTA</span>
+                {% endif %}
+                <small>{{ m.filtri.score }}/{{ m.filtri.max }} filtri</small>
+              </td>
 
               {% if strategy == 'GG' %}
               <td><span class="stat-pill">{{ m.gg_home }}%</span></td>

@@ -135,6 +135,16 @@ def init_db():
         )
     """)
 
+    # Migrazioni leggere per database già esistenti
+    existing_cols = [r[1] for r in conn.execute("PRAGMA table_info(doppie_sessioni)").fetchall()]
+    for col, ddl in {
+        "market1": "ALTER TABLE doppie_sessioni ADD COLUMN market1 TEXT DEFAULT ''",
+        "market2": "ALTER TABLE doppie_sessioni ADD COLUMN market2 TEXT DEFAULT ''",
+        "stake_mode": "ALTER TABLE doppie_sessioni ADD COLUMN stake_mode TEXT DEFAULT 'kelly'",
+    }.items():
+        if col not in existing_cols:
+            conn.execute(ddl)
+
     conn.commit()
     conn.close()
 
@@ -414,7 +424,26 @@ def index():
     query += " ORDER BY match_date ASC, match_time ASC, championship ASC"
 
     conn = get_db()
-    matches = conn.execute(query, params).fetchall()
+    raw_matches = conn.execute(query, params).fetchall()
+
+    # Ripristino statistiche filtro partita: ENTRA / BORDERLINE / SCARTA
+    matches = []
+    stat_entra = 0
+    stat_borderline = 0
+    stat_scarta = 0
+    for m in raw_matches:
+        md = dict(m)
+        filtri = calcola_score(m, strategy)
+        md["filtri"] = filtri
+        if filtri["semaforo"] == "entra":
+            stat_entra += 1
+        elif filtri["semaforo"] == "borderline":
+            stat_borderline += 1
+        else:
+            stat_scarta += 1
+
+        matches.append(md)
+
     total_strategy = conn.execute("SELECT COUNT(*) FROM matches WHERE strategy=?", (strategy,)).fetchone()[0]
     total_all, gg_count, over25_count, over15_count = get_counts(conn)
 
@@ -440,6 +469,9 @@ def index():
         date_filter=date_filter,
         total=len(matches),
         total_strategy=total_strategy,
+        stat_entra=stat_entra,
+        stat_borderline=stat_borderline,
+        stat_scarta=stat_scarta,
         total_all=total_all,
         gg_count=gg_count,
         over25_count=over25_count,
@@ -1009,6 +1041,9 @@ def calcola_sistema(partite, budget):
 @app.route("/sistema")
 @login_required
 def sistema():
+    # Sistema Triple sostituito da Bolletta Pazza
+    return redirect(url_for("bolletta_page"))
+
     strategy = request.args.get("strategy", "Over 2.5")
     budget   = parse_float(request.args.get("budget", "10"))
     today    = date.today()
@@ -1140,23 +1175,51 @@ def sistema():
 @login_required
 def sistema_esito(match_id):
     esito = request.form.get("esito", "pending")
+    if esito not in ["vinta", "persa", "pending"]:
+        esito = "pending"
+
     data = date.today().isoformat()
     strategy = request.form.get("strategy", "Over 2.5")
     budget = parse_float(request.form.get("budget", "10"))
 
     conn = get_db()
+    try:
+        # Recupera dati partita in modo sicuro
+        m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
+        if not m:
+            flash("⚠️ Partita non trovata: ricarica il CSV o torna alla pagina sistemi.", "error")
+            return redirect(url_for("sistema", strategy=strategy, budget=budget))
 
-    # Recupera dati partita
-    m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
-    if m:
-        conn.execute("""
-            INSERT INTO sistema_risultati (data, strategy, match_id, home_team, away_team, odd, esito, flex)
-            VALUES (?,?,?,?,?,?,?,0)
-            ON CONFLICT(data, match_id) DO UPDATE SET esito=excluded.esito
-        """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+        # Usa una logica update-first: evita errori di pagina su vincoli UNIQUE
+        updated = conn.execute("""
+            UPDATE sistema_risultati
+            SET esito=?, strategy=?, home_team=?, away_team=?, odd=?
+            WHERE data=? AND match_id=?
+        """, (esito, strategy, m["home_team"], m["away_team"], m["odd"], data, match_id)).rowcount
+
+        if updated == 0:
+            try:
+                conn.execute("""
+                    INSERT INTO sistema_risultati
+                    (data, strategy, match_id, home_team, away_team, odd, esito, flex)
+                    VALUES (?,?,?,?,?,?,?,0)
+                """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+            except Exception:
+                # Se il database vecchio ha un vincolo diverso, riprova aggiornando per match_id.
+                conn.execute("""
+                    UPDATE sistema_risultati
+                    SET esito=?, strategy=?, home_team=?, away_team=?, odd=?
+                    WHERE match_id=?
+                """, (esito, strategy, m["home_team"], m["away_team"], m["odd"], match_id))
+
         conn.commit()
+        flash("✅ Esito sistema aggiornato.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"⚠️ Non sono riuscito ad aggiornare l'esito: {e}", "error")
+    finally:
+        conn.close()
 
-    conn.close()
     return redirect(url_for("sistema", strategy=strategy, budget=budget))
 
 
@@ -1230,15 +1293,30 @@ def doppie_page():
 
     conn = get_db()
 
-    # Partite di oggi per la strategia
+    # Partite di oggi del mercato attivo + tutte le partite per creare doppie miste
     matches = conn.execute(
         "SELECT * FROM matches WHERE strategy=? AND match_date=? ORDER BY odd ASC",
         (strategy, today.isoformat())
     ).fetchall()
+    # Per la creazione delle doppie mostriamo SOLO partite consigliate:
+    # ✅ ENTRA e ⚠️ BORDERLINE, anche miste tra GG / Over 2.5 / Over 1.5.
+    raw_all_matches = conn.execute(
+        "SELECT * FROM matches WHERE match_date=? ORDER BY strategy ASC, match_time ASC, odd ASC",
+        (today.isoformat(),)
+    ).fetchall()
+    all_matches = []
+    for m in raw_all_matches:
+        f = calcola_score(m, m["strategy"])
+        if f["semaforo"] in ("entra", "borderline"):
+            md = dict(m)
+            md["filtro_status"] = f["semaforo"]
+            md["filtro_score"] = f["score"]
+            md["filtro_max"] = f["max"]
+            all_matches.append(md)
 
     # Bankroll attuale
     bankroll = get_bankroll_doppie(conn)
-    capitale, _ = get_bankroll(conn)
+    capitale, importo_fisso = get_bankroll(conn)
 
     # Doppie di oggi
     doppie_oggi = get_doppie_oggi(conn)
@@ -1269,9 +1347,11 @@ def doppie_page():
     return render_template("doppie.html",
         strategy=strategy,
         matches=matches,
+        all_matches=all_matches,
         doppie_oggi=doppie_oggi,
         bankroll=bankroll,
         capitale=capitale,
+        importo_fisso=importo_fisso,
         stats_doppie=stats_doppie,
         roi_doppie=roi_doppie,
         storico=storico,
@@ -1289,6 +1369,12 @@ def doppie_aggiungi():
     strategy = request.form.get("strategy", "GG")
     match1_id = request.form.get("match1_id")
     match2_id = request.form.get("match2_id")
+    stake_mode = request.form.get("stake_mode", "kelly")
+    risk_profile = request.form.get("risk_profile", "balanced")
+    puntata_manual = parse_float(request.form.get("puntata_manual"))
+    kelly_fraction = parse_float(request.form.get("kelly_fraction", "25")) / 100
+    if kelly_fraction <= 0:
+        kelly_fraction = 0.25
     today = date.today().isoformat()
 
     if not match1_id or not match2_id or match1_id == match2_id:
@@ -1306,35 +1392,50 @@ def doppie_aggiungi():
 
     quota_doppia = round(float(m1["odd"] or 1) * float(m2["odd"] or 1), 2)
 
-    # Calcola Kelly 25%
+    # Bankroll e stake: manuale oppure Kelly frazionato
     bankroll = get_bankroll_doppie(conn)
-    # Probabilità stimata = media % delle due partite
-    if strategy == "GG":
-        p1 = parse_float(m1["gg_home"]) / 100
-        p2 = parse_float(m2["gg_home"]) / 100
-    else:
-        p1 = parse_float(m1["over_home"]) / 100
-        p2 = parse_float(m2["over_home"]) / 100
-    prob_doppia = p1 * p2  # probabilità congiunta
-    puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=0.25)
 
-    # Minimo €1, massimo 10% bankroll
-    puntata = max(1.0, min(puntata, bankroll * 0.10))
+    def prob_match(m):
+        if m["strategy"] == "GG":
+            return ((parse_float(m["gg_home"]) + parse_float(m["gg_away"])) / 2) / 100
+        return ((parse_float(m["over_home"]) + parse_float(m["over_away"])) / 2) / 100
+
+    prob_doppia = prob_match(m1) * prob_match(m2)
+    if stake_mode == "manuale" and puntata_manual > 0:
+        puntata = puntata_manual
+        final_stake_mode = "manuale"
+    else:
+        puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
+        # Profili visuali Kelly: Conservative / Balanced / Aggressive
+        profile_caps = {
+            "conservative": 2.50,
+            "balanced": 3.00,
+            "aggressive": 6.00,
+        }
+        if risk_profile not in profile_caps:
+            risk_profile = "balanced"
+        max_stake = profile_caps[risk_profile]
+        # Sicurezza ulteriore: mai oltre il 6% del bankroll, anche in aggressive.
+        if bankroll > 0:
+            max_stake = min(max_stake, round(bankroll * 0.06, 2))
+        puntata = max(1.0, min(puntata, max_stake))
+        final_stake_mode = risk_profile
+
     puntata = round(puntata, 2)
 
     conn.execute("""
         INSERT INTO doppie_sessioni
-        (data, match1_id, match2_id, home1, away1, odd1, home2, away2, odd2,
-         quota_doppia, puntata, kelly_fraction, bankroll_pre)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,0.25,?)
+        (data, match1_id, match2_id, home1, away1, odd1, market1, home2, away2, odd2, market2,
+         quota_doppia, puntata, kelly_fraction, bankroll_pre, stake_mode)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
     """, (today, match1_id, match2_id,
-          m1["home_team"], m1["away_team"], m1["odd"],
-          m2["home_team"], m2["away_team"], m2["odd"],
-          quota_doppia, puntata, bankroll))
+          m1["home_team"], m1["away_team"], m1["odd"], m1["strategy"],
+          m2["home_team"], m2["away_team"], m2["odd"], m2["strategy"],
+          quota_doppia, puntata, kelly_fraction, bankroll, final_stake_mode))
     conn.commit()
     conn.close()
 
-    flash(f"✅ Doppia aggiunta — puntata Kelly 25%: €{puntata}", "success")
+    flash(f"✅ Doppia aggiunta — puntata: €{puntata}", "success")
     return redirect(url_for("doppie_page", strategy=strategy))
 
 

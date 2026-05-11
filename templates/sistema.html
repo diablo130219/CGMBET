@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Triple</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=sistema-v3">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9-sistema-v3">
   <style>
     .flex-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(124,77,255,.2);color:#7c4dff;margin-left:6px;}
     .flex-row{border-left:3px solid #7c4dff !important;}
@@ -33,7 +33,7 @@
 
     <nav class="nav">
       <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
-      <a href="{{ url_for('bolletta_page') }}" class="nav-link"><span>🎰</span> Bolletta Pazza</a>
+      <a href="{{ url_for('doppie_page') }}" class="nav-link"><span>🎲</span> Sistema Doppie</a>
       <a href="{{ url_for('sistema') }}" class="nav-link active"><span>🎯</span> Sistema Triple</a>
       <div class="nav-label">Strategie</div>
       <a href="{{ url_for('index', strategy='GG') }}" class="nav-link">
@@ -115,8 +115,6 @@
       </div>
     </section>
 
-    {% include "_side_bolletta.html" %}
-
     <div class="sidebar-ticket">
       <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>
     </div>
@@ -137,6 +135,14 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endwith %}
+
+
+    <section class="premium-section-hero hero-doppie">
+      <div class="hero-logo-zone"><div class="hero-logo-ring"></div><img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora"></div>
+      <div class="hero-main-zone"><span class="hero-kicker">Sistema Strategico</span><h2 class="hero-title">Sistema <span class="accent">AI</span></h2><p>Costruisci combinazioni strategiche con controllo stake e lettura rapida delle partite migliori.</p><div class="hero-badges"><span class="hero-badge green">Smart Control</span><span class="hero-badge blue">Value</span></div></div>
+      <div class="hero-side-zone"><article class="hero-side-card floating-card"><span>Partite oggi</span><strong>{{ partite|length }}</strong><small>{{ strategy }}</small></article><article class="hero-side-card floating-card"><span>Budget</span><strong>€{{ budget }}</strong><small>disponibile</small></article></div>
+    </section>
+
 
     {# ── HERO STRATEGIA ── #}
     <section class="market-hero">
