@@ -39,6 +39,13 @@
     .match-select-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;cursor:pointer;transition:.15s;}
     .match-select-card:hover{border-color:rgba(41,121,255,.4);background:rgba(41,121,255,.06);}
     .match-select-card.selected{border-color:#2979ff;background:rgba(41,121,255,.1);}
+
+    .match-option-entra{background:#063b25;color:#b8ffd7;font-weight:700;}
+    .match-option-borderline{background:#3f3305;color:#ffe68a;font-weight:700;}
+    .legend-pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 12px;}
+    .legend-dot{padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:800;border:1px solid rgba(255,255,255,.10);}
+    .legend-dot.entra{background:rgba(0,230,118,.14);color:#00e676;}
+    .legend-dot.borderline{background:rgba(255,214,0,.14);color:#ffd600;}
   </style>
 </head>
 <body>
@@ -224,13 +231,18 @@
           <input type="hidden" name="strategy" value="{{ strategy }}">
 
           {% if all_matches %}
+          <div class="legend-pick">
+            <span class="legend-dot entra">✅ ENTRA · preferita</span>
+            <span class="legend-dot borderline">⚠️ BORDERLINE · valida ma da valutare</span>
+            <span style="font-size:.78rem;color:rgba(255,255,255,.52);">Le partite SCARTA non compaiono nella selezione doppie.</span>
+          </div>
           <div class="match-select-grid">
             <div>
               <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1 anche GG/Over misti</label>
               <select name="match1_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 1 —</option>
                 {% for m in all_matches %}
-                <option value="{{ m.id }}">[{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
             </div>
@@ -239,7 +251,7 @@
               <select name="match2_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 2 —</option>
                 {% for m in all_matches %}
-                <option value="{{ m.id }}">[{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} ({{ m.match_time }})</option>
+                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
             </div>

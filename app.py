@@ -1298,10 +1298,21 @@ def doppie_page():
         "SELECT * FROM matches WHERE strategy=? AND match_date=? ORDER BY odd ASC",
         (strategy, today.isoformat())
     ).fetchall()
-    all_matches = conn.execute(
+    # Per la creazione delle doppie mostriamo SOLO partite consigliate:
+    # ✅ ENTRA e ⚠️ BORDERLINE, anche miste tra GG / Over 2.5 / Over 1.5.
+    raw_all_matches = conn.execute(
         "SELECT * FROM matches WHERE match_date=? ORDER BY strategy ASC, match_time ASC, odd ASC",
         (today.isoformat(),)
     ).fetchall()
+    all_matches = []
+    for m in raw_all_matches:
+        f = calcola_score(m, m["strategy"])
+        if f["semaforo"] in ("entra", "borderline"):
+            md = dict(m)
+            md["filtro_status"] = f["semaforo"]
+            md["filtro_score"] = f["score"]
+            md["filtro_max"] = f["max"]
+            all_matches.append(md)
 
     # Bankroll attuale
     bankroll = get_bankroll_doppie(conn)
