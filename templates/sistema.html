@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Triple</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v14-headers">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9-sistema-v3">
   <style>
     .flex-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(124,77,255,.2);color:#7c4dff;margin-left:6px;}
     .flex-row{border-left:3px solid #7c4dff !important;}
@@ -121,20 +121,13 @@
   </aside>
 
   <main class="content">
-    <header class="premium-section-header doppie">
-      <div class="header-inner">
-        <div>
-          <span class="header-badge">🎯 Reduced System Engine</span>
-          <h1>Sistema <span class="accent-word">AI</span></h1>
-          <p>Area avanzata per sistemi ridotti e calcolo automatico degli esiti. Usa ENTRA e BORDERLINE per creare combinazioni più controllate.</p>
-          <div class="header-stats-row">
-            <span class="header-stat-chip green floating-header-card">✅ ENTRA <strong>{{ entra|length }}</strong></span>
-            <span class="header-stat-chip yellow floating-header-card">⚠️ Borderline <strong>{{ borderline|length }}</strong></span>
-            <span class="header-stat-chip purple floating-header-card">Budget <strong>€{{ "%.2f"|format(budget) }}</strong></span>
-          </div>
-        </div>
-        <div class="header-logo-orb"><img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora"></div>
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Filtro automatico</span>
+        <h1>🎯 Sistema Triple</h1>
+        <p>Segna l'esito di ogni partita — il sistema calcola automaticamente quante triple hai vinto.</p>
       </div>
+      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -142,6 +135,14 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endwith %}
+
+
+    <section class="premium-section-hero hero-doppie">
+      <div class="hero-logo-zone"><div class="hero-logo-ring"></div><img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora"></div>
+      <div class="hero-main-zone"><span class="hero-kicker">Sistema Strategico</span><h2 class="hero-title">Sistema <span class="accent">AI</span></h2><p>Costruisci combinazioni strategiche con controllo stake e lettura rapida delle partite migliori.</p><div class="hero-badges"><span class="hero-badge green">Smart Control</span><span class="hero-badge blue">Value</span></div></div>
+      <div class="hero-side-zone"><article class="hero-side-card floating-card"><span>Partite oggi</span><strong>{{ partite|length }}</strong><small>{{ strategy }}</small></article><article class="hero-side-card floating-card"><span>Budget</span><strong>€{{ budget }}</strong><small>disponibile</small></article></div>
+    </section>
+
 
     {# ── HERO STRATEGIA ── #}
     <section class="market-hero">
