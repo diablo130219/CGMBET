@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v14-headers">
 </head>
 <body>
 <div class="app">
@@ -49,13 +49,33 @@
   </aside>
 
   <main class="content">
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Strategy Market</span>
-        <h1>{{ strategy }}</h1>
-        <p>Da qui scegli manualmente le partite da inserire nella Bolletta Pazza.</p>
+    {% set header_class = 'gg' if strategy == 'GG' else ('over25' if strategy == 'Over 2.5' else 'over15') %}
+    {% set hero_title = 'Both Teams To Score AI' if strategy == 'GG' else ('Over 2.5 Engine' if strategy == 'Over 2.5' else 'Over 1.5 Control') %}
+    {% set hero_subtitle = 'Analisi offensiva e trend goal combinati.' if strategy == 'GG' else ('Partite ad alto ritmo e potenziale goal.' if strategy == 'Over 2.5' else 'Strategia stabile basata sulla continuità realizzativa.') %}
+    {% set hero_badge = 'HIGH ATTACK · SAFE GG · VALUE PICK' if strategy == 'GG' else ('FAST MATCH · HIGH TEMPO · GOAL STORM' if strategy == 'Over 2.5' else 'SAFE MODE · LOW RISK · SMART ENTRY') %}
+
+    <header class="premium-section-header {{ header_class }}">
+      <div class="header-inner">
+        <div>
+          <span class="header-badge">{{ hero_badge }}</span>
+          {% if strategy == 'GG' %}
+          <h1>Both Teams <span class="accent-word">To Score AI</span></h1>
+          {% elif strategy == 'Over 2.5' %}
+          <h1>Over 2.5 <span class="accent-word">Engine</span></h1>
+          {% else %}
+          <h1>Over 1.5 <span class="accent-word">Control</span></h1>
+          {% endif %}
+          <p>{{ hero_subtitle }} Da qui scegli le partite da inserire nella Bolletta Pazza e controlli subito ENTRA, BORDERLINE e SCARTA.</p>
+          <div class="header-stats-row">
+            <span class="header-stat-chip green floating-header-card">✅ ENTRA <strong>{{ stat_entra }}</strong></span>
+            <span class="header-stat-chip yellow floating-header-card">⚠️ Borderline <strong>{{ stat_borderline }}</strong></span>
+            <span class="header-stat-chip purple floating-header-card">Totale <strong>{{ total_strategy }}</strong></span>
+          </div>
+        </div>
+        <div class="header-logo-orb">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
+        </div>
       </div>
-      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -66,9 +86,9 @@
 
     <section class="market-hero">
       <div class="market-copy">
-        <span class="status-chip">LIVE DATA ROOM</span>
+        <span class="status-chip">DATA IMPORT ROOM</span>
         <h2>{{ strategy }}</h2>
-        <p>Clicca su <strong>➕ Aggiungi</strong> per mandare una partita nella Bolletta Pazza.</p>
+        <p>Importa il CSV della strategia oppure usa i filtri per trovare subito le partite più forti.</p>
       </div>
 
       <form class="import-card" action="{{ url_for('import_csv') }}" method="POST" enctype="multipart/form-data">

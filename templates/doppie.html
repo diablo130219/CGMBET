@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9-doppie-v7">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v14-headers">
   <style>
     .kelly-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(41,121,255,.15);color:#2979ff;}
     .risk-grid{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px;margin:12px 0;}
@@ -147,13 +147,22 @@
   </aside>
 
   <main class="content">
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Kelly protetto</span>
-        <h1>🎲 Sistema Doppie</h1><div class="legend-pick" style="margin-top:10px;"><span class="legend-dot entra">Verde = prima scelta</span><span class="legend-dot borderline">Giallo = seconda scelta</span><span class="legend-dot" style="background:rgba(52,213,255,.14);color:#bff2ff;border:1px solid rgba(52,213,255,.22);">Kelly protetto</span></div>
-        <p>Seleziona 2 partite — scegli il profilo Kelly visivo e controlla subito lo stake massimo.</p>
+    <header class="premium-section-header doppie">
+      <div class="header-inner">
+        <div>
+          <span class="header-badge">🎯 Kelly Protected Mode</span>
+          <h1>Sistema <span class="accent-word">Doppie AI</span></h1>
+          <p>Value betting con controllo Kelly intelligente: scegli due partite ENTRA/BORDERLINE, imposta il profilo rischio e mantieni lo stake sotto controllo.</p>
+          <div class="header-stats-row">
+            <span class="header-stat-chip green floating-header-card">Stake base <strong>€{{ "%.2f"|format(importo_fisso or 0) }}</strong></span>
+            <span class="header-stat-chip purple floating-header-card">Bankroll <strong>€{{ "%.2f"|format(bankroll) }}</strong></span>
+            <span class="header-stat-chip yellow floating-header-card">Doppie oggi <strong>{{ doppie_oggi|length }}</strong></span>
+          </div>
+        </div>
+        <div class="header-logo-orb">
+          <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
+        </div>
       </div>
-      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

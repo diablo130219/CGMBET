@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Bolletta Pazza</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v14-headers">
 </head>
 <body>
 <div class="app">
@@ -54,20 +54,27 @@
   </aside>
 
   <main class="content">
-    <header class="topbar">
-      <div>
-        <span class="eyebrow">Selezione manuale</span>
-        <h1>🎰 Bolletta Pazza</h1>
-        <p>Questa è la schedina costruita manualmente dall’elenco partite.</p>
-      </div>
-      <div class="top-actions">
-        <form action="{{ url_for('genera_bolletta') }}" method="POST">
-          <button type="submit" class="gen-btn">🔄 Genera automatica</button>
-        </form>
-        <form action="{{ url_for('svuota_bolletta') }}" method="POST">
-          <button type="submit" class="danger-btn">Svuota</button>
-        </form>
-        <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+    <header class="premium-section-header bolletta">
+      <div class="header-inner">
+        <div>
+          <span class="header-badge">🎰 High Potential Ticket</span>
+          <h1>Bolletta <span class="accent-word">Pazza</span></h1>
+          <p>Crea schedine ad alto potenziale AI: seleziona manualmente le partite migliori, modifica le quote e controlla subito vincita potenziale e rischio.</p>
+          <div class="header-stats-row">
+            <span class="header-stat-chip yellow floating-header-card">Partite <strong>{{ bolletta|length }}</strong></span>
+            <span class="header-stat-chip green floating-header-card">Quota <strong>{{ quota_totale }}</strong></span>
+            <span class="header-stat-chip purple floating-header-card">Stake <strong>€{{ "%.2f"|format(importo_fisso) }}</strong></span>
+          </div>
+        </div>
+        <div class="top-actions" style="position:relative;z-index:2;align-self:start;justify-content:flex-end;">
+          <form action="{{ url_for('genera_bolletta') }}" method="POST">
+            <button type="submit" class="gen-btn">🔄 Genera automatica</button>
+          </form>
+          <form action="{{ url_for('svuota_bolletta') }}" method="POST">
+            <button type="submit" class="danger-btn">Svuota</button>
+          </form>
+          <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+        </div>
       </div>
     </header>
 
