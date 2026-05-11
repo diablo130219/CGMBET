@@ -1504,3 +1504,252 @@ body:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;backg
 @keyframes pulseGlow{0%,100%{box-shadow:0 0 18px rgba(0,255,157,.14)}50%{box-shadow:0 0 34px rgba(0,255,157,.30)}}
 .primary-btn,.nav-link.active,.risk-card:has(input:checked){animation:pulseGlow 2.8s ease-in-out infinite;}
 @media (max-width: 980px){.risk-grid{grid-template-columns:1fr}.app{grid-template-columns:1fr}.sidebar{position:relative;height:auto}.content{padding:16px}.kpi-grid,.kpi-grid.four{grid-template-columns:1fr!important}.match-select-grid{grid-template-columns:1fr!important}}
+
+/* KICKORA LOGIN WOW V10 */
+.login-wow-body {
+  padding: 18px;
+  overflow-x: hidden;
+  background:
+    radial-gradient(circle at 17% 8%, rgba(0,255,190,.20), transparent 24%),
+    radial-gradient(circle at 78% 12%, rgba(201,34,255,.20), transparent 30%),
+    radial-gradient(circle at 47% 98%, rgba(0,255,190,.12), transparent 26%),
+    linear-gradient(135deg, #03060b 0%, #07101a 45%, #070011 100%);
+}
+.login-wow-shell {
+  width: min(1480px, 100%);
+  min-height: min(92vh, 930px);
+  grid-template-columns: 1.28fr .92fr;
+  border-radius: 32px;
+  border: 1px solid rgba(0,255,190,.32);
+  background: rgba(4, 8, 16, .88);
+  box-shadow: 0 0 0 1px rgba(190,42,255,.15), 0 40px 120px rgba(0,0,0,.58), inset 0 0 80px rgba(0,255,190,.035);
+  position: relative;
+}
+.login-wow-shell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(0,255,190,.45), transparent 42%, rgba(214,39,255,.58));
+  opacity: .25;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  padding: 1px;
+}
+.login-wow-left {
+  position: relative;
+  overflow: hidden;
+  min-height: 820px;
+  padding: 34px 48px 30px;
+  background:
+    radial-gradient(circle at 48% 24%, rgba(0,255,180,.22), transparent 31%),
+    radial-gradient(circle at 18% 62%, rgba(0,255,190,.10), transparent 30%),
+    linear-gradient(180deg, rgba(1,10,13,.78), rgba(1,7,14,.96));
+  border-right: 1px solid rgba(255,255,255,.12);
+}
+.login-wow-left::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px),
+    radial-gradient(circle at center, transparent 0 36%, rgba(0,0,0,.45) 74%);
+  background-size: 58px 58px, 58px 58px, auto;
+  opacity: .85;
+}
+.login-wow-left::after {
+  content: "KICKORA";
+  position: absolute;
+  left: 6%;
+  bottom: 9%;
+  font-size: 130px;
+  font-weight: 1000;
+  font-style: italic;
+  letter-spacing: -.08em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,.035);
+  opacity: .7;
+}
+.left-energy {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(18px);
+  pointer-events: none;
+}
+.left-energy-a { width: 520px; height: 520px; left: 24%; top: 10%; background: rgba(0,255,190,.13); animation: floatEnergy 5s ease-in-out infinite; }
+.left-energy-b { width: 320px; height: 320px; right: -5%; bottom: 14%; background: rgba(0,255,190,.09); animation: floatEnergy 6.5s ease-in-out infinite reverse; }
+.login-top-brand { position: relative; z-index: 2; justify-content: flex-start; }
+.login-top-brand h1 {
+  font-size: 32px;
+  font-style: italic;
+  color: #f7fffb;
+  text-shadow: 0 0 18px rgba(0,255,190,.46);
+}
+.login-top-brand p { color: #fff; opacity: .88; letter-spacing: .35em; }
+.brand-stripes { display: flex; gap: 7px; margin-left: 12px; }
+.brand-stripes span { width: 34px; height: 10px; transform: skewX(-22deg); background: linear-gradient(90deg, #00ffd0, rgba(0,255,208,.18)); }
+.logo-stage {
+  position: relative;
+  z-index: 2;
+  min-height: 420px;
+  display: grid;
+  place-items: center;
+  margin-top: 12px;
+}
+.hero-logo {
+  width: min(560px, 88%);
+  max-height: 520px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 20px rgba(0,255,190,.55)) drop-shadow(0 0 54px rgba(0,255,190,.24));
+  animation: logoPulse 3.8s ease-in-out infinite;
+  z-index: 3;
+}
+.logo-orbit, .logo-aura {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.logo-aura { width: 540px; height: 540px; background: radial-gradient(circle, rgba(0,255,190,.20), transparent 60%); filter: blur(10px); animation: auraBreath 3s ease-in-out infinite; }
+.logo-orbit { width: 520px; height: 520px; border: 2px solid rgba(0,255,190,.42); box-shadow: 0 0 32px rgba(0,255,190,.25); }
+.orbit-one { animation: slowSpin 14s linear infinite; }
+.orbit-two { width: 590px; height: 590px; border-color: rgba(255,255,255,.18); transform: rotate(18deg); animation: slowSpin 18s linear infinite reverse; }
+.data-chip {
+  position: absolute;
+  z-index: 4;
+  padding: 18px 20px;
+  border-radius: 17px;
+  background: rgba(7,14,24,.72);
+  border: 1px solid rgba(255,255,255,.16);
+  box-shadow: 0 14px 40px rgba(0,0,0,.35), inset 0 0 20px rgba(0,255,190,.045);
+  backdrop-filter: blur(14px);
+}
+.data-chip strong { display:block; color:#00ffd0; font-size:13px; margin-bottom:7px; }
+.data-chip span { color:#e7f4ff; font-size:13px; line-height:1.35; }
+.chip-left { left: 0; top: 44%; }
+.chip-right { right: 0; top: 14%; }
+.login-claim { position: relative; z-index: 2; text-align: center; max-width: 650px; margin: 0 auto; }
+.login-claim h2 { font-size: clamp(42px, 4.5vw, 64px); }
+.login-claim h2 em { font-style: normal; color: #00ffd0; text-shadow: 0 0 20px rgba(0,255,190,.35); }
+.login-claim span { color: #00ffd0; }
+.login-markets { position: relative; z-index: 2; max-width: 680px; width: 100%; margin: 26px auto 0; }
+.login-markets div {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 11px;
+  align-items: center;
+  padding: 18px 22px;
+  border-color: rgba(0,255,190,.30);
+  background: rgba(0, 10, 16, .52);
+  box-shadow: inset 0 0 28px rgba(0,255,190,.045);
+}
+.login-markets b { color:#00ffd0; font-size:30px; grid-row: span 2; text-shadow:0 0 16px rgba(0,255,190,.55); }
+.login-wow-card {
+  position: relative;
+  padding: clamp(42px, 5.5vw, 88px);
+  background:
+    radial-gradient(circle at 82% 10%, rgba(211,37,255,.25), transparent 30%),
+    radial-gradient(circle at 20% 58%, rgba(0,255,209,.12), transparent 28%),
+    linear-gradient(180deg, rgba(8,9,22,.78), rgba(5,6,14,.96));
+  border-left: 1px solid rgba(255,255,255,.07);
+  align-content: center;
+}
+.login-wow-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 97% 7%, rgba(230,39,255,.22), transparent 22%);
+}
+.secure-pill {
+  position: absolute;
+  top: 34px;
+  right: 38px;
+  padding: 13px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  color: #eaffff;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: 12px;
+  font-weight: 1000;
+  background: rgba(5,10,18,.58);
+}
+.login-heading { position: relative; z-index: 1; text-align: center; }
+.login-heading h2 {
+  font-size: clamp(46px, 5vw, 70px);
+  letter-spacing: -.055em;
+  background: linear-gradient(90deg, #00ffd0, #58d8ff 45%, #ed2cff 88%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 24px rgba(184,57,255,.18);
+}
+.login-heading p { font-size: 20px; color: rgba(255,255,255,.80); }
+.lock-divider { position:relative; height:72px; display:grid; place-items:center; margin: 10px 0 12px; }
+.lock-divider::before { content:""; position:absolute; left:0; right:0; top:50%; height:1px; background:linear-gradient(90deg, transparent, rgba(0,255,209,.75), rgba(231,34,255,.75), transparent); }
+.lock-divider span { z-index:1; width:54px; height:54px; border-radius:50%; display:grid; place-items:center; border:1px solid rgba(255,255,255,.22); background:rgba(7,9,18,.82); box-shadow:0 0 22px rgba(208,42,255,.45), 0 0 36px rgba(0,255,209,.18); }
+.login-wow-form { position: relative; z-index: 1; }
+.login-wow-form label { color: rgba(244,248,255,.82); }
+.login-input-wrap {
+  height: 72px;
+  border-radius: 14px;
+  border: 1px solid rgba(0,255,209,.62);
+  background: rgba(2,7,13,.62);
+  display: grid;
+  grid-template-columns: 58px 1fr 54px;
+  align-items: center;
+  box-shadow: 0 0 26px rgba(0,255,209,.18), inset 0 0 24px rgba(0,255,209,.025);
+  transition: .22s ease;
+}
+.login-input-wrap:hover, .login-input-wrap:focus-within { transform: translateY(-2px); box-shadow:0 0 28px rgba(0,255,209,.32), 0 0 34px rgba(219,34,255,.16); }
+.password-glow { border-color: rgba(171,62,255,.62); box-shadow: 0 0 24px rgba(178,60,255,.18), inset 0 0 24px rgba(178,60,255,.025); }
+.input-icon, .input-status { text-align:center; font-size:25px; color:#eaffff; opacity:.9; }
+.input-status { color:#00ffd0; }
+.input-status.eye { color:#fff; }
+.login-input-wrap input { border:0!important; background:transparent!important; box-shadow:none!important; color:#fff; padding:0!important; font-size:22px; font-weight:700; }
+.login-input-wrap input::placeholder { color: rgba(255,255,255,.88); }
+.login-row { display:flex; justify-content:space-between; align-items:center; margin:22px 0 26px; color:rgba(255,255,255,.78); }
+.login-row a { color:#ef32ff; text-decoration:none; }
+.remember { display:flex!important; align-items:center; gap:10px; margin:0!important; color:rgba(255,255,255,.80)!important; text-transform:none!important; font-size:15px!important; letter-spacing:0!important; }
+.remember input { width:20px; height:20px; accent-color:#00ffd0; }
+.login-cta {
+  min-height: 76px;
+  border-radius: 16px!important;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: .02em;
+  color: #02040b!important;
+  background: linear-gradient(105deg, #00ffd0 0%, #50dcff 48%, #ef28ff 100%)!important;
+  box-shadow: 0 0 26px rgba(0,255,209,.42), 0 0 44px rgba(236,40,255,.30), inset 0 0 18px rgba(255,255,255,.18)!important;
+  overflow: hidden;
+  position: relative;
+}
+.login-cta::before { content:""; position:absolute; inset:-40% auto -40% -25%; width:30%; transform:rotate(18deg); background:rgba(255,255,255,.38); filter:blur(8px); animation: shineBtn 3.4s ease-in-out infinite; }
+.login-cta i { font-style:normal; font-size:42px; margin-left:auto; line-height:0; }
+.login-social-sep { position:relative; z-index:1; display:grid; grid-template-columns:1fr auto 1fr; gap:18px; align-items:center; margin:30px 0 20px; color:rgba(255,255,255,.75); text-transform:uppercase; font-weight:900; letter-spacing:.1em; }
+.login-social-sep span { height:1px; background:linear-gradient(90deg, transparent, rgba(255,255,255,.28)); }
+.login-social-sep span:last-child { background:linear-gradient(90deg, rgba(255,255,255,.28), transparent); }
+.google-orb { position:relative; z-index:1; margin:auto; width:72px; height:72px; border-radius:50%; border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.055); color:white; font-size:36px; font-weight:1000; box-shadow:0 0 0 1px rgba(0,255,209,.2), 0 0 24px rgba(0,255,209,.24), 0 0 34px rgba(231,37,255,.24); cursor:pointer; }
+@keyframes logoPulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+@keyframes auraBreath { 0%,100%{ opacity:.55; transform:scale(.96); } 50%{ opacity:1; transform:scale(1.05); } }
+@keyframes slowSpin { from{ transform:rotate(0deg); } to{ transform:rotate(360deg); } }
+@keyframes floatEnergy { 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-18px); } }
+@keyframes shineBtn { 0%,45%{ left:-35%; } 70%,100%{ left:115%; } }
+@media (max-width: 980px) {
+  .login-wow-shell { grid-template-columns: 1fr; }
+  .login-wow-left { min-height: 740px; }
+  .chip-left,.chip-right { display:none; }
+  .secure-pill { position:static; width:max-content; margin-left:auto; margin-bottom:28px; }
+}
+@media (max-width: 640px) {
+  .login-wow-body { padding: 10px; }
+  .login-wow-left { padding: 28px 18px; min-height: 650px; }
+  .hero-logo { width: 96%; }
+  .logo-orbit,.logo-aura { width: 360px; height: 360px; }
+  .orbit-two { width: 420px; height:420px; }
+  .login-markets { grid-template-columns:1fr; }
+  .login-wow-card { padding: 30px 18px; }
+}
