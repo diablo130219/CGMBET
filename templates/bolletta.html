@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Bolletta Pazza</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=manual-slip-v1">
 </head>
 <body>
 <div class="app">
@@ -45,7 +45,7 @@
     <nav class="nav">
       <a href="{{ url_for('dashboard') }}" class="nav-link"><span>⌁</span> Dashboard</a>
       <a href="{{ url_for('doppie_page') }}" class="nav-link"><span>🎲</span> Sistema Doppie</a>
-      <a href="{{ url_for('bolletta_page') }}" class="nav-link active"><span>🎰</span> Bolletta Pazza</a>
+      <a href="{{ url_for('sistema') }}" class="nav-link"><span>🎯</span> Sistema Triple</a>
       <div class="nav-label">Strategie</div>
       <a href="{{ url_for('index', strategy='GG') }}" class="nav-link"><span class="sport-dot green"></span><div>GG <small>{{ gg_count }} match</small></div></a>
       <a href="{{ url_for('index', strategy='Over 2.5') }}" class="nav-link"><span class="sport-dot orange"></span><div>Over 2.5 <small>{{ over25_count }} match</small></div></a>
@@ -54,11 +54,19 @@
   </aside>
 
   <main class="content">
-    <header class="topbar page-clean-topbar">
-      <div></div>
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Selezione manuale</span>
+        <h1>🎰 Bolletta Pazza</h1>
+        <p>Questa è la schedina costruita manualmente dall’elenco partite.</p>
+      </div>
       <div class="top-actions">
-        <form action="{{ url_for('genera_bolletta') }}" method="POST"><button type="submit" class="gen-btn">🔄 Genera automatica</button></form>
-        <form action="{{ url_for('svuota_bolletta') }}" method="POST"><button type="submit" class="danger-btn">Svuota</button></form>
+        <form action="{{ url_for('genera_bolletta') }}" method="POST">
+          <button type="submit" class="gen-btn">🔄 Genera automatica</button>
+        </form>
+        <form action="{{ url_for('svuota_bolletta') }}" method="POST">
+          <button type="submit" class="danger-btn">Svuota</button>
+        </form>
         <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
       </div>
     </header>
@@ -68,27 +76,6 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endwith %}
-
-
-    <section class="premium-section-hero hero-bolletta kickora-unified-hero">
-      <div class="hero-logo-zone">
-        <div class="hero-logo-ring"></div>
-        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
-      </div>
-      <div class="hero-main-zone">
-        <span class="hero-kicker">Bolletta Pazza</span>
-        <h2 class="hero-title">Crea schedine<br>ad alto <span class="accent">potenziale AI.</span></h2>
-        <p>Modalità più rischiosa, più adrenalinica e più emozionante. Combina le selezioni migliori e controlla quota media, vincita potenziale e performance.</p>
-        <div class="hero-badges"><span class="hero-badge pink">AI VALUE</span><span class="hero-badge orange">ULTRA COMBO</span><span class="hero-badge pink">HIGH RISK</span></div>
-      </div>
-      <div class="hero-side-zone hero-bolletta-side">
-        <div class="bolletta-ticket-art"></div>
-        <article class="hero-side-card floating-card"><span>Eventi totali</span><strong>{{ bolletta|length }}</strong><small>nella bolletta</small></article>
-        <article class="hero-side-card floating-card"><span>Quota totale</span><strong>{{ quota_totale }}</strong><small>moltiplicatore</small></article>
-        <article class="hero-side-card floating-card"><span>Potenziale win</span><strong>€{{ "%.2f"|format(importo_fisso * quota_totale) }}</strong><small>vincita potenziale</small></article>
-      </div>
-    </section>
-
 
     {% if bolletta %}
     <section class="kpi-grid four">

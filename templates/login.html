@@ -4,50 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Login</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-login-final-v11">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=manual-slip-v1">
 </head>
-<body class="auth-body login-wow-body">
-  <main class="auth-shell login-wow-shell">
-    <section class="auth-visual login-wow-left">
-      <div class="left-energy left-energy-a"></div>
-      <div class="left-energy left-energy-b"></div>
-
-      <div class="brand-lockup login-top-brand">
+<body class="auth-body">
+  <main class="auth-shell">
+    <section class="auth-visual">
+      <div class="brand-lockup">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
         <div>
           <h1>KICKORA</h1>
           <p>ARENA DATA</p>
         </div>
-        <div class="brand-stripes"><span></span><span></span><span></span><span></span></div>
       </div>
-
-      <div class="logo-stage">
-        <div class="logo-orbit orbit-one"></div>
-        <div class="logo-orbit orbit-two"></div>
-        <div class="logo-aura"></div>
-        <img class="hero-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora Bet">
-        <div class="data-chip chip-left"><strong>AI POWERED</strong><span>Predizioni avanzate<br>basate sui dati reali</span></div>
-        <div class="data-chip chip-right"><strong>ACCURACY 96.7%</strong><span>Il nostro algoritmo<br>lavora per te</span></div>
-      </div>
-
-      <div class="auth-claim login-claim">
+      <div class="auth-claim">
         <span>Sportsbook UI 2026</span>
-        <h2 class="brand-slogan"><strong>Predici.</strong> <em>Combina.</em> <i>Domina.</i></h2>
+        <h2>Costruisci la tua Bolletta Pazza manualmente.</h2>
+        <p>Importa CSV, scegli le partite e costruisci la schedina dalla sidebar.</p>
       </div>
-
-      <div class="auth-metrics login-markets">
-        <div><b>🧠</b><strong>AI Prediction</strong><small>Analisi dati</small></div>
-        <div><b>📊</b><strong>Smart Analytics</strong><small>Value & trend</small></div>
-        <div><b>⚡</b><strong>Kelly Control</strong><small>Stake smart</small></div>
+      <div class="auth-metrics">
+        <div><strong>GG</strong><small>Market</small></div>
+        <div><strong>O2.5</strong><small>Goals</small></div>
+        <div><strong>O1.5</strong><small>Fast</small></div>
       </div>
     </section>
 
-    <section class="auth-card login-wow-card">
-      <div class="secure-pill">🔒 Accesso sicuro</div>
-      <div class="login-heading">
-        <h2>Bentornato!</h2>
-        <p>Accedi alla tua dashboard</p>
+    <section class="auth-card">
+      <div class="mobile-brand">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
+        <strong>KICKORA</strong>
       </div>
-      <div class="lock-divider"><span>🔐</span></div>
+
+      <h2>Accesso</h2>
+      <p>Entra nella dashboard.</p>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
@@ -55,31 +43,15 @@
         {% endfor %}
       {% endwith %}
 
-      <form method="POST" class="login-wow-form">
+      <form method="POST">
         <label>Username</label>
-        <div class="login-input-wrap">
-          <span class="input-icon">♙</span>
-          <input type="text" name="username" placeholder="admin" required autocomplete="username">
-          <span class="input-status">✓</span>
-        </div>
+        <input type="text" name="username" placeholder="Il tuo username" required autocomplete="username">
 
         <label>Password</label>
-        <div class="login-input-wrap password-glow">
-          <span class="input-icon">▣</span>
-          <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-          <span class="input-status eye">◉</span>
-        </div>
+        <input type="password" name="password" placeholder="La tua password" required autocomplete="current-password">
 
-        <div class="login-row">
-          <label class="remember"><input type="checkbox"> <span>Ricordami</span></label>
-          <a href="#" onclick="return false;">Password dimenticata?</a>
-        </div>
-
-        <button type="submit" class="primary-btn full login-cta"><span>Accedi alla piattaforma</span><i>›</i></button>
+        <button type="submit" class="primary-btn full">Accedi alla piattaforma</button>
       </form>
-
-      <div class="login-social-sep"><span></span><small>o continua con</small><span></span></div>
-      <button class="google-orb" type="button" onclick="return false;">G</button>
     </section>
   </main>
 </body>
