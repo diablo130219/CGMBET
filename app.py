@@ -1359,6 +1359,7 @@ def doppie_aggiungi():
     match1_id = request.form.get("match1_id")
     match2_id = request.form.get("match2_id")
     stake_mode = request.form.get("stake_mode", "kelly")
+    risk_profile = request.form.get("risk_profile", "balanced")
     puntata_manual = parse_float(request.form.get("puntata_manual"))
     kelly_fraction = parse_float(request.form.get("kelly_fraction", "25")) / 100
     if kelly_fraction <= 0:
@@ -1391,20 +1392,24 @@ def doppie_aggiungi():
     prob_doppia = prob_match(m1) * prob_match(m2)
     if stake_mode == "manuale" and puntata_manual > 0:
         puntata = puntata_manual
+        final_stake_mode = "manuale"
     else:
         puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
-        stake_mode = "kelly"
+        # Profili visuali Kelly: Conservative / Balanced / Aggressive
+        profile_caps = {
+            "conservative": 2.50,
+            "balanced": 3.00,
+            "aggressive": 6.00,
+        }
+        if risk_profile not in profile_caps:
+            risk_profile = "balanced"
+        max_stake = profile_caps[risk_profile]
+        # Sicurezza ulteriore: mai oltre il 6% del bankroll, anche in aggressive.
+        if bankroll > 0:
+            max_stake = min(max_stake, round(bankroll * 0.06, 2))
+        puntata = max(1.0, min(puntata, max_stake))
+        final_stake_mode = risk_profile
 
-    # Protezione stake: il Kelly non deve mai “sparare” puntate troppo alte.
-    # Regola pratica: minimo €1, massimo 2x lo stake fisso preferito.
-    # Se lo stake fisso non è impostato, usa un tetto prudente di €4.
-    _, importo_fisso = get_bankroll(conn)
-    max_stake = round((importo_fisso * 2), 2) if importo_fisso and importo_fisso > 0 else 4.0
-    if bankroll > 0:
-        # ulteriore sicurezza: mai oltre il 4% del bankroll
-        max_stake = min(max_stake, round(bankroll * 0.04, 2))
-
-    puntata = max(1.0, min(puntata, max_stake))
     puntata = round(puntata, 2)
 
     conn.execute("""
@@ -1415,7 +1420,7 @@ def doppie_aggiungi():
     """, (today, match1_id, match2_id,
           m1["home_team"], m1["away_team"], m1["odd"], m1["strategy"],
           m2["home_team"], m2["away_team"], m2["odd"], m2["strategy"],
-          quota_doppia, puntata, kelly_fraction, bankroll, stake_mode))
+          quota_doppia, puntata, kelly_fraction, bankroll, final_stake_mode))
     conn.commit()
     conn.close()
 

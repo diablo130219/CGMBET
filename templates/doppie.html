@@ -4,9 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v7">
   <style>
     .kelly-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(41,121,255,.15);color:#2979ff;}
+    .risk-grid{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px;margin:12px 0;}
+    .risk-card{position:relative;display:block;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);cursor:pointer;transition:.18s;overflow:hidden;}
+    .risk-card input{position:absolute;opacity:0;pointer-events:none;}
+    .risk-card strong{display:block;font-size:1rem;margin-bottom:3px;}
+    .risk-card small{display:block;color:rgba(255,255,255,.55);font-size:.78rem;}
+    .risk-card.conservative{border-color:rgba(0,230,118,.25);}
+    .risk-card.balanced{border-color:rgba(41,121,255,.28);}
+    .risk-card.aggressive{border-color:rgba(255,23,68,.28);}
+    .risk-card:has(input:checked){transform:translateY(-1px);}
+    .risk-card.conservative:has(input:checked){background:rgba(0,230,118,.12);box-shadow:0 0 18px rgba(0,230,118,.28);border-color:#00e676;}
+    .risk-card.balanced:has(input:checked){background:rgba(41,121,255,.13);box-shadow:0 0 18px rgba(41,121,255,.30);border-color:#2979ff;}
+    .risk-card.aggressive:has(input:checked){background:rgba(255,23,68,.12);box-shadow:0 0 18px rgba(255,23,68,.26);border-color:#ff1744;}
+    .stake-info{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px;}
+    .stake-chip{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);font-size:.82rem;}
+    .stake-chip b{color:#ffd600;}
     .doppia-card{background:var(--card,#13161e);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;margin-bottom:12px;}
     .doppia-card.vinta{border-left:4px solid #00e676;}
     .doppia-card.persa{border-left:4px solid #ff1744;}
@@ -86,7 +101,7 @@
         <div><span>ROI</span>
           <strong class="{{ 'roi-pos' if roi_doppie > 0 else 'roi-neg' }}">{{ roi_doppie }}%</strong>
         </div>
-        <div><span>Kelly protetto</span><strong style="color:#2979ff;">max 2x stake</strong></div>
+        <div><span>Kelly protetto</span><strong style="color:#2979ff;">Balanced max €3</strong></div>
       </div>
 
       {# Doppie di oggi nella sidebar #}
@@ -129,7 +144,7 @@
       <div>
         <span class="eyebrow">Kelly protetto</span>
         <h1>🎲 Sistema Doppie</h1>
-        <p>Seleziona 2 partite — il Kelly calcola la puntata ma con tetto massimo prudente.</p>
+        <p>Seleziona 2 partite — scegli il profilo Kelly visivo e controlla subito lo stake massimo.</p>
       </div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
@@ -190,7 +205,7 @@
 
       <div style="padding:16px;">
         <p style="font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:12px;">
-          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly calcola automaticamente la puntata, ma viene bloccata al massimo a 2x lo stake fisso e mai oltre il 4% del bankroll.
+          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly resta protetto e viene bloccato dal profilo scelto.
         </p>
 
         <form action="{{ url_for('salva_bankroll') }}" method="POST" style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr)) auto;gap:10px;align-items:end;margin-bottom:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;">
@@ -230,11 +245,37 @@
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(150px,1fr));gap:10px;margin:12px 0;">
+          <div class="stake-info">
+            <span class="stake-chip">Stake base: <b>€{{ "%.2f"|format(importo_fisso or 2) }}</b></span>
+            <span class="stake-chip">Max Conservative: <b>€2.50</b></span>
+            <span class="stake-chip">Max Balanced: <b>€3.00</b></span>
+            <span class="stake-chip">Max Aggressive: <b>€6.00</b></span>
+          </div>
+
+          <label style="font-size:.82rem;color:rgba(255,255,255,.55);display:block;margin-bottom:6px;">Profilo Kelly</label>
+          <div class="risk-grid">
+            <label class="risk-card conservative">
+              <input type="radio" name="risk_profile" value="conservative">
+              <strong>🛡️ Conservative</strong>
+              <small>Rischio basso · max €2.50</small>
+            </label>
+            <label class="risk-card balanced">
+              <input type="radio" name="risk_profile" value="balanced" checked>
+              <strong>🎯 Balanced</strong>
+              <small>Equilibrato · max €3.00</small>
+            </label>
+            <label class="risk-card aggressive">
+              <input type="radio" name="risk_profile" value="aggressive">
+              <strong>🔥 Aggressive</strong>
+              <small>Alta esposizione · max €6.00</small>
+            </label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:10px;margin:12px 0;">
             <div>
               <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Tipo stake</label>
               <select name="stake_mode" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
-                <option value="kelly">Kelly automatico</option>
+                <option value="kelly">Kelly automatico protetto</option>
                 <option value="manuale">Stake manuale</option>
               </select>
             </div>
@@ -242,11 +283,8 @@
               <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Stake manuale €</label>
               <input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
             </div>
-            <div>
-              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Kelly %</label>
-              <input type="number" name="kelly_fraction" value="25" step="5" min="1" max="100" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
-            </div>
           </div>
+          <input type="hidden" name="kelly_fraction" value="25">
 
           <div style="background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.2);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:rgba(255,255,255,.7);">
             💡 Ora puoi creare doppie miste: esempio <strong>GG + Over 2.5</strong> senza perdere la prima selezione. Bankroll attuale: <strong>€{{ "%.2f"|format(bankroll) }}</strong>.
@@ -280,7 +318,7 @@
             <div style="flex:1;min-width:200px;">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
                 <span class="market-pill" style="background:rgba(41,121,255,.15);color:#2979ff;">Doppia #{{ loop.index }}</span>
-                <span class="kelly-badge">{{ 'Kelly' if (d.stake_mode or 'kelly') == 'kelly' else 'Manuale' }}</span>
+                <span class="kelly-badge">{% if d.stake_mode == 'manuale' %}Manuale{% elif d.stake_mode == 'conservative' %}🛡️ Conservative{% elif d.stake_mode == 'aggressive' %}🔥 Aggressive{% else %}🎯 Balanced{% endif %}</span>
                 {% if d.esito == 'vinta' %}
                   <span class="market-pill" style="color:#00e676;background:rgba(0,230,118,.1);">✅ VINTA</span>
                 {% elif d.esito == 'persa' %}
