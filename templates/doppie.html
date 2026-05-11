@@ -86,7 +86,7 @@
         <div><span>ROI</span>
           <strong class="{{ 'roi-pos' if roi_doppie > 0 else 'roi-neg' }}">{{ roi_doppie }}%</strong>
         </div>
-        <div><span>Kelly usato</span><strong style="color:#2979ff;">25%</strong></div>
+        <div><span>Kelly protetto</span><strong style="color:#2979ff;">max 2x stake</strong></div>
       </div>
 
       {# Doppie di oggi nella sidebar #}
@@ -127,9 +127,9 @@
   <main class="content">
     <header class="topbar">
       <div>
-        <span class="eyebrow">Kelly 25% frazionato</span>
+        <span class="eyebrow">Kelly protetto</span>
         <h1>🎲 Sistema Doppie</h1>
-        <p>Seleziona 2 partite — il Kelly calcola la puntata ottimale in base al bankroll.</p>
+        <p>Seleziona 2 partite — il Kelly calcola la puntata ma con tetto massimo prudente.</p>
       </div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
@@ -190,7 +190,7 @@
 
       <div style="padding:16px;">
         <p style="font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:12px;">
-          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly calcola automaticamente la puntata ottimale (max 10% bankroll).
+          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly calcola automaticamente la puntata, ma viene bloccata al massimo a 2x lo stake fisso e mai oltre il 4% del bankroll.
         </p>
 
         <form action="{{ url_for('salva_bankroll') }}" method="POST" style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr)) auto;gap:10px;align-items:end;margin-bottom:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;">

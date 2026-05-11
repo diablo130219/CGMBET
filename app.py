@@ -1150,32 +1150,51 @@ def sistema():
 @login_required
 def sistema_esito(match_id):
     esito = request.form.get("esito", "pending")
+    if esito not in ["vinta", "persa", "pending"]:
+        esito = "pending"
+
     data = date.today().isoformat()
     strategy = request.form.get("strategy", "Over 2.5")
     budget = parse_float(request.form.get("budget", "10"))
 
     conn = get_db()
+    try:
+        # Recupera dati partita in modo sicuro
+        m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
+        if not m:
+            flash("⚠️ Partita non trovata: ricarica il CSV o torna alla pagina sistemi.", "error")
+            return redirect(url_for("sistema", strategy=strategy, budget=budget))
 
-    # Recupera dati partita
-    m = conn.execute("SELECT * FROM matches WHERE id=?", (match_id,)).fetchone()
-    if m:
-        existing = conn.execute(
-            "SELECT id FROM sistema_risultati WHERE data=? AND match_id=?",
-            (data, match_id)
-        ).fetchone()
-        if existing:
-            conn.execute(
-                "UPDATE sistema_risultati SET esito=?, strategy=?, home_team=?, away_team=?, odd=? WHERE id=?",
-                (esito, strategy, m["home_team"], m["away_team"], m["odd"], existing["id"])
-            )
-        else:
-            conn.execute("""
-                INSERT INTO sistema_risultati (data, strategy, match_id, home_team, away_team, odd, esito, flex)
-                VALUES (?,?,?,?,?,?,?,0)
-            """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+        # Usa una logica update-first: evita errori di pagina su vincoli UNIQUE
+        updated = conn.execute("""
+            UPDATE sistema_risultati
+            SET esito=?, strategy=?, home_team=?, away_team=?, odd=?
+            WHERE data=? AND match_id=?
+        """, (esito, strategy, m["home_team"], m["away_team"], m["odd"], data, match_id)).rowcount
+
+        if updated == 0:
+            try:
+                conn.execute("""
+                    INSERT INTO sistema_risultati
+                    (data, strategy, match_id, home_team, away_team, odd, esito, flex)
+                    VALUES (?,?,?,?,?,?,?,0)
+                """, (data, strategy, match_id, m["home_team"], m["away_team"], m["odd"], esito))
+            except Exception:
+                # Se il database vecchio ha un vincolo diverso, riprova aggiornando per match_id.
+                conn.execute("""
+                    UPDATE sistema_risultati
+                    SET esito=?, strategy=?, home_team=?, away_team=?, odd=?
+                    WHERE match_id=?
+                """, (esito, strategy, m["home_team"], m["away_team"], m["odd"], match_id))
+
         conn.commit()
+        flash("✅ Esito sistema aggiornato.", "success")
+    except Exception as e:
+        conn.rollback()
+        flash(f"⚠️ Non sono riuscito ad aggiornare l'esito: {e}", "error")
+    finally:
+        conn.close()
 
-    conn.close()
     return redirect(url_for("sistema", strategy=strategy, budget=budget))
 
 
@@ -1351,11 +1370,16 @@ def doppie_aggiungi():
         puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
         stake_mode = "kelly"
 
-    # Minimo €1, massimo 10% bankroll se il bankroll è impostato
+    # Protezione stake: il Kelly non deve mai “sparare” puntate troppo alte.
+    # Regola pratica: minimo €1, massimo 2x lo stake fisso preferito.
+    # Se lo stake fisso non è impostato, usa un tetto prudente di €4.
+    _, importo_fisso = get_bankroll(conn)
+    max_stake = round((importo_fisso * 2), 2) if importo_fisso and importo_fisso > 0 else 4.0
     if bankroll > 0:
-        puntata = max(1.0, min(puntata, bankroll * 0.10))
-    else:
-        puntata = max(1.0, puntata)
+        # ulteriore sicurezza: mai oltre il 4% del bankroll
+        max_stake = min(max_stake, round(bankroll * 0.04, 2))
+
+    puntata = max(1.0, min(puntata, max_stake))
     puntata = round(puntata, 2)
 
     conn.execute("""
