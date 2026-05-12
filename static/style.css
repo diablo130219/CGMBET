@@ -2576,3 +2576,58 @@ body.over15-page .kpi-card{
     transform:scale(1)!important;
   }
 }
+
+
+/* === OVER 1.5 MASSIVE LOGO FIX v44 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:560px minmax(420px,1fr) 230px!important;
+  min-height:390px!important;
+  gap:0!important;
+  padding:16px 20px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:360px!important;
+  padding-left:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:520px!important;
+  height:520px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  transform:scale(1.38)!important;
+  filter:
+    drop-shadow(0 0 35px rgba(34,211,255,.85))
+    drop-shadow(0 0 90px rgba(0,153,255,.45))!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:-90px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-title{
+  font-size:clamp(50px,4.5vw,84px)!important;
+  line-height:.9!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone p{
+  font-size:17px!important;
+}
+
+@media(max-width:1180px){
+ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+   grid-template-columns:1fr!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+   margin-left:0!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+   width:360px!important;
+   height:360px!important;
+   transform:scale(1.05)!important;
+ }
+}
