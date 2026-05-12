@@ -1288,7 +1288,8 @@ def get_bankroll_doppie(conn):
 @app.route("/doppie")
 @login_required
 def doppie_page():
-    strategy = request.args.get("strategy", "GG")
+    strategy = request.args.get("strategy", "all")
+    strategy_filter = strategy if strategy in ("GG", "Over 2.5", "Over 1.5") else "all"
     today = date.today()
 
     conn = get_db()
@@ -1309,18 +1310,34 @@ def doppie_page():
         (strategy,)
     ).fetchall()
     # Per la creazione delle doppie mostriamo SOLO partite consigliate:
-    # ✅ ENTRA e ⚠️ BORDERLINE, anche miste tra GG / Over 2.5 / Over 1.5.
-    raw_all_matches = conn.execute(
-        """
-        SELECT * FROM matches
-        ORDER BY
-          CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
-          match_date ASC,
-          COALESCE(match_time,'99:99') ASC,
-          strategy ASC,
-          odd ASC
-        """
-    ).fetchall()
+    # ✅ ENTRA e ⚠️ BORDERLINE.
+    # Se scegli una strategia dai tab, mostriamo solo quella strategia;
+    # se scegli TUTTI, mostriamo GG + Over 2.5 + Over 1.5 ordinati per data/ora.
+    if strategy_filter == "all":
+        raw_all_matches = conn.execute(
+            """
+            SELECT * FROM matches
+            ORDER BY
+              CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
+              match_date ASC,
+              COALESCE(match_time,'99:99') ASC,
+              strategy ASC,
+              odd ASC
+            """
+        ).fetchall()
+    else:
+        raw_all_matches = conn.execute(
+            """
+            SELECT * FROM matches
+            WHERE strategy=?
+            ORDER BY
+              CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
+              match_date ASC,
+              COALESCE(match_time,'99:99') ASC,
+              odd ASC
+            """,
+            (strategy_filter,)
+        ).fetchall()
     all_matches = []
     for m in raw_all_matches:
         f = calcola_score(m, m["strategy"])

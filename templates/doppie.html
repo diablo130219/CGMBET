@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-date-sorted-v33">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-filter-tabs-v34">
   <style>
     :root{
       --dk:#07131b;--dk2:#0b1d29;--panel:rgba(8,25,36,.82);--panel2:rgba(10,35,48,.72);
@@ -41,7 +41,7 @@
     .builder-head p{margin:6px 0 0;color:var(--muted);}
     .market-tabs{display:flex;gap:8px;align-items:center;}
     .market-tabs a{display:inline-flex;align-items:center;justify-content:center;padding:12px 18px;border:1px solid rgba(255,255,255,.12);border-radius:9px;text-decoration:none;color:rgba(255,255,255,.75);font-weight:900;font-size:.82rem;background:rgba(255,255,255,.04);}
-    .market-tabs a.active,.market-tabs a:first-child{border-color:rgba(0,240,184,.5);background:rgba(0,240,184,.12);color:var(--teal);}
+    .market-tabs a.active{border-color:rgba(0,240,184,.5);background:rgba(0,240,184,.12);color:var(--teal);}
     .match-search{position:relative;}
     .match-search input{width:260px;background:rgba(3,13,20,.72);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:13px 42px 13px 16px;color:#fff;outline:none;}
     .match-search span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--teal);font-weight:900;}
@@ -146,7 +146,7 @@
         <div class="builder-head">
           <div class="title"><span>Nuova doppia</span><h2>＋ Crea Doppia <span class="kelly-badge">Ordine per data</span></h2><p>Le partite di GG / Over 2.5 / Over 1.5 sono ordinate per data e ora: prima oggi, poi i giorni successivi.</p></div>
           <div class="market-tabs">
-            <a href="{{ url_for('doppie_page') }}">Tutti (GG / O2.5 / O1.5)</a>
+            <a class="{{ 'active' if strategy not in ['GG','Over 2.5','Over 1.5'] else '' }}" href="{{ url_for('doppie_page') }}">Tutti (GG / O2.5 / O1.5)</a>
             {% for s in ["GG","Over 2.5","Over 1.5"] %}<a class="{{ 'active' if strategy==s else '' }}" href="{{ url_for('doppie_page', strategy=s) }}">{{ s }}</a>{% endfor %}
           </div>
           <label class="match-search"><input id="matchSearch" type="search" placeholder="Cerca partita o squadra…"><span>⌕</span></label>
