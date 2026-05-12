@@ -1,4 +1,0 @@
-Over 1.5 Control v40
-- Logo Over 1.5 Control inserito in static/over15-control-logo.png
-- Pagina Over 1.5 trasformata in stile nero/blu/ciano
-- CSV, filtri, tabella, bolletta e pulsanti restano funzionali.
