@@ -1313,31 +1313,21 @@ def doppie_page():
     # ✅ ENTRA e ⚠️ BORDERLINE.
     # Se scegli una strategia dai tab, mostriamo solo quella strategia;
     # se scegli TUTTI, mostriamo GG + Over 2.5 + Over 1.5 ordinati per data/ora.
-    if strategy_filter == "all":
-        raw_all_matches = conn.execute(
-            """
-            SELECT * FROM matches
-            ORDER BY
-              CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
-              match_date ASC,
-              COALESCE(match_time,'99:99') ASC,
-              strategy ASC,
-              odd ASC
-            """
-        ).fetchall()
-    else:
-        raw_all_matches = conn.execute(
-            """
-            SELECT * FROM matches
-            WHERE strategy=?
-            ORDER BY
-              CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
-              match_date ASC,
-              COALESCE(match_time,'99:99') ASC,
-              odd ASC
-            """,
-            (strategy_filter,)
-        ).fetchall()
+    # IMPORTANTE: per la pagina Doppie carichiamo SEMPRE tutte le strategie.
+    # I tab GG / Over 2.5 / Over 1.5 filtrano lato frontend senza ricaricare la pagina:
+    # così, dopo aver creato una doppia, puoi cambiare strategia e le partite restano disponibili.
+    raw_all_matches = conn.execute(
+        """
+        SELECT * FROM matches
+        WHERE strategy IN ('GG', 'Over 2.5', 'Over 1.5')
+        ORDER BY
+          CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
+          match_date ASC,
+          COALESCE(match_time,'99:99') ASC,
+          strategy ASC,
+          odd ASC
+        """
+    ).fetchall()
     all_matches = []
     for m in raw_all_matches:
         f = calcola_score(m, m["strategy"])
@@ -1417,7 +1407,7 @@ def doppie_aggiungi():
 
     if not match1_id or not match2_id or match1_id == match2_id:
         flash("⚠️ Seleziona 2 partite diverse.", "error")
-        return redirect(url_for("doppie_page", strategy=strategy))
+        return redirect(url_for("doppie_page", strategy="all"))
 
     conn = get_db()
     if capitale_form > 0 or importo_fisso_form > 0:
@@ -1432,7 +1422,7 @@ def doppie_aggiungi():
     if not m1 or not m2:
         flash("⚠️ Partite non trovate.", "error")
         conn.close()
-        return redirect(url_for("doppie_page", strategy=strategy))
+        return redirect(url_for("doppie_page", strategy="all"))
 
     quota_doppia = round(float(m1["odd"] or 1) * float(m2["odd"] or 1), 2)
 
@@ -1485,7 +1475,7 @@ def doppie_aggiungi():
     conn.close()
 
     flash(f"✅ Doppia aggiunta — puntata: €{puntata}", "success")
-    return redirect(url_for("doppie_page", strategy=strategy))
+    return redirect(url_for("doppie_page", strategy="all"))
 
 
 @app.route("/doppie/esito/<int:doppia_id>", methods=["POST"])
