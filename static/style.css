@@ -2634,3 +2634,207 @@ body.gg-page .odds-table tbody tr:hover{
     grid-template-columns:repeat(3,1fr)!important;
   }
 }
+
+
+/* === BOLLETTA PAZZA PURPLE CYBERPUNK THEME === */
+body.bolletta-page,
+body.bolletta-pazza-page{
+  --crazy-purple:#d946ef;
+  --crazy-pink:#ff5edc;
+  --crazy-glow:rgba(217,70,239,.42);
+  background:
+    radial-gradient(circle at 18% 5%, rgba(217,70,239,.18), transparent 28%),
+    radial-gradient(circle at 88% 0%, rgba(255,94,220,.14), transparent 26%),
+    linear-gradient(135deg,#0b0311 0%,#16061f 52%,#050208 100%) !important;
+}
+
+body.bolletta-page .content,
+body.bolletta-pazza-page .content{
+  background:
+    linear-gradient(rgba(217,70,239,.020) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(217,70,239,.020) 1px, transparent 1px),
+    radial-gradient(circle at 50% 10%, rgba(217,70,239,.07), transparent 34%)!important;
+  background-size:64px 64px,64px 64px,auto!important;
+}
+
+body.bolletta-page .sidebar,
+body.bolletta-pazza-page .sidebar{
+  background:linear-gradient(180deg,#0a0310,#14071b 62%,#040106)!important;
+  border-right:1px solid rgba(217,70,239,.24)!important;
+}
+
+body.bolletta-page .brand,
+body.bolletta-page .sidebar-ticket,
+body.bolletta-page .side-bet-slip,
+body.bolletta-page .bankroll-card,
+body.bolletta-pazza-page .brand,
+body.bolletta-pazza-page .sidebar-ticket{
+  background:linear-gradient(135deg,rgba(217,70,239,.09),rgba(255,255,255,.025))!important;
+  border-color:rgba(217,70,239,.28)!important;
+  box-shadow:0 0 24px rgba(217,70,239,.08), inset 0 0 24px rgba(255,255,255,.018)!important;
+}
+
+body.bolletta-page .nav-link.active,
+body.bolletta-page .nav-link:hover,
+body.bolletta-pazza-page .nav-link.active,
+body.bolletta-pazza-page .nav-link:hover{
+  background:linear-gradient(90deg,rgba(217,70,239,.22),rgba(255,94,220,.055))!important;
+  border-color:rgba(217,70,239,.58)!important;
+  box-shadow:0 0 26px rgba(217,70,239,.16)!important;
+}
+
+body.bolletta-page .premium-section-hero,
+body.bolletta-pazza-page .premium-section-hero,
+body.bolletta-page .market-hero,
+body.bolletta-page .kpi-card,
+body.bolletta-page .control-strip,
+body.bolletta-page .odds-table-card,
+body.bolletta-page .glass-card,
+body.bolletta-pazza-page .market-hero,
+body.bolletta-pazza-page .kpi-card,
+body.bolletta-pazza-page .control-strip,
+body.bolletta-pazza-page .odds-table-card{
+  background:
+    linear-gradient(
+      135deg,
+      rgba(217,70,239,.085),
+      rgba(255,255,255,.032),
+      rgba(0,0,0,.18)
+    )!important;
+  border-color:rgba(217,70,239,.26)!important;
+  box-shadow:
+    0 18px 50px rgba(0,0,0,.30),
+    inset 0 0 24px rgba(217,70,239,.025)!important;
+}
+
+body.bolletta-page .status-chip,
+body.bolletta-page .eyebrow,
+body.bolletta-page .kpi-card span,
+body.bolletta-page .market-copy h2,
+body.bolletta-page .section-head h3,
+body.bolletta-pazza-page .status-chip,
+body.bolletta-pazza-page .eyebrow{
+  color:#ffb8f5!important;
+}
+
+body.bolletta-page .primary-btn,
+body.bolletta-page .success-btn,
+body.bolletta-page .add-slip-btn,
+body.bolletta-pazza-page .primary-btn{
+  background:linear-gradient(90deg,#9d1fd0,#d946ef,#ff5edc)!important;
+  color:white!important;
+  border-color:rgba(255,184,245,.65)!important;
+  box-shadow:0 0 24px rgba(217,70,239,.24)!important;
+}
+
+body.bolletta-page .added-btn,
+body.bolletta-pazza-page .added-btn{
+  background:rgba(217,70,239,.12)!important;
+  border-color:rgba(217,70,239,.35)!important;
+  color:#ffd7fa!important;
+}
+
+body.bolletta-page input,
+body.bolletta-page select,
+body.bolletta-pazza-page input,
+body.bolletta-pazza-page select{
+  background:rgba(0,0,0,.30)!important;
+  border-color:rgba(217,70,239,.26)!important;
+  color:#fff!important;
+}
+
+body.bolletta-page .prob-pill,
+body.bolletta-page .market-pill,
+body.bolletta-page .stat-pill,
+body.bolletta-page .elo-pill,
+body.bolletta-page .count-pill,
+body.bolletta-pazza-page .prob-pill,
+body.bolletta-pazza-page .market-pill{
+  background:rgba(217,70,239,.12)!important;
+  color:#ffb8f5!important;
+  border-color:rgba(217,70,239,.28)!important;
+}
+
+body.bolletta-page .odds-table thead th,
+body.bolletta-pazza-page .odds-table thead th{
+  color:#ffb8f5!important;
+  background:rgba(217,70,239,.08)!important;
+}
+
+body.bolletta-page .odds-table tbody tr:hover,
+body.bolletta-pazza-page .odds-table tbody tr:hover{
+  background:rgba(217,70,239,.055)!important;
+}
+
+
+/* === FORCE BOLLETTA PAZZA THEME V2 === */
+body.bolletta-page,
+body.bolletta-pazza-page{
+background:
+radial-gradient(circle at 20% 0%, rgba(217,70,239,.22), transparent 32%),
+linear-gradient(135deg,#0a0312 0%, #14061d 45%, #050108 100%) !important;
+color:#fff!important;
+}
+
+body.bolletta-page .content,
+body.bolletta-pazza-page .content{
+background:
+linear-gradient(rgba(217,70,239,.018) 1px, transparent 1px),
+linear-gradient(90deg, rgba(217,70,239,.018) 1px, transparent 1px)!important;
+background-size:64px 64px!important;
+}
+
+body.bolletta-page .dashboard-hero,
+body.bolletta-page .market-hero,
+body.bolletta-page .bet-slip-wide,
+body.bolletta-page .strategy-summary,
+body.bolletta-page .odds-table-card,
+body.bolletta-page .control-strip,
+body.bolletta-page .kpi-card,
+body.bolletta-page .storico-card,
+body.bolletta-page .glass-card{
+background:
+linear-gradient(
+135deg,
+rgba(217,70,239,.10),
+rgba(255,255,255,.03),
+rgba(0,0,0,.18)
+)!important;
+border:1px solid rgba(217,70,239,.24)!important;
+box-shadow:
+0 0 28px rgba(217,70,239,.14),
+inset 0 0 24px rgba(217,70,239,.03)!important;
+}
+
+body.bolletta-page .primary-btn,
+body.bolletta-page .success-btn,
+body.bolletta-page .gen-btn,
+body.bolletta-page .add-slip-btn{
+background:linear-gradient(90deg,#9622c9,#d946ef,#ff69e5)!important;
+border:none!important;
+color:white!important;
+box-shadow:0 0 24px rgba(217,70,239,.34)!important;
+}
+
+body.bolletta-page .market-pill,
+body.bolletta-page .prob-pill,
+body.bolletta-page .count-pill,
+body.bolletta-page .stat-pill{
+background:rgba(217,70,239,.14)!important;
+color:#ffc7f8!important;
+border:1px solid rgba(217,70,239,.26)!important;
+}
+
+body.bolletta-page .odds-table thead th{
+background:rgba(217,70,239,.08)!important;
+color:#ffc7f8!important;
+}
+
+body.bolletta-page .odds-table tbody tr:hover{
+background:rgba(217,70,239,.06)!important;
+}
+
+body.bolletta-page .sidebar{
+background:linear-gradient(180deg,#09020f,#13051a 60%,#040106)!important;
+border-right:1px solid rgba(217,70,239,.24)!important;
+}
