@@ -2331,13 +2331,12 @@ body.over15-page .sport-dot.blue{background:var(--cyan)!important;box-shadow:0 0
 body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
   --hero-ring:var(--cyan);
   --hero-glow:var(--blueGlow);
-  min-height:480px!important;
-  grid-template-columns:600px minmax(420px,1fr) 280px!important;
-  gap:28px!important;
-  padding:0 32px 0 0!important;
+  min-height:430px!important;
+  grid-template-columns:520px minmax(460px,1fr) 300px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
   border-radius:24px!important;
   border:1px solid rgba(34,211,255,.34)!important;
-  overflow:hidden!important;
   background:
     radial-gradient(circle at 14% 50%, rgba(34,211,255,.26), transparent 28%),
     radial-gradient(circle at 78% 46%, rgba(0,119,255,.13), transparent 26%),
@@ -2356,34 +2355,17 @@ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero:before{
   filter:drop-shadow(0 0 14px rgba(34,211,255,.30));
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
-  min-height:480px!important;
-  position:relative;
-  display:flex;
-  align-items:flex-end;
-  justify-content:center;
-  overflow:hidden;
-  padding:0!important;
+  min-height:395px;position:relative;display:grid;place-items:center;
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-logo-ring{display:none!important;}
 body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-  width:600px!important;
-  height:500px!important;
-  max-width:none!important;
+  width:520px!important;
+  height:410px!important;
   object-fit:contain!important;
-  object-position:bottom center!important;
   border-radius:0!important;
   box-shadow:none!important;
-  filter:
-    drop-shadow(0 0 48px rgba(34,211,255,.85))
-    drop-shadow(0 0 18px rgba(34,211,255,.50))
-    drop-shadow(0 24px 32px rgba(0,0,0,.55));
-  animation:over15HeroFloat 5.2s ease-in-out infinite!important;
-  transform-origin:center bottom;
-  margin-bottom:-8px;
-}
-@keyframes over15HeroFloat{
-  0%,100%{transform:translateY(0) scale(1);}
-  50%{transform:translateY(-12px) scale(1.012);}
+  filter:drop-shadow(0 0 28px rgba(34,211,255,.70));
+  animation:none!important;
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-kicker{
   background:linear-gradient(90deg,rgba(34,211,255,.18),rgba(34,211,255,.06))!important;
@@ -2504,14 +2486,13 @@ body.over15-page .bankroll-card strong{
 }
 
 
-/* === OVER 1.5 CONTROL HERO LOGO GRANDE v44 === */
+/* === OVER 1.5 CONTROL FINAL HERO BALANCE v43 === */
 body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
-  grid-template-columns:580px minmax(400px,1fr) 260px!important;
-  min-height:460px!important;
-  gap:0!important;
-  padding:0 28px 0 0!important;
-  align-items:stretch!important;
-  overflow:hidden!important;
+  grid-template-columns:460px minmax(520px,1fr) 250px!important;
+  min-height:360px!important;
+  gap:14px!important;
+  padding:22px 26px!important;
+  align-items:center!important;
   background:
     radial-gradient(circle at 16% 50%, rgba(34,211,255,.30), transparent 26%),
     radial-gradient(circle at 68% 45%, rgba(0,119,255,.10), transparent 32%),
@@ -2519,42 +2500,26 @@ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
 }
 
 body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
-  min-height:460px!important;
-  display:flex!important;
-  align-items:flex-end!important;
+  min-height:330px!important;
   justify-content:flex-start!important;
-  padding:0!important;
-  overflow:visible!important;
+  padding-left:8px!important;
 }
 
 body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-  width:640px!important;
-  height:520px!important;
-  max-width:none!important;
+  width:390px!important;
+  height:330px!important;
   object-fit:contain!important;
-  object-position:bottom left!important;
   border-radius:0!important;
   box-shadow:none!important;
-  filter:
-    drop-shadow(0 0 55px rgba(34,211,255,.90))
-    drop-shadow(0 0 22px rgba(34,211,255,.55))
-    drop-shadow(0 28px 40px rgba(0,0,0,.60))!important;
-  animation:over15HeroFloatV44 5.5s ease-in-out infinite!important;
-  transform:none!important;
-  transform-origin:center bottom!important;
-  margin-bottom:-4px!important;
-  margin-left:-16px!important;
-}
-
-@keyframes over15HeroFloatV44{
-  0%,100%{transform:translateY(0) scale(1);}
-  50%{transform:translateY(-14px) scale(1.015);}
+  filter:drop-shadow(0 0 32px rgba(34,211,255,.78)) drop-shadow(0 0 70px rgba(0,119,255,.32))!important;
+  animation:none!important;
+  transform:scale(1.18)!important;
+  transform-origin:center!important;
 }
 
 body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
-  margin-left:0!important;
+  margin-left:-34px!important;
   align-self:center!important;
-  padding:28px 0!important;
 }
 
 body.over15-page .premium-section-hero.hero-over15 .hero-title{
@@ -2571,11 +2536,6 @@ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone p{
 
 body.over15-page .premium-section-hero.hero-over15 .hero-badges{
   margin-top:18px!important;
-}
-
-body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{
-  align-self:center!important;
-  padding:20px 0!important;
 }
 
 body.over15-page .premium-section-hero.hero-over15 .hero-side-card{
@@ -2597,48 +2557,172 @@ body.over15-page .kpi-card{
   background-color:transparent!important;
 }
 
-@media(max-width:1280px){
+@media(max-width:1180px){
   body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
-    grid-template-columns:460px minmax(320px,1fr) 240px!important;
+    grid-template-columns:1fr!important;
+    text-align:center!important;
+    min-height:auto!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+    justify-content:center!important;
+    padding-left:0!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+    margin-left:0!important;
   }
   body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-    width:520px!important;
-    height:420px!important;
+    width:330px!important;
+    height:280px!important;
+    transform:scale(1)!important;
   }
+}
+
+
+/* === OVER 1.5 MASSIVE LOGO FIX v44 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:560px minmax(420px,1fr) 230px!important;
+  min-height:390px!important;
+  gap:0!important;
+  padding:16px 20px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:360px!important;
+  padding-left:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:520px!important;
+  height:520px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  transform:scale(1.38)!important;
+  filter:
+    drop-shadow(0 0 35px rgba(34,211,255,.85))
+    drop-shadow(0 0 90px rgba(0,153,255,.45))!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:-90px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-title{
+  font-size:clamp(50px,4.5vw,84px)!important;
+  line-height:.9!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone p{
+  font-size:17px!important;
+}
+
+@media(max-width:1180px){
+ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+   grid-template-columns:1fr!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+   margin-left:0!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+   width:360px!important;
+   height:360px!important;
+   transform:scale(1.05)!important;
+ }
+}
+
+
+/* === OVER 1.5 SAME LAYOUT AS OVER 2.5 v45 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  min-height:315px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:260px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding-left:0!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:360px!important;
+  height:360px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  transform:scale(1.12)!important;
+  filter:
+    drop-shadow(0 0 24px rgba(34,211,255,.75))
+    drop-shadow(0 0 55px rgba(0,153,255,.28))!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:0!important;
+}
+
+@media(max-width:1180px){
+ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+   grid-template-columns:1fr!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+   width:300px!important;
+   height:300px!important;
+   transform:scale(1)!important;
+ }
+}
+
+
+/* === OVER 1.5 LOGO SIZE MATCH OVER 2.5 v46 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  min-height:315px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  width:330px!important;
+  min-height:260px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:330px!important;
+  height:330px!important;
+  max-width:330px!important;
+  max-height:330px!important;
+  object-fit:contain!important;
+  transform:none!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 0 26px rgba(34,211,255,.78)) drop-shadow(0 0 60px rgba(0,153,255,.32))!important;
+  animation:none!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:0!important;
 }
 
 @media(max-width:1180px){
   body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
     grid-template-columns:1fr!important;
     text-align:center!important;
-    min-height:auto!important;
-    padding:20px!important;
   }
   body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
-    justify-content:center!important;
+    width:100%!important;
     min-height:280px!important;
   }
   body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-    width:380px!important;
-    height:320px!important;
-    margin-left:0!important;
-    object-position:bottom center!important;
-  }
-  body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
-    padding:0 16px!important;
-  }
-  body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{
-    grid-template-columns:repeat(3,1fr)!important;
-    padding:0 16px 20px!important;
-  }
-}
-
-@media(max-width:760px){
-  body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{
-    grid-template-columns:1fr!important;
-  }
-  body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-    width:280px!important;
-    height:240px!important;
+    width:300px!important;
+    height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
   }
 }
