@@ -1,0 +1,5 @@
+Over 1.5 Control v43
+- Logo più grande e proporzionato al titolo.
+- Hero riequilibrata: logo più vicino al testo, meno spazio vuoto.
+- KPI laterali più integrati.
+- Ridotte le tracce verdi sotto la hero.

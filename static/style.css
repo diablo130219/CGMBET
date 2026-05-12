@@ -2484,3 +2484,95 @@ body.over15-page .bankroll-card strong{
 @media(max-width:760px){
   body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{grid-template-columns:1fr!important}
 }
+
+
+/* === OVER 1.5 CONTROL FINAL HERO BALANCE v43 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:460px minmax(520px,1fr) 250px!important;
+  min-height:360px!important;
+  gap:14px!important;
+  padding:22px 26px!important;
+  align-items:center!important;
+  background:
+    radial-gradient(circle at 16% 50%, rgba(34,211,255,.30), transparent 26%),
+    radial-gradient(circle at 68% 45%, rgba(0,119,255,.10), transparent 32%),
+    linear-gradient(90deg,rgba(3,12,22,.96) 0%,rgba(4,8,15,.94) 55%,rgba(3,16,28,.88) 100%) !important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:330px!important;
+  justify-content:flex-start!important;
+  padding-left:8px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:390px!important;
+  height:330px!important;
+  object-fit:contain!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 0 32px rgba(34,211,255,.78)) drop-shadow(0 0 70px rgba(0,119,255,.32))!important;
+  animation:none!important;
+  transform:scale(1.18)!important;
+  transform-origin:center!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:-34px!important;
+  align-self:center!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-title{
+  font-size:clamp(54px,4.8vw,90px)!important;
+  line-height:.88!important;
+  letter-spacing:-.055em!important;
+  margin-top:8px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone p{
+  font-size:18px!important;
+  margin-top:18px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-badges{
+  margin-top:18px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-side-card{
+  min-height:74px!important;
+  padding:14px 16px!important;
+}
+
+body.over15-page .market-hero,
+body.over15-page .market-hero::after{
+  background:
+    linear-gradient(135deg,rgba(34,211,255,.075),rgba(255,255,255,.026),rgba(0,0,0,.18))!important;
+  border-color:rgba(34,211,255,.26)!important;
+}
+
+body.over15-page .market-hero .market-copy,
+body.over15-page .odds-table-card,
+body.over15-page .control-strip,
+body.over15-page .kpi-card{
+  background-color:transparent!important;
+}
+
+@media(max-width:1180px){
+  body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+    grid-template-columns:1fr!important;
+    text-align:center!important;
+    min-height:auto!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+    justify-content:center!important;
+    padding-left:0!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+    margin-left:0!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+    width:330px!important;
+    height:280px!important;
+    transform:scale(1)!important;
+  }
+}
