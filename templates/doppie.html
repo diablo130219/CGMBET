@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9-doppie-v7">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v7">
   <style>
     .kelly-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(41,121,255,.15);color:#2979ff;}
     .risk-grid{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px;margin:12px 0;}
@@ -42,20 +42,6 @@
 
     .match-option-entra{background:#063b25;color:#b8ffd7;font-weight:700;}
     .match-option-borderline{background:#3f3305;color:#ffe68a;font-weight:700;}
-    .legend-pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0 12px;}
-    .legend-dot{padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:800;border:1px solid rgba(255,255,255,.10);}
-    .legend-dot.entra{background:rgba(0,230,118,.14);color:#00e676;}
-    .legend-dot.borderline{background:rgba(255,214,0,.14);color:#ffd600;}
-
-    .select-colored option.match-option-entra{background:#063b25!important;color:#b8ffd7!important;font-weight:800;}
-    .select-colored option.match-option-borderline{background:#3f3305!important;color:#ffe68a!important;font-weight:800;}
-    .available-picks{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin:12px 0;}
-    .available-pick-card{border-radius:12px;padding:10px 12px;border:1px solid rgba(255,255,255,.08);font-size:.82rem;}
-    .available-pick-card.entra{background:linear-gradient(135deg,rgba(0,230,118,.18),rgba(0,230,118,.04));border-color:rgba(0,230,118,.45);box-shadow:0 0 14px rgba(0,230,118,.10);}
-    .available-pick-card.borderline{background:linear-gradient(135deg,rgba(255,214,0,.18),rgba(255,214,0,.04));border-color:rgba(255,214,0,.45);box-shadow:0 0 14px rgba(255,214,0,.10);}
-    .available-pick-card b{display:block;margin-bottom:3px;}
-    .available-pick-card.entra b{color:#00e676;}
-    .available-pick-card.borderline b{color:#ffd600;}
   </style>
 </head>
 <body>
@@ -157,8 +143,12 @@
   </aside>
 
   <main class="content">
-    <header class="topbar page-clean-topbar">
-      <div></div>
+    <header class="topbar">
+      <div>
+        <span class="eyebrow">Kelly protetto</span>
+        <h1>🎲 Sistema Doppie</h1>
+        <p>Seleziona 2 partite — scegli il profilo Kelly visivo e controlla subito lo stake massimo.</p>
+      </div>
       <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
     </header>
 
@@ -167,27 +157,6 @@
         <div class="flash {{ category }}">{{ message }}</div>
       {% endfor %}
     {% endwith %}
-
-
-    <section class="premium-section-hero hero-doppie">
-      <div class="hero-logo-zone">
-        <div class="hero-logo-ring"></div>
-        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
-      </div>
-      <div class="hero-main-zone">
-        <span class="hero-kicker">Sistema Doppie AI</span>
-        <h2 class="hero-title">Sistema <span class="accent">Doppie AI</span></h2>
-        <p>Value betting con controllo Kelly intelligente. Scegli ENTRA e BORDERLINE, imposta il profilo rischio e mantieni lo stake sotto controllo.</p>
-        <div class="hero-badges"><span class="hero-badge green">Conservative</span><span class="hero-badge blue">Balanced</span><span class="hero-badge pink">Aggressive</span></div>
-      </div>
-      <div class="hero-side-zone">
-        <article class="hero-side-card floating-card"><span>Bankroll attuale</span><strong>€{{ "%.2f"|format(bankroll) }}</strong><small>capitale disponibile</small></article>
-        <article class="hero-side-card floating-card"><span>Doppie oggi</span><strong>{{ doppie_oggi|length }}</strong><small>doppie create</small></article>
-        <article class="hero-side-card floating-card"><span>Win rate</span><strong>{% if (stats_doppie.vinte or 0) + (stats_doppie.perse or 0) > 0 %}{{ "%.0f"|format((stats_doppie.vinte or 0) / ((stats_doppie.vinte or 0) + (stats_doppie.perse or 0)) * 100) }}%{% else %}0%{% endif %}</strong><small>su doppie chiuse</small></article>
-      </div>
-      <div class="hero-graphic"></div>
-    </section>
-
 
     {# ── KPI BANKROLL ── #}
     <section class="kpi-grid four">
@@ -258,37 +227,22 @@
           <input type="hidden" name="strategy" value="{{ strategy }}">
 
           {% if all_matches %}
-          <div class="legend-pick">
-            <span class="legend-dot entra">✅ ENTRA · preferita</span>
-            <span class="legend-dot borderline">⚠️ BORDERLINE · valida ma da valutare</span>
-            <span style="font-size:.78rem;color:rgba(255,255,255,.52);">Le partite SCARTA non compaiono nella selezione doppie.</span>
-          </div>
-          <div class="available-picks">
-            {% for m in all_matches[:8] %}
-            <div class="available-pick-card {{ 'entra' if m.filtro_status == 'entra' else 'borderline' }}">
-              <b>{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · {{ m.strategy }}</b>
-              <span>{{ m.home_team }} vs {{ m.away_team }} · @{{ "%.2f"|format(m.odd or 0) }}</span><br>
-              <small>{{ m.filtro_score }}/{{ m.filtro_max }} filtri · {{ m.match_date }} {{ m.match_time }}</small>
-            </div>
-            {% endfor %}
-          </div>
-
           <div class="match-select-grid">
             <div>
               <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1 anche GG/Over misti</label>
-              <select name="match1_id" required class="select-colored" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
+              <select name="match1_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 1 —</option>
                 {% for m in all_matches %}
-                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri · {{ m.match_date }} {{ m.match_time }}</option>
+                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
             </div>
             <div>
               <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 2 anche GG/Over misti</label>
-              <select name="match2_id" required class="select-colored" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
+              <select name="match2_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
                 <option value="">— Scegli partita 2 —</option>
                 {% for m in all_matches %}
-                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri · {{ m.match_date }} {{ m.match_time }}</option>
+                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
                 {% endfor %}
               </select>
             </div>
@@ -342,8 +296,8 @@
           <button type="submit" class="primary-btn">🎲 Crea Doppia</button>
           {% else %}
           <div class="empty-state">
-            <strong>Nessuna partita ENTRA o BORDERLINE trovata</strong>
-            <span>Importa i CSV nelle sezioni GG / Over: qui compariranno solo le partite verdi ENTRA e gialle BORDERLINE.</span>
+            <strong>Nessuna partita caricata oggi</strong>
+            <span>Importa i CSV nelle sezioni GG / Over.</span>
           </div>
           {% endif %}
         </form>

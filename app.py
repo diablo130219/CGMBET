@@ -1300,17 +1300,8 @@ def doppie_page():
     ).fetchall()
     # Per la creazione delle doppie mostriamo SOLO partite consigliate:
     # ✅ ENTRA e ⚠️ BORDERLINE, anche miste tra GG / Over 2.5 / Over 1.5.
-    # Per le doppie mostriamo tutte le partite utili caricate nel database,
-    # non solo quelle con data odierna: così dopo un import CSV puoi sempre
-    # scegliere le partite anche se il file contiene date diverse da oggi.
     raw_all_matches = conn.execute(
-        """
-        SELECT * FROM matches
-        ORDER BY
-          CASE WHEN match_date=? THEN 0 ELSE 1 END,
-          match_date DESC, strategy ASC, match_time ASC, odd ASC
-        LIMIT 400
-        """,
+        "SELECT * FROM matches WHERE match_date=? ORDER BY strategy ASC, match_time ASC, odd ASC",
         (today.isoformat(),)
     ).fetchall()
     all_matches = []
