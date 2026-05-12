@@ -1,0 +1,1 @@
+Bolletta Pazza final v5: rimosso il box/scritta Bolletta Pazza sulla destra della hero e applicato tema purple solo alla pagina bolletta.html.

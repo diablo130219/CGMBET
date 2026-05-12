@@ -1,0 +1,1 @@
+Bolletta Pazza v4: tema viola/magenta applicato solo alla pagina bolletta.html, box logo a destra rimosso, funzionalità mantenute.
