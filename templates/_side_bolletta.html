@@ -55,3 +55,51 @@
   </div>
   {% endif %}
 </section>
+
+
+<script id="kickora-doppie-filter-reset-fix">
+(function(){
+  // Mantiene una copia stabile delle partite disponibili per i filtri strategia.
+  window.KICKORA_DOPPIE_FILTER_FIX = true;
+
+  function normalizeMarket(v){
+    return String(v || "").toLowerCase().replace(/\s+/g, " ").trim();
+  }
+
+  function keepOriginalRows(){
+    document.querySelectorAll("[data-market], [data-strategy], .match-card, .fixture-card, .pick-card").forEach(function(el){
+      if (!el.dataset.originalVisible) el.dataset.originalVisible = "1";
+    });
+  }
+
+  function applyStrategyFilter(strategy){
+    keepOriginalRows();
+    var wanted = normalizeMarket(strategy);
+    document.querySelectorAll("[data-market], [data-strategy], .match-card, .fixture-card, .pick-card").forEach(function(el){
+      var market = normalizeMarket(el.dataset.market || el.dataset.strategy || el.getAttribute("data-market") || el.getAttribute("data-strategy") || el.textContent);
+      var show = wanted === "tutti" || wanted === "all" || wanted === "" || market.includes(wanted);
+      el.style.display = show ? "" : "none";
+    });
+  }
+
+  document.addEventListener("click", function(e){
+    var btn = e.target.closest("[data-doppie-filter], .doppie-filter, .strategy-tab, .market-tab");
+    if (!btn) return;
+    var strategy = btn.dataset.doppieFilter || btn.dataset.strategy || btn.dataset.market || btn.textContent;
+    window.__kickoraLastDoppieFilter = strategy;
+    setTimeout(function(){ applyStrategyFilter(strategy); }, 0);
+  });
+
+  document.addEventListener("submit", function(e){
+    var form = e.target;
+    var text = (form.textContent || form.id || form.className || "").toLowerCase();
+    if (!text.includes("doppia") && !text.includes("crea")) return;
+    setTimeout(function(){
+      keepOriginalRows();
+      if (window.__kickoraLastDoppieFilter) applyStrategyFilter(window.__kickoraLastDoppieFilter);
+    }, 300);
+  });
+
+  document.addEventListener("DOMContentLoaded", keepOriginalRows);
+})();
+</script>
