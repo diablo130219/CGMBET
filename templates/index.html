@@ -64,11 +64,11 @@
     {% set hero_class = 'hero-gg' if strategy == 'GG' else ('hero-over25' if strategy == 'Over 2.5' else 'hero-over15') %}
     <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic kickora-unified-hero">
       <div class="hero-logo-zone">
+        <div class="hero-logo-ring"></div>
         {% if strategy == 'Over 2.5' %}
-          <img class="hero-big-logo over25-hero-logo-img" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
+        <img class="hero-big-logo over25-engine-img" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
         {% else %}
-          <div class="hero-logo-ring"></div>
-          <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
+        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
         {% endif %}
       </div>
 
