@@ -4,18 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-over25-final-v26">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-premium-v9">
 </head>
 <body class="{% if strategy == 'Over 2.5' %}over25-page{% elif strategy == 'GG' %}gg-page{% elif strategy == 'Over 1.5' %}over15-page{% endif %}">
 <div class="app">
 
   <aside class="sidebar">
     <a class="brand" href="{{ url_for('dashboard') }}">
-      {% if strategy == 'Over 2.5' %}
-      <img src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine" style="width:54px;height:54px;border-radius:12px;object-fit:cover;object-position:center;">
-      {% else %}
       <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
-      {% endif %}
       <div>
         <strong>KICKORA</strong>
         <span>BET</span>
@@ -68,11 +64,11 @@
     {% set hero_class = 'hero-gg' if strategy == 'GG' else ('hero-over25' if strategy == 'Over 2.5' else 'hero-over15') %}
     <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic kickora-unified-hero">
       <div class="hero-logo-zone">
-        <div class="hero-logo-ring"></div>
         {% if strategy == 'Over 2.5' %}
-        <img class="hero-big-logo over25-real-logo" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
+          <img class="hero-big-logo over25-hero-logo-img" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
         {% else %}
-        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
+          <div class="hero-logo-ring"></div>
+          <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
         {% endif %}
       </div>
 
