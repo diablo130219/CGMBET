@@ -237,6 +237,15 @@ def get_bankroll(conn):
     return capitale, importo_fisso
 
 
+def salva_bankroll_base(conn, capitale, importo_fisso):
+    """Imposta il bankroll base una sola volta o quando vuoi resettarlo manualmente."""
+    capitale = round(float(capitale or 0), 2)
+    importo_fisso = round(float(importo_fisso or 0), 2)
+    conn.execute(
+        "INSERT INTO bankroll (capitale, importo_fisso) VALUES (?, ?)",
+        (capitale, importo_fisso)
+    )
+
 
 
 def get_bankroll_stats(conn):
@@ -1388,6 +1397,24 @@ def doppie_page():
     )
 
 
+@app.route("/doppie/bankroll", methods=["POST"])
+@login_required
+def doppie_bankroll():
+    capitale = parse_float(request.form.get("capitale"))
+    importo_fisso = parse_float(request.form.get("importo_fisso"))
+    if capitale <= 0:
+        flash("⚠️ Inserisci un bankroll iniziale valido.", "error")
+        return redirect(url_for("doppie_page", strategy="all"))
+    if importo_fisso <= 0:
+        importo_fisso = 2.0
+    conn = get_db()
+    salva_bankroll_base(conn, capitale, importo_fisso)
+    conn.commit()
+    conn.close()
+    flash(f"✅ Bankroll impostato a €{capitale:.2f}. Da ora le doppie lavorano a interesse composto.", "success")
+    return redirect(url_for("doppie_page", strategy="all"))
+
+
 @app.route("/doppie/aggiungi", methods=["POST"])
 @login_required
 def doppie_aggiungi():
@@ -1401,8 +1428,8 @@ def doppie_aggiungi():
     if kelly_fraction <= 0:
         kelly_fraction = 0.25
     today = date.today().isoformat()
-    # Aggiorna bankroll/stake preferito quando crei una doppia
-    capitale_form = parse_float(request.form.get("capitale"))
+    # Il bankroll iniziale NON viene reinserito a ogni doppia.
+    # La puntata viene calcolata sempre sul bankroll attuale composto.
     importo_fisso_form = parse_float(request.form.get("importo_fisso"))
 
     if not match1_id or not match2_id or match1_id == match2_id:
@@ -1410,12 +1437,12 @@ def doppie_aggiungi():
         return redirect(url_for("doppie_page", strategy="all"))
 
     conn = get_db()
-    if capitale_form > 0 or importo_fisso_form > 0:
-        conn.execute(
-            "INSERT INTO bankroll (capitale, importo_fisso) VALUES (?, ?)",
-            (capitale_form, importo_fisso_form)
-        )
+    # Se non hai ancora impostato un bankroll, parte da 100€ e stake 2€.
+    capitale_base, stake_base_salvato = get_bankroll(conn)
+    if capitale_base <= 0:
+        salva_bankroll_base(conn, 100.0, importo_fisso_form if importo_fisso_form > 0 else 2.0)
         conn.commit()
+
     m1 = conn.execute("SELECT * FROM matches WHERE id=?", (match1_id,)).fetchone()
     m2 = conn.execute("SELECT * FROM matches WHERE id=?", (match2_id,)).fetchone()
 

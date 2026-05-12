@@ -66,7 +66,8 @@
     .quota{text-align:right;min-width:54px;}.quota small{display:block;color:rgba(255,255,255,.55);font-size:.68rem;text-transform:uppercase;}.quota b{font-size:1.15rem;color:#fff;}
     .status-badge{min-width:108px;text-align:center;border-radius:999px;padding:8px 12px;font-weight:950;font-size:.75rem;text-transform:uppercase;}
     .status-badge.entra{background:rgba(0,240,184,.14);border:1px solid rgba(0,240,184,.42);color:var(--teal);}.status-badge.borderline{background:rgba(247,185,0,.16);border:1px solid rgba(247,185,0,.42);color:var(--yellow);}
-    .bankroll-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:18px;margin:0 18px 18px;padding:18px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(255,255,255,.045);align-items:end;}
+    .bankroll-setup{border:1px solid rgba(0,240,184,.17);border-radius:18px;background:linear-gradient(135deg,rgba(0,240,184,.08),rgba(8,25,36,.72));padding:18px;margin:0 0 18px;display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end;}
+    .bankroll-setup .setup-title{grid-column:1/-1;color:var(--muted);font-size:.92rem}.bankroll-setup .setup-title strong{color:#fff}.bankroll-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:18px;margin:0 18px 18px;padding:18px;border:1px solid rgba(255,255,255,.10);border-radius:16px;background:rgba(255,255,255,.045);align-items:end;}
     .field-block label{display:block;color:var(--teal);font-weight:900;font-size:.78rem;text-transform:uppercase;margin-bottom:8px;}.field-wrap{display:flex;align-items:center;border:1px solid rgba(255,255,255,.13);border-radius:9px;overflow:hidden;background:rgba(4,12,20,.65)}.field-wrap input,.field-wrap select{width:100%;border:0;background:transparent;color:#fff;padding:12px 14px;outline:none}.field-wrap span{padding:0 12px;color:#d7fff5;border-left:1px solid rgba(255,255,255,.10)}
     .create-btn{height:54px;border-radius:12px;border:1px solid rgba(0,240,184,.6);background:linear-gradient(135deg,rgba(0,240,184,.12),rgba(0,240,184,.05));color:white;font-weight:950;font-size:1.02rem;min-width:210px;cursor:pointer;box-shadow:0 0 18px rgba(0,240,184,.14);}
     .create-btn:hover{background:linear-gradient(135deg,rgba(0,240,184,.28),rgba(0,200,150,.12));}
@@ -114,6 +115,13 @@
 
   <main class="content">
     {% with messages = get_flashed_messages(with_categories=true) %}{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}{% endwith %}
+
+    <form class="bankroll-setup" action="{{ url_for('doppie_bankroll') }}" method="POST">
+      <div class="setup-title"><strong>Gestione bankroll composta</strong> · imposta il capitale iniziale una sola volta. Le doppie successive useranno automaticamente il bankroll aggiornato da vinte/perse.</div>
+      <div class="field-block"><label>Bankroll iniziale / reset</label><div class="field-wrap"><input type="number" name="capitale" value="{{ capitale or 100 }}" step="0.50" min="0"><span>€</span></div></div>
+      <div class="field-block"><label>Stake base preferito</label><div class="field-wrap"><input type="number" name="importo_fisso" value="{{ importo_fisso or 2 }}" step="0.50" min="0"><span>€</span></div></div>
+      <button class="create-btn" type="submit">💾 Imposta bankroll</button>
+    </form>
 
     <form id="doppieForm" action="{{ url_for('doppie_aggiungi') }}" method="POST">
       <input type="hidden" name="strategy" value="{{ strategy }}">
@@ -196,11 +204,11 @@
           </div>
         </div>
         <div class="bankroll-row">
-          <div class="field-block"><label>Bankroll iniziale</label><div class="field-wrap"><input type="number" name="capitale" value="{{ capitale or 100 }}" step="0.50" min="0"><span>€</span></div></div>
-          <div class="field-block"><label>Stake fisso preferito</label><div class="field-wrap"><input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0">
+          <div class="field-block"><label>Bankroll attuale composto</label><div class="field-wrap"><input readonly value="{{ '%.2f'|format(bankroll) }}"><span>€</span></div><small style="color:var(--muted)">Si aggiorna con gli esiti</small></div>
+          <div class="field-block"><label>Stake base per questa doppia</label><div class="field-wrap"><input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0">
                 <input type="hidden" name="importo_fisso" value="{{ importo_fisso or 2 }}"><span>€</span></div></div>
-          <div class="field-block"><label>Profilo Kelly</label><div class="field-wrap"><select id="riskSelect"><option value="conservative">Conservative max €2.50</option><option value="balanced" selected>Balanced max €3</option><option value="aggressive">Aggressive max €6</option></select><span>🛡</span></div><small style="color:var(--muted)">Profilo selezionato</small></div>
-          <div class="field-block"><label>Stake calcolato</label><div class="field-wrap"><input readonly value="—"><span>€</span></div><small style="color:var(--muted)">Verrà mostrato dopo la selezione</small></div>
+          <div class="field-block"><label>Profilo Kelly</label><div class="field-wrap"><select id="riskSelect"><option value="conservative">Conservative max €2.50</option><option value="balanced" selected>Balanced max €3</option><option value="aggressive">Aggressive max €6</option></select><span>🛡</span></div><small style="color:var(--muted)">Usa il bankroll attuale</small></div>
+          <div class="field-block"><label>Stake calcolato</label><div class="field-wrap"><input readonly value="auto"><span>€</span></div><small style="color:var(--muted)">Kelly protetto + cap profilo</small></div>
           <button class="create-btn" type="submit">⊕ Crea Doppia</button>
         </div>
         <div class="empty-doppie"><strong>Nessuna doppia creata oggi</strong><span>Seleziona Partita 1 e Partita 2 per creare la tua prima doppia.</span><a class="ghost-btn import-mini" href="{{ url_for('index', strategy='GG') }}">⇧ Importa CSV</a></div>
