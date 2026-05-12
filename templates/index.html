@@ -100,7 +100,7 @@
           <div class="strategy-side-emblem over15-emblem">OVER<br>1.5<small>CONTROL</small></div>
         {% endif %}
         <article class="hero-side-card floating-card"><span>Partite trovate</span><strong>{{ total }}</strong><small>righe visualizzate</small></article>
-        <article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>
+        {% if strategy == 'Over 2.5' %}<article class="hero-side-card floating-card"><span>ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>{% else %}<article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>{% endif %}
         <article class="hero-side-card floating-card"><span>Quota media</span><strong>{% if total_strategy > 0 %}{{ avg_odds[strategy] if avg_odds is defined and avg_odds[strategy] > 0 else '0.00' }}{% else %}0.00{% endif %}</strong><small>della strategia</small></article>
       </div>
       <div class="hero-graphic"></div>
@@ -123,9 +123,9 @@
 
     <section class="kpi-grid">
       <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
-      <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>
-      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>
-      <article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>
+      {% if strategy == 'Over 2.5' %}<article class="kpi-card accent"><span>ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>{% else %}<article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>{% endif %}
+      {% if strategy == 'Over 2.5' %}<article class="kpi-card"><span>DOPPELINE</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>{% else %}<article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>{% endif %}
+      {% if strategy == 'Over 2.5' %}<article class="kpi-card"><span>SCARTATE</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>{% else %}<article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>{% endif %}
       <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
       <article class="kpi-card accent"><span>Bolletta Pazza</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small></article>
     </section>
