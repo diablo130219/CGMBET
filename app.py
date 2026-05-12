@@ -1293,16 +1293,33 @@ def doppie_page():
 
     conn = get_db()
 
-    # Partite di oggi del mercato attivo + tutte le partite per creare doppie miste
+    # Partite del mercato attivo + tutte le partite importate per creare doppie miste.
+    # Le doppie NON vengono filtrate solo per oggi: vengono ordinate per data/ora,
+    # così puoi caricare CSV da 3/7 giorni e scegliere prima quelle di oggi, poi le successive.
     matches = conn.execute(
-        "SELECT * FROM matches WHERE strategy=? AND match_date=? ORDER BY odd ASC",
-        (strategy, today.isoformat())
+        """
+        SELECT * FROM matches
+        WHERE strategy=?
+        ORDER BY
+          CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
+          match_date ASC,
+          COALESCE(match_time,'99:99') ASC,
+          odd ASC
+        """,
+        (strategy,)
     ).fetchall()
     # Per la creazione delle doppie mostriamo SOLO partite consigliate:
     # ✅ ENTRA e ⚠️ BORDERLINE, anche miste tra GG / Over 2.5 / Over 1.5.
     raw_all_matches = conn.execute(
-        "SELECT * FROM matches WHERE match_date=? ORDER BY strategy ASC, match_time ASC, odd ASC",
-        (today.isoformat(),)
+        """
+        SELECT * FROM matches
+        ORDER BY
+          CASE WHEN COALESCE(match_date,'')='' THEN 1 ELSE 0 END,
+          match_date ASC,
+          COALESCE(match_time,'99:99') ASC,
+          strategy ASC,
+          odd ASC
+        """
     ).fetchall()
     all_matches = []
     for m in raw_all_matches:
@@ -1356,6 +1373,7 @@ def doppie_page():
         roi_doppie=roi_doppie,
         storico=storico,
         oggi=today.strftime("%d/%m/%Y"),
+        today_iso=today.isoformat(),
         total_all=total_all,
         gg_count=gg_count,
         over25_count=over25_count,
@@ -1376,12 +1394,21 @@ def doppie_aggiungi():
     if kelly_fraction <= 0:
         kelly_fraction = 0.25
     today = date.today().isoformat()
+    # Aggiorna bankroll/stake preferito quando crei una doppia
+    capitale_form = parse_float(request.form.get("capitale"))
+    importo_fisso_form = parse_float(request.form.get("importo_fisso"))
 
     if not match1_id or not match2_id or match1_id == match2_id:
         flash("⚠️ Seleziona 2 partite diverse.", "error")
         return redirect(url_for("doppie_page", strategy=strategy))
 
     conn = get_db()
+    if capitale_form > 0 or importo_fisso_form > 0:
+        conn.execute(
+            "INSERT INTO bankroll (capitale, importo_fisso) VALUES (?, ?)",
+            (capitale_form, importo_fisso_form)
+        )
+        conn.commit()
     m1 = conn.execute("SELECT * FROM matches WHERE id=?", (match1_id,)).fetchone()
     m2 = conn.execute("SELECT * FROM matches WHERE id=?", (match2_id,)).fetchone()
 
@@ -1401,12 +1428,16 @@ def doppie_aggiungi():
         return ((parse_float(m["over_home"]) + parse_float(m["over_away"])) / 2) / 100
 
     prob_doppia = prob_match(m1) * prob_match(m2)
-    if stake_mode == "manuale" and puntata_manual > 0:
-        puntata = puntata_manual
+    base_stake = puntata_manual if puntata_manual > 0 else importo_fisso_form
+    if base_stake <= 0:
+        base_stake = 2.0
+
+    if stake_mode == "manuale":
+        puntata = base_stake
         final_stake_mode = "manuale"
     else:
-        puntata = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
-        # Profili visuali Kelly: Conservative / Balanced / Aggressive
+        puntata_kelly = calcola_kelly(prob_doppia, quota_doppia, bankroll, fraction=kelly_fraction)
+        # Profili Kelly protetti: Conservative / Balanced / Aggressive
         profile_caps = {
             "conservative": 2.50,
             "balanced": 3.00,
@@ -1418,7 +1449,8 @@ def doppie_aggiungi():
         # Sicurezza ulteriore: mai oltre il 6% del bankroll, anche in aggressive.
         if bankroll > 0:
             max_stake = min(max_stake, round(bankroll * 0.06, 2))
-        puntata = max(1.0, min(puntata, max_stake))
+        # Usa lo stake base come minimo e il profilo come limite massimo.
+        puntata = min(max(base_stake, puntata_kelly), max_stake)
         final_stake_mode = risk_profile
 
     puntata = round(puntata, 2)

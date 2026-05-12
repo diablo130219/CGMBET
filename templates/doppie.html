@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie AI</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-premium-v31">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-date-sorted-v33">
   <style>
     :root{
       --dk:#07131b;--dk2:#0b1d29;--panel:rgba(8,25,36,.82);--panel2:rgba(10,35,48,.72);
@@ -52,6 +52,8 @@
     .sel-head small{display:block;color:var(--muted);font-size:.82rem;margin-top:2px;}
     .sort-chip{padding:9px 13px;border:1px solid rgba(255,255,255,.12);border-radius:9px;color:rgba(255,255,255,.72);background:rgba(255,255,255,.04);font-size:.82rem;}
     .match-list{display:flex;flex-direction:column;gap:9px;max-height:390px;overflow:auto;padding-right:4px;}
+    .date-separator{margin:8px 0 2px;padding:8px 12px;border-radius:9px;background:rgba(0,240,184,.075);border:1px solid rgba(0,240,184,.16);color:var(--teal);font-weight:950;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;z-index:2;backdrop-filter:blur(8px);}
+    .date-separator.today{background:rgba(0,240,184,.16);border-color:rgba(0,240,184,.4);box-shadow:0 0 16px rgba(0,240,184,.12);}
     .pick-card{position:relative;display:grid;grid-template-columns:auto auto 1fr auto auto;gap:12px;align-items:center;padding:13px 16px;border-radius:11px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.10);cursor:pointer;transition:.16s;}
     .pick-card input{width:20px;height:20px;accent-color:var(--teal);}
     .pick-card:hover{transform:translateY(-1px);}
@@ -142,7 +144,7 @@
 
       <section class="doppie-builder">
         <div class="builder-head">
-          <div class="title"><span>Nuova doppia</span><h2>＋ Crea Doppia <span class="kelly-badge">Stake personalizzato</span></h2><p>Seleziona Partita 1 e Partita 2 — il Kelly resta protetto e viene bloccato dal profilo scelto.</p></div>
+          <div class="title"><span>Nuova doppia</span><h2>＋ Crea Doppia <span class="kelly-badge">Ordine per data</span></h2><p>Le partite di GG / Over 2.5 / Over 1.5 sono ordinate per data e ora: prima oggi, poi i giorni successivi.</p></div>
           <div class="market-tabs">
             <a href="{{ url_for('doppie_page') }}">Tutti (GG / O2.5 / O1.5)</a>
             {% for s in ["GG","Over 2.5","Over 1.5"] %}<a class="{{ 'active' if strategy==s else '' }}" href="{{ url_for('doppie_page', strategy=s) }}">{{ s }}</a>{% endfor %}
@@ -153,12 +155,17 @@
         {% if all_matches %}
         <div class="selection-grid">
           <div class="selection-box">
-            <div class="sel-head"><div><h3>Seleziona Partita 1</h3><small>Scegli la prima partita per la tua doppia</small></div><div class="sort-chip">Ordina per: Data 📅</div></div>
+            <div class="sel-head"><div><h3>Seleziona Partita 1</h3><small>Verde = ENTRA · Giallo = BORDERLINE</small></div><div class="sort-chip">Data ↑ Ora ↑</div></div>
             <div class="match-list">
+              {% set ns = namespace(last_date='') %}
               {% for m in all_matches %}
+                {% if m.match_date != ns.last_date %}
+                  {% set ns.last_date = m.match_date %}
+                  <div class="date-separator {{ 'today' if m.match_date == today_iso else '' }}">{{ 'Oggi' if m.match_date == today_iso else (m.match_date[8:10] ~ '/' ~ m.match_date[5:7] ~ '/' ~ m.match_date[0:4] if m.match_date and m.match_date|length >= 10 else 'Data non indicata') }}</div>
+                {% endif %}
               <label class="pick-card {{ m.filtro_status }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy)|lower }}">
                 <input type="radio" name="match1_id" value="{{ m.id }}" required>
-                <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date else '' }}<br>{{ m.match_time }}</span>
+                <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date and m.match_date|length >= 10 else '' }}<br>{{ m.match_time }}</span>
                 <span class="teams"><strong>{{ m.home_team }} vs {{ m.away_team }}</strong><small>{{ m.strategy }}</small></span>
                 <span class="quota"><small>Quota</small><b>{{ "%.2f"|format(m.odd or 0) }}</b></span>
                 <span class="status-badge {{ m.filtro_status }}">{{ 'Entra' if m.filtro_status == 'entra' else 'Borderline' }}</span>
@@ -167,12 +174,17 @@
             </div>
           </div>
           <div class="selection-box">
-            <div class="sel-head"><div><h3>Seleziona Partita 2</h3><small>Scegli la seconda partita per la tua doppia</small></div><div class="sort-chip">Ordina per: Data 📅</div></div>
+            <div class="sel-head"><div><h3>Seleziona Partita 2</h3><small>Verde = ENTRA · Giallo = BORDERLINE</small></div><div class="sort-chip">Data ↑ Ora ↑</div></div>
             <div class="match-list">
+              {% set ns = namespace(last_date='') %}
               {% for m in all_matches %}
+                {% if m.match_date != ns.last_date %}
+                  {% set ns.last_date = m.match_date %}
+                  <div class="date-separator {{ 'today' if m.match_date == today_iso else '' }}">{{ 'Oggi' if m.match_date == today_iso else (m.match_date[8:10] ~ '/' ~ m.match_date[5:7] ~ '/' ~ m.match_date[0:4] if m.match_date and m.match_date|length >= 10 else 'Data non indicata') }}</div>
+                {% endif %}
               <label class="pick-card {{ m.filtro_status }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy)|lower }}">
                 <input type="radio" name="match2_id" value="{{ m.id }}" required>
-                <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date else '' }}<br>{{ m.match_time }}</span>
+                <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date and m.match_date|length >= 10 else '' }}<br>{{ m.match_time }}</span>
                 <span class="teams"><strong>{{ m.home_team }} vs {{ m.away_team }}</strong><small>{{ m.strategy }}</small></span>
                 <span class="quota"><small>Quota</small><b>{{ "%.2f"|format(m.odd or 0) }}</b></span>
                 <span class="status-badge {{ m.filtro_status }}">{{ 'Entra' if m.filtro_status == 'entra' else 'Borderline' }}</span>
@@ -182,20 +194,20 @@
           </div>
         </div>
         <div class="bankroll-row">
-          <div class="field-block"><label>Bankroll iniziale</label><div class="field-wrap"><input form="bankrollForm" type="number" name="capitale" value="{{ capitale or 100 }}" step="0.50" min="0"><span>€</span></div></div>
-          <div class="field-block"><label>Stake fisso preferito</label><div class="field-wrap"><input form="bankrollForm" type="number" name="importo_fisso" value="{{ importo_fisso or 2 }}" step="0.50" min="0"><span>€</span></div></div>
+          <div class="field-block"><label>Bankroll iniziale</label><div class="field-wrap"><input type="number" name="capitale" value="{{ capitale or 100 }}" step="0.50" min="0"><span>€</span></div></div>
+          <div class="field-block"><label>Stake fisso preferito</label><div class="field-wrap"><input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0">
+                <input type="hidden" name="importo_fisso" value="{{ importo_fisso or 2 }}"><span>€</span></div></div>
           <div class="field-block"><label>Profilo Kelly</label><div class="field-wrap"><select id="riskSelect"><option value="conservative">Conservative max €2.50</option><option value="balanced" selected>Balanced max €3</option><option value="aggressive">Aggressive max €6</option></select><span>🛡</span></div><small style="color:var(--muted)">Profilo selezionato</small></div>
           <div class="field-block"><label>Stake calcolato</label><div class="field-wrap"><input readonly value="—"><span>€</span></div><small style="color:var(--muted)">Verrà mostrato dopo la selezione</small></div>
           <button class="create-btn" type="submit">⊕ Crea Doppia</button>
         </div>
         <div class="empty-doppie"><strong>Nessuna doppia creata oggi</strong><span>Seleziona Partita 1 e Partita 2 per creare la tua prima doppia.</span><a class="ghost-btn import-mini" href="{{ url_for('index', strategy='GG') }}">⇧ Importa CSV</a></div>
         {% else %}
-        <div class="empty-doppie" style="margin-top:18px"><strong>Nessuna partita caricata oggi</strong><span>Importa i CSV nelle sezioni GG / Over.</span><a class="ghost-btn import-mini" href="{{ url_for('index', strategy='GG') }}">⇧ Importa CSV</a></div>
+        <div class="empty-doppie" style="margin-top:18px"><strong>Nessuna partita consigliata caricata</strong><span>Importa i CSV nelle sezioni GG / Over.</span><a class="ghost-btn import-mini" href="{{ url_for('index', strategy='GG') }}">⇧ Importa CSV</a></div>
         {% endif %}
       </section>
     </form>
 
-    <form id="bankrollForm" action="{{ url_for('salva_bankroll') }}" method="POST"></form>
     {# ── DOPPIE DI OGGI ── #}
     {% if doppie_oggi %}
     <section class="odds-table-card">
@@ -343,6 +355,10 @@
   const search=document.getElementById('matchSearch');
   if(search){search.addEventListener('input',()=>{const q=search.value.toLowerCase().trim();document.querySelectorAll('.pick-card').forEach(c=>{c.style.display=!q||c.dataset.search.includes(q)?'grid':'none';});});}
   const riskSelect=document.getElementById('riskSelect');
+  const stakeInput=document.querySelector('input[name="puntata_manual"]');
+  const hiddenStake=document.querySelector('input[name="importo_fisso"]');
+  function syncStake(){ if(stakeInput && hiddenStake) hiddenStake.value=stakeInput.value || '0'; }
+  if(stakeInput){ stakeInput.addEventListener('input', syncStake); syncStake(); }
   if(riskSelect){riskSelect.addEventListener('change',()=>{const r=document.querySelector('input[name="risk_profile"][value="'+riskSelect.value+'"]'); if(r) r.checked=true;});
     document.querySelectorAll('input[name="risk_profile"]').forEach(r=>r.addEventListener('change',()=>{riskSelect.value=r.value;}));}
 })();
