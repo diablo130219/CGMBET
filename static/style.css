@@ -2331,8 +2331,8 @@ body.over15-page .sport-dot.blue{background:var(--cyan)!important;box-shadow:0 0
 body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
   --hero-ring:var(--cyan);
   --hero-glow:var(--blueGlow);
-  min-height:390px!important;
-  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  min-height:430px!important;
+  grid-template-columns:520px minmax(460px,1fr) 300px!important;
   gap:34px!important;
   padding:28px 32px!important;
   border-radius:24px!important;
@@ -2355,16 +2355,16 @@ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero:before{
   filter:drop-shadow(0 0 14px rgba(34,211,255,.30));
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
-  min-height:340px;position:relative;display:grid;place-items:center;
+  min-height:395px;position:relative;display:grid;place-items:center;
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-logo-ring{display:none!important;}
 body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
-  width:420px!important;
-  height:360px!important;
+  width:520px!important;
+  height:410px!important;
   object-fit:contain!important;
   border-radius:0!important;
   box-shadow:none!important;
-  filter:drop-shadow(0 0 24px rgba(34,211,255,.62));
+  filter:drop-shadow(0 0 28px rgba(34,211,255,.70));
   animation:none!important;
 }
 body.over15-page .premium-section-hero.hero-over15 .hero-kicker{
@@ -2479,7 +2479,7 @@ body.over15-page .bankroll-card strong{
 @media(max-width:1180px){
   body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{grid-template-columns:1fr!important;text-align:center}
   body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{grid-template-columns:repeat(3,1fr)!important}
-  body.over15-page .premium-section-hero.hero-over15 .over15-control-img{width:320px!important;height:280px!important}
+  body.over15-page .premium-section-hero.hero-over15 .over15-control-img{width:360px!important;height:300px!important}
 }
 @media(max-width:760px){
   body.over15-page .premium-section-hero.hero-over15 .hero-strategy-side{grid-template-columns:1fr!important}
