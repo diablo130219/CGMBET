@@ -2251,3 +2251,28 @@ body.over25-page .hero-badge.green,body.over25-page .hero-badge.blue{background:
 body.over25-page [style*="00e676"],body.over25-page [style*="17f3a0"],body.over25-page [style*="0,230,118"]{color:var(--gold2)!important;border-color:rgba(246,194,42,.30)!important;background:rgba(246,194,42,.12)!important;}
 @media(max-width:1180px){body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{grid-template-columns:1fr!important;text-align:center!important;}body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{grid-template-columns:repeat(3,1fr)!important;}body.over25-page .premium-section-hero.hero-over25 .hero-big-logo.over25-engine-img{width:260px!important;height:260px!important;}body.over25-page .hero-badges{justify-content:center!important;}}
 @media(max-width:760px){body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{grid-template-columns:1fr!important;}body.over25-page .premium-section-hero.hero-over25 .hero-big-logo.over25-engine-img{width:210px!important;height:210px!important;}}
+
+/* === KICKORA FIX v37: Over 2.5 add button gold, no teal === */
+body.over25-page .add-slip-btn{
+  background: linear-gradient(135deg,#8a5a00 0%,#d99a0b 42%,#ffd866 100%) !important;
+  color:#120c02 !important;
+  border:1px solid rgba(255,216,102,.72) !important;
+  box-shadow:0 0 16px rgba(246,194,42,.22), inset 0 1px 0 rgba(255,255,255,.28) !important;
+  text-shadow:none !important;
+  font-weight:1000 !important;
+}
+body.over25-page .add-slip-btn:hover{
+  background: linear-gradient(135deg,#b87900 0%,#f6c22a 45%,#ffe89a 100%) !important;
+  box-shadow:0 0 24px rgba(246,194,42,.38), inset 0 1px 0 rgba(255,255,255,.35) !important;
+  transform:translateY(-2px) !important;
+}
+body.over25-page .added-btn{
+  background:rgba(246,194,42,.14) !important;
+  color:#ffe08a !important;
+  border:1px solid rgba(246,194,42,.38) !important;
+  box-shadow:0 0 14px rgba(246,194,42,.16) !important;
+}
+body.over25-page .added-btn:hover{
+  background:rgba(246,194,42,.22) !important;
+  color:#fff1b8 !important;
+}
