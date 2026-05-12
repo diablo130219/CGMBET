@@ -2631,3 +2631,45 @@ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone p{
    transform:scale(1.05)!important;
  }
 }
+
+
+/* === OVER 1.5 SAME LAYOUT AS OVER 2.5 v45 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  min-height:315px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:260px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding-left:0!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:360px!important;
+  height:360px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  transform:scale(1.12)!important;
+  filter:
+    drop-shadow(0 0 24px rgba(34,211,255,.75))
+    drop-shadow(0 0 55px rgba(0,153,255,.28))!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:0!important;
+}
+
+@media(max-width:1180px){
+ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+   grid-template-columns:1fr!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+   width:300px!important;
+   height:300px!important;
+   transform:scale(1)!important;
+ }
+}
