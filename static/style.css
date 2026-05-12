@@ -2426,3 +2426,211 @@ body.over15-page .nav-link:hover{
     height:210px!important;
   }
 }
+
+
+/* === GG STRATEGY GREEN PREMIUM THEME === */
+body.gg-page{
+  --gg-green:#17f3a0;
+  --gg-green-2:#7cffc9;
+  --gg-dark:#03140d;
+  --gg-glow:rgba(23,243,160,.42);
+  background:
+    radial-gradient(circle at 18% 5%, rgba(23,243,160,.18), transparent 28%),
+    radial-gradient(circle at 88% 0%, rgba(20,184,166,.14), transparent 26%),
+    linear-gradient(135deg,#020806 0%,#061612 52%,#020504 100%) !important;
+}
+
+body.gg-page .content{
+  background:
+    linear-gradient(rgba(23,243,160,.020) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,243,160,.020) 1px, transparent 1px),
+    radial-gradient(circle at 50% 10%, rgba(23,243,160,.07), transparent 34%)!important;
+  background-size:64px 64px,64px 64px,auto!important;
+}
+
+body.gg-page .sidebar{
+  background:linear-gradient(180deg,#020806,#04120d 62%,#010302)!important;
+  border-right:1px solid rgba(23,243,160,.24)!important;
+}
+
+body.gg-page .brand,
+body.gg-page .sidebar-ticket,
+body.gg-page .side-bet-slip,
+body.gg-page .bankroll-card{
+  background:linear-gradient(135deg,rgba(23,243,160,.09),rgba(255,255,255,.025))!important;
+  border-color:rgba(23,243,160,.28)!important;
+  box-shadow:0 0 24px rgba(23,243,160,.08), inset 0 0 24px rgba(255,255,255,.018)!important;
+}
+
+body.gg-page .nav-link.active,
+body.gg-page .nav-link:hover{
+  background:linear-gradient(90deg,rgba(23,243,160,.22),rgba(20,184,166,.055))!important;
+  border-color:rgba(23,243,160,.58)!important;
+  box-shadow:0 0 26px rgba(23,243,160,.16)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg.kickora-unified-hero{
+  min-height:315px!important;
+  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
+  border-radius:24px!important;
+  border:1px solid rgba(23,243,160,.34)!important;
+  background:
+    radial-gradient(circle at 14% 50%, rgba(23,243,160,.28), transparent 28%),
+    radial-gradient(circle at 78% 46%, rgba(20,184,166,.12), transparent 26%),
+    linear-gradient(90deg,rgba(3,18,12,.96) 0%,rgba(4,10,14,.94) 48%,rgba(3,24,17,.88) 100%)!important;
+  box-shadow:0 24px 85px rgba(0,0,0,.42), inset 0 0 70px rgba(23,243,160,.045), 0 0 0 1px rgba(255,255,255,.035)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg.kickora-unified-hero:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  opacity:.78;
+  background:
+    linear-gradient(115deg, transparent 0 18%, rgba(23,243,160,.18) 18.5%, transparent 20%),
+    linear-gradient(30deg, transparent 0 63%, rgba(20,184,166,.16) 63.5%, transparent 65%),
+    radial-gradient(circle at 30% 58%, rgba(124,255,201,.30), transparent 2.5%),
+    radial-gradient(circle at 74% 54%, rgba(23,243,160,.22), transparent 2%),
+    repeating-linear-gradient(90deg,rgba(23,243,160,.025) 0 1px,transparent 1px 90px)!important;
+  filter:drop-shadow(0 0 14px rgba(23,243,160,.30))!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-big-logo{
+  width:285px!important;
+  height:285px!important;
+  object-fit:cover!important;
+  border-radius:50%!important;
+  box-shadow:
+    0 0 0 1px rgba(23,243,160,.42),
+    0 0 30px rgba(23,243,160,.70),
+    0 0 90px rgba(23,243,160,.25)!important;
+  animation:none!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-logo-ring{
+  display:none!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-kicker{
+  background:linear-gradient(90deg,rgba(23,243,160,.18),rgba(23,243,160,.06))!important;
+  border-color:rgba(23,243,160,.48)!important;
+  color:var(--gg-green-2)!important;
+  box-shadow:0 0 22px rgba(23,243,160,.16)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-title{
+  font-size:clamp(50px,4.3vw,82px)!important;
+  line-height:.94!important;
+  letter-spacing:-.045em!important;
+  text-shadow:0 0 24px rgba(23,243,160,.14),0 10px 24px rgba(0,0,0,.45)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-title .accent{
+  color:var(--gg-green)!important;
+  text-shadow:0 0 26px rgba(23,243,160,.55)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-main-zone p{
+  color:rgba(220,255,244,.78)!important;
+  font-size:18px!important;
+  max-width:680px!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-badge.green,
+body.gg-page .premium-section-hero.hero-gg .hero-badge.orange{
+  color:#dfffee!important;
+  background:linear-gradient(180deg,rgba(23,243,160,.24),rgba(5,80,52,.48))!important;
+  border-color:rgba(23,243,160,.70)!important;
+  box-shadow:0 0 18px rgba(23,243,160,.22), inset 0 0 16px rgba(255,255,255,.04)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .strategy-side-emblem{
+  display:none!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-strategy-side{
+  display:grid!important;
+  grid-template-columns:1fr!important;
+  gap:14px!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-side-card{
+  min-height:84px!important;
+  border-radius:18px!important;
+  background:linear-gradient(135deg,rgba(23,243,160,.13),rgba(255,255,255,.032))!important;
+  border-color:rgba(23,243,160,.31)!important;
+  box-shadow:inset 0 0 24px rgba(23,243,160,.035),0 0 26px rgba(0,0,0,.22)!important;
+}
+
+body.gg-page .premium-section-hero.hero-gg .hero-side-card span,
+body.gg-page .status-chip,
+body.gg-page .eyebrow,
+body.gg-page .kpi-card span,
+body.gg-page .market-copy h2,
+body.gg-page .section-head h3{
+  color:var(--gg-green-2)!important;
+}
+
+body.gg-page .market-hero,
+body.gg-page .kpi-card,
+body.gg-page .control-strip,
+body.gg-page .odds-table-card,
+body.gg-page .glass-card{
+  background:linear-gradient(135deg,rgba(23,243,160,.085),rgba(255,255,255,.032),rgba(0,0,0,.18))!important;
+  border-color:rgba(23,243,160,.26)!important;
+  box-shadow:0 18px 50px rgba(0,0,0,.30), inset 0 0 24px rgba(23,243,160,.025)!important;
+}
+
+body.gg-page .primary-btn,
+body.gg-page .success-btn,
+body.gg-page .add-slip-btn{
+  background:linear-gradient(90deg,#078f60,#17f3a0,#7cffc9)!important;
+  color:#001b11!important;
+  border-color:rgba(124,255,201,.65)!important;
+  box-shadow:0 0 24px rgba(23,243,160,.24)!important;
+}
+
+body.gg-page .added-btn{
+  background:rgba(23,243,160,.12)!important;
+  border-color:rgba(23,243,160,.35)!important;
+  color:#d8ffef!important;
+}
+
+body.gg-page input,
+body.gg-page select{
+  background:rgba(0,0,0,.30)!important;
+  border-color:rgba(23,243,160,.26)!important;
+  color:#fff!important;
+}
+
+body.gg-page .prob-pill,
+body.gg-page .market-pill,
+body.gg-page .stat-pill,
+body.gg-page .elo-pill,
+body.gg-page .count-pill{
+  background:rgba(23,243,160,.12)!important;
+  color:#7cffc9!important;
+  border-color:rgba(23,243,160,.28)!important;
+}
+
+body.gg-page .odds-table thead th{
+  color:#7cffc9!important;
+  background:rgba(23,243,160,.08)!important;
+}
+
+body.gg-page .odds-table tbody tr:hover{
+  background:rgba(23,243,160,.055)!important;
+}
+
+@media(max-width:1180px){
+  body.gg-page .premium-section-hero.hero-gg.kickora-unified-hero{
+    grid-template-columns:1fr!important;
+    text-align:center!important;
+  }
+  body.gg-page .premium-section-hero.hero-gg .hero-strategy-side{
+    grid-template-columns:repeat(3,1fr)!important;
+  }
+}
