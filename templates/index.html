@@ -67,6 +67,8 @@
         <div class="hero-logo-ring"></div>
         {% if strategy == 'Over 2.5' %}
         <img class="hero-big-logo over25-engine-img" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
+        {% elif strategy == 'Over 1.5' %}
+        <img class="hero-big-logo over15-control-img" src="{{ url_for('static', filename='over15-control-logo.png') }}" alt="Over 1.5 Control">
         {% else %}
         <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
         {% endif %}
@@ -85,8 +87,8 @@
           <div class="hero-badges"><span class="hero-badge orange">Fast Match</span><span class="hero-badge orange">High Tempo</span><span class="hero-badge orange">Goal Storm</span></div>
         {% else %}
           <span class="hero-kicker">Over 1.5 Control</span>
-          <h2 class="hero-title">Strategia stabile<br>basata sulla <span class="accent">continuità.</span></h2>
-          <p>Approccio più controllato per cercare valore con soglie goal più stabili e costanti.</p>
+          <h2 class="hero-title">OVER 1.5 <span class="accent">CONTROL</span></h2>
+          <p>Strategia stabile basata sulla continuità realizzativa.</p>
           <div class="hero-badges"><span class="hero-badge blue">Safe Mode</span><span class="hero-badge blue">Low Risk</span><span class="hero-badge blue">Smart Entry</span></div>
         {% endif %}
       </div>
