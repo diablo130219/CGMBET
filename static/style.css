@@ -2191,456 +2191,56 @@ body.over25-page .odds-table tbody tr:hover{background:rgba(247,197,43,.06)!impo
 @media(max-width:760px){body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{grid-template-columns:1fr!important}}
 
 
-/* =========================================================
-   OVER 2.5 FINAL GOLD PAGE — true black/gold, no green traces
-   ========================================================= */
+/* === KICKORA OVER 2.5 FINAL GOLD CLEAN v26 === */
 body.over25-page{
-  --accent:#f6b900!important;
-  --accent-2:#ffd76a!important;
-  --accent-soft:rgba(246,185,0,.16)!important;
-  --text:#fff7df!important;
-  --muted:#c8b98e!important;
-  --card:#080705!important;
-  --card2:#0d0a04!important;
-  --line:rgba(246,185,0,.22)!important;
-  background:#030303!important;
-  color:#fff7df!important;
-}
-body.over25-page *{scrollbar-color:#c89400 #050505;}
-body.over25-page .content{
-  background:
-    radial-gradient(circle at 23% 0%, rgba(246,185,0,.10), transparent 28%),
-    radial-gradient(circle at 77% 4%, rgba(246,185,0,.08), transparent 28%),
-    linear-gradient(180deg,#050505 0%,#020202 100%)!important;
-}
-body.over25-page .sidebar{
-  background:#020202!important;
-  border-right:1px solid rgba(246,185,0,.18)!important;
-}
-body.over25-page .brand,
-body.over25-page .sidebar-ticket,
-body.over25-page .side-bolletta,
-body.over25-page .bolletta-side,
-body.over25-page .bet-slip-mini,
-body.over25-page .side-card,
-body.over25-page .mini-ticket{
-  background:linear-gradient(180deg,rgba(246,185,0,.075),rgba(0,0,0,.42))!important;
-  border:1px solid rgba(246,185,0,.22)!important;
-  box-shadow:inset 0 0 24px rgba(246,185,0,.035),0 0 22px rgba(0,0,0,.35)!important;
-  color:#fff7df!important;
-}
-body.over25-page .brand img{border:1px solid rgba(246,185,0,.45)!important;box-shadow:0 0 18px rgba(246,185,0,.22)!important;}
-body.over25-page .brand span,
-body.over25-page .nav-label,
-body.over25-page .sidebar-ticket span,
-body.over25-page .side-bolletta span,
-body.over25-page .sidebar small,
-body.over25-page .side-card small{color:#f6c747!important;}
-body.over25-page .nav-link{color:#f8edd0!important;border:1px solid transparent!important;}
-body.over25-page .nav-link.active,
-body.over25-page .nav-link:hover{
-  background:linear-gradient(90deg,rgba(246,185,0,.24),rgba(246,185,0,.045))!important;
-  border-color:rgba(246,185,0,.58)!important;
-  box-shadow:0 0 28px rgba(246,185,0,.18)!important;
-}
-body.over25-page .sport-dot,
-body.over25-page .sport-dot.green,
-body.over25-page .sport-dot.blue,
-body.over25-page .sport-dot.orange{
-  background:#f6b900!important;box-shadow:0 0 14px #f6b900!important;
-}
-body.over25-page .side-bolletta .primary-btn,
-body.over25-page .side-bolletta button,
-body.over25-page .mini-ok,
-body.over25-page .ok-btn{
-  background:linear-gradient(180deg,#ffe07a,#b47a05)!important;color:#130d02!important;border-color:#f6b900!important;
-}
-body.over25-page .side-bolletta input,
-body.over25-page .side-bolletta .input,
-body.over25-page input,
-body.over25-page select{
-  background:#050505!important;color:#fff7df!important;border:1px solid rgba(246,185,0,.25)!important;accent-color:#f6b900!important;
-}
-body.over25-page input:focus,body.over25-page select:focus{outline:1px solid rgba(246,185,0,.75)!important;box-shadow:0 0 0 4px rgba(246,185,0,.12)!important;}
-
-/* Hero exact structure */
-body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{
-  min-height:315px!important;
-  grid-template-columns:390px minmax(520px,1fr) 330px!important;
-  align-items:center!important;
-  padding:18px 22px!important;
-  gap:26px!important;
-  border-radius:18px!important;
-  border:1px solid rgba(246,185,0,.34)!important;
-  background:
-    radial-gradient(circle at 20% 50%,rgba(246,185,0,.22),transparent 24%),
-    radial-gradient(circle at 70% 50%,rgba(246,185,0,.08),transparent 30%),
-    linear-gradient(90deg,#090805 0%,#050505 55%,#120d02 100%)!important;
-  overflow:hidden!important;
-  box-shadow:0 22px 70px rgba(0,0,0,.40),inset 0 0 60px rgba(246,185,0,.04)!important;
-}
-body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero:before{
-  content:"";position:absolute;inset:0;pointer-events:none;opacity:.85;
-  background:
-    radial-gradient(circle at 18% 50%,rgba(255,213,77,.25),transparent 28%),
-    linear-gradient(115deg,transparent 0 58%,rgba(246,185,0,.16) 59%,transparent 61%),
-    linear-gradient(25deg,transparent 0 72%,rgba(246,185,0,.28) 73%,transparent 75%),
-    radial-gradient(circle at 74% 50%,rgba(255,217,89,.55),transparent 1.8%),
-    repeating-linear-gradient(90deg,rgba(255,255,255,.018) 0 1px,transparent 1px 78px),
-    repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 62px)!important;
-  filter:drop-shadow(0 0 18px rgba(246,185,0,.32));
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone{min-height:282px!important;display:flex!important;align-items:center!important;justify-content:center!important;z-index:1!important;}
-body.over25-page .over25-engine-logo-img{
-  width:355px!important;height:270px!important;object-fit:cover!important;object-position:center!important;
-  border-radius:18px!important;border:1px solid rgba(246,185,0,.38)!important;
-  box-shadow:0 0 28px rgba(246,185,0,.50),0 0 80px rgba(246,185,0,.25)!important;
-  transform:translateX(4px) scale(1.03)!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-main-zone{z-index:1!important;align-self:center!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-kicker{
-  color:#ffd76a!important;background:rgba(246,185,0,.15)!important;border:1px solid rgba(246,185,0,.55)!important;border-radius:999px!important;padding:8px 18px!important;
-  box-shadow:0 0 18px rgba(246,185,0,.18)!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-title{font-size:clamp(44px,3.8vw,70px)!important;line-height:1.02!important;color:#fff!important;letter-spacing:-.045em!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-title .accent{color:#f6b900!important;text-shadow:0 0 24px rgba(246,185,0,.50)!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-main-zone p{color:#f2ead7!important;font-size:18px!important;line-height:1.55!important;max-width:620px!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-badges{gap:14px!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-badge,
-body.over25-page .premium-section-hero.hero-over25 .hero-badge.orange{
-  color:#ffdc69!important;background:rgba(246,185,0,.12)!important;border:1px solid rgba(246,185,0,.48)!important;border-radius:13px!important;padding:11px 18px!important;
-  box-shadow:inset 0 0 18px rgba(246,185,0,.06),0 0 18px rgba(246,185,0,.12)!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{z-index:1!important;display:grid!important;grid-template-columns:1fr!important;gap:14px!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-side-card{
-  background:linear-gradient(135deg,rgba(246,185,0,.13),rgba(0,0,0,.55))!important;
-  border:1px solid rgba(246,185,0,.30)!important;border-radius:15px!important;min-height:86px!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-side-card span{color:#ffd76a!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-side-card strong{color:#fff!important;}
-body.over25-page .premium-section-hero.hero-over25 .hero-graphic,
-body.over25-page .premium-section-hero.hero-over25 .strategy-side-emblem{display:none!important;}
-
-/* Everything below: remove teal/green and make gold */
-body.over25-page .market-hero{
-  display:grid!important;grid-template-columns:1fr 1fr!important;gap:18px!important;
-  background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important;
-}
-body.over25-page .market-copy,
-body.over25-page .import-card{
-  border-radius:18px!important;border:1px solid rgba(246,185,0,.26)!important;
-  background:
-    radial-gradient(circle at 70% 0%,rgba(246,185,0,.20),transparent 28%),
-    linear-gradient(135deg,rgba(246,185,0,.09),rgba(0,0,0,.60))!important;
-  box-shadow:inset 0 0 35px rgba(246,185,0,.035),0 14px 40px rgba(0,0,0,.28)!important;
-  padding:32px!important;
-}
-body.over25-page .status-chip{background:transparent!important;border:0!important;color:#ffd76a!important;padding:0!important;}
-body.over25-page .status-chip:before{content:"● ";color:#f6b900!important;}
-body.over25-page .market-copy h2{color:#fff!important;font-size:44px!important;}
-body.over25-page .market-copy p{color:#f2ead7!important;}
-body.over25-page .import-card label{color:#fff7df!important;}
-body.over25-page .primary-btn{
-  background:linear-gradient(180deg,#ffcc35,#9a6804)!important;color:#fff!important;text-shadow:0 1px 1px rgba(0,0,0,.35)!important;border:1px solid rgba(255,218,93,.6)!important;border-radius:10px!important;
-}
-body.over25-page .kpi-grid{gap:14px!important;}
-body.over25-page .kpi-card{
-  border-radius:16px!important;border:1px solid rgba(246,185,0,.22)!important;
-  background:linear-gradient(135deg,rgba(246,185,0,.06),rgba(0,0,0,.72))!important;
-  box-shadow:inset 0 0 24px rgba(246,185,0,.028)!important;color:#fff!important;
-}
-body.over25-page .kpi-card.accent{background:linear-gradient(135deg,rgba(246,185,0,.08),rgba(0,0,0,.72))!important;}
-body.over25-page .kpi-card span,body.over25-page .kpi-card small{color:#ffe08a!important;}
-body.over25-page .kpi-card strong{color:#fff!important;}
-body.over25-page .control-strip,
-body.over25-page .odds-table-card{
-  background:#030303!important;border:1px solid rgba(246,185,0,.24)!important;border-radius:18px!important;box-shadow:none!important;
-}
-body.over25-page .success-btn{background:rgba(246,185,0,.13)!important;color:#fff7df!important;border:1px solid rgba(246,185,0,.55)!important;border-radius:12px!important;}
-body.over25-page .danger-btn{background:rgba(230,55,55,.06)!important;color:#ffd0d0!important;border:1px solid rgba(255,70,70,.58)!important;border-radius:12px!important;}
-body.over25-page .eyebrow,body.over25-page .section-head h3{color:#f6b900!important;}
-body.over25-page .count-pill{background:rgba(246,185,0,.10)!important;color:#ffd76a!important;border:1px solid rgba(246,185,0,.28)!important;}
-body.over25-page .odds-table th{color:#ffe08a!important;background:#090703!important;border-bottom:1px solid rgba(246,185,0,.25)!important;}
-body.over25-page .odds-table td{border-color:rgba(246,185,0,.10)!important;color:#f9f0d7!important;}
-body.over25-page .odds-table tbody tr:hover{background:rgba(246,185,0,.055)!important;}
-body.over25-page .empty-state{color:#f9f0d7!important;}
-body.over25-page .empty-state svg,body.over25-page .empty-icon{color:#f6b900!important;}
-body.over25-page footer,body.over25-page .footer{color:#bfae84!important;}
-@media(max-width:1200px){body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{grid-template-columns:1fr!important;text-align:center!important}body.over25-page .market-hero{grid-template-columns:1fr!important}body.over25-page .over25-engine-logo-img{width:320px!important;height:240px!important}body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{grid-template-columns:repeat(3,1fr)!important}}
-@media(max-width:760px){body.over25-page .premium-section-hero.hero-over25 .hero-strategy-side{grid-template-columns:1fr!important}body.over25-page .over25-engine-logo-img{width:260px!important;height:200px!important}}
-
-
-/* =========================================================
-   OVER 2.5 DEFINITIVO — SOLO NERO/ORO, LOGO UNICO
-   ========================================================= */
-body.over25-page{
-  --gold:#f6b900!important;
+  --gold:#f6b800!important;
   --gold2:#ffd76a!important;
-  --gold3:#9a6804!important;
-  --bg:#020202!important;
-  --surface:#050505!important;
-  --surface-2:#080704!important;
-  --card:rgba(5,5,5,.92)!important;
-  --card-2:rgba(7,6,3,.94)!important;
-  --line:rgba(246,185,0,.18)!important;
-  --line-strong:rgba(246,185,0,.32)!important;
-  --green:#f6b900!important;
-  --green-soft:rgba(246,185,0,.10)!important;
-  --blue:#f6b900!important;
-  --blue-soft:rgba(246,185,0,.09)!important;
-  --orange:#f6b900!important;
-  --orange-soft:rgba(246,185,0,.12)!important;
-  background:
-    radial-gradient(circle at 42% 0%,rgba(246,185,0,.14),transparent 30%),
-    radial-gradient(circle at 82% 80%,rgba(246,185,0,.08),transparent 35%),
-    linear-gradient(135deg,#010101 0%,#050403 48%,#020202 100%)!important;
-  color:#fff7df!important;
+  --gold3:#8b6200!important;
+  --goldGlow:rgba(246,184,0,.54)!important;
+  --green:#f6b800!important;
+  --accent:#f6b800!important;
+  --cyan:#f6b800!important;
+  background:radial-gradient(circle at 35% -10%,rgba(246,184,0,.12),transparent 34%),linear-gradient(135deg,#020202 0%,#070604 50%,#000 100%)!important;
 }
-body.over25-page::before{
-  background-image:
-    linear-gradient(rgba(246,185,0,.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(246,185,0,.025) 1px, transparent 1px)!important;
-}
-body.over25-page .content:before{display:none!important;}
-body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{
-  grid-template-columns:470px minmax(560px,1fr) 320px!important;
-  min-height:340px!important;
-  padding:16px 24px!important;
-  background:
-    radial-gradient(circle at 18% 50%,rgba(246,185,0,.35),transparent 26%),
-    linear-gradient(112deg,rgba(246,185,0,.05) 0%,transparent 48%,rgba(246,185,0,.12) 84%,transparent 100%),
-    linear-gradient(90deg,#050402 0%,#030303 58%,#100b02 100%)!important;
-  border:1px solid rgba(246,185,0,.34)!important;
-  box-shadow:0 22px 70px rgba(0,0,0,.54), inset 0 0 80px rgba(246,185,0,.045)!important;
-}
-/* elimina il secondo logo/pseudo-emblema: deve restare SOLO l'immagine indicata */
-body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone::before,
-body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone::after,
-body.over25-page .premium-section-hero.hero-over25 .hero-logo-ring,
-body.over25-page .premium-section-hero.hero-over25 .hero-big-logo,
-body.over25-page .premium-section-hero.hero-over25 .strategy-side-emblem,
-body.over25-page .premium-section-hero.hero-over25 .hero-graphic{
-  display:none!important;
-  content:none!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone{
-  min-height:306px!important;
-  justify-content:flex-start!important;
-  align-items:center!important;
-  overflow:visible!important;
-}
-body.over25-page .over25-engine-logo-img{
-  display:block!important;
-  width:440px!important;
-  height:304px!important;
-  max-width:100%!important;
-  object-fit:cover!important;
-  object-position:center!important;
-  border-radius:20px!important;
-  border:1px solid rgba(246,185,0,.42)!important;
-  box-shadow:
-    0 0 34px rgba(246,185,0,.62),
-    0 0 95px rgba(246,185,0,.30),
-    inset 0 0 22px rgba(246,185,0,.18)!important;
-  transform:none!important;
-}
-body.over25-page .premium-section-hero.hero-over25 .hero-side-card,
-body.over25-page .sidebar,
-body.over25-page .brand,
-body.over25-page .sidebar-ticket,
-body.over25-page .side-bet-slip,
-body.over25-page .side-slip-match,
-body.over25-page .side-slip-empty,
-body.over25-page .side-bankroll-mini,
-body.over25-page .market-copy,
-body.over25-page .import-card,
-body.over25-page .kpi-card,
-body.over25-page .control-strip,
-body.over25-page .odds-table-card{
-  background:linear-gradient(135deg,rgba(246,185,0,.07),rgba(0,0,0,.86))!important;
-  border-color:rgba(246,185,0,.28)!important;
-  box-shadow:inset 0 0 30px rgba(246,185,0,.025),0 14px 42px rgba(0,0,0,.32)!important;
-}
-body.over25-page .market-hero{background:transparent!important;border:0!important;box-shadow:none!important;}
-body.over25-page .nav-link.active,
-body.over25-page .nav-link:hover{
-  background:linear-gradient(135deg,rgba(246,185,0,.18),rgba(0,0,0,.35))!important;
-  border-color:rgba(246,185,0,.45)!important;
-  box-shadow:0 0 24px rgba(246,185,0,.18)!important;
-}
-body.over25-page .nav-link,
-body.over25-page .brand strong,
-body.over25-page .market-copy h2,
-body.over25-page .kpi-card strong,
-body.over25-page .side-slip-head strong,
-body.over25-page .side-bankroll-mini strong{color:#fff7df!important;}
-body.over25-page .brand span,
-body.over25-page .nav-label,
-body.over25-page .sidebar-ticket span,
-body.over25-page .side-slip-head span,
-body.over25-page .side-bankroll-mini span,
-body.over25-page .kpi-card span,
-body.over25-page .kpi-card small,
-body.over25-page .status-chip,
-body.over25-page .eyebrow,
-body.over25-page .section-head h3,
-body.over25-page .count-pill,
-body.over25-page .hero-side-card span,
-body.over25-page .hero-kicker{
-  color:#ffd76a!important;
-  text-shadow:0 0 14px rgba(246,185,0,.18)!important;
-}
-body.over25-page .sport-dot.green,
-body.over25-page .sport-dot.blue,
-body.over25-page .sport-dot.orange,
-body.over25-page .sport-dot{
-  background:#f6b900!important;
-  box-shadow:0 0 16px rgba(246,185,0,.72)!important;
-}
-body.over25-page .primary-btn,
-body.over25-page .success-btn,
-body.over25-page .side-stake-form button,
-body.over25-page button[type="submit"]:not(.danger-btn){
-  background:linear-gradient(180deg,#ffdf72,#b87b05)!important;
-  color:#170f00!important;
-  border:1px solid rgba(255,225,115,.62)!important;
-  box-shadow:0 0 20px rgba(246,185,0,.22)!important;
-}
-body.over25-page input,
-body.over25-page select{
-  background:#050505!important;
-  color:#fff7df!important;
-  border:1px solid rgba(246,185,0,.30)!important;
-  accent-color:#f6b900!important;
-}
-body.over25-page .market-pill,
-body.over25-page .prob-pill,
-body.over25-page .elo-pill,
-body.over25-page .stat-pill,
-body.over25-page [style*="00e676"],
-body.over25-page [style*="#00e676"],
-body.over25-page [style*="rgba(0,230,118"],
-body.over25-page [style*="17,243,160"],
-body.over25-page [style*="23,243,160"]{
-  color:#ffd76a!important;
-  background:rgba(246,185,0,.12)!important;
-  border-color:rgba(246,185,0,.35)!important;
-}
-body.over25-page .roi-pos{color:#ffd76a!important;}
-body.over25-page .kpi-card.accent{background:linear-gradient(135deg,rgba(246,185,0,.09),rgba(0,0,0,.88))!important;}
-body.over25-page .odds-table th{color:#ffe08a!important;background:#090703!important;}
-body.over25-page .odds-table-card{background:#030303!important;}
-body.over25-page .empty-state strong{color:#fff7df!important;}
-body.over25-page .empty-state span{color:#d8c28a!important;}
-@media(max-width:1200px){
- body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{grid-template-columns:1fr!important;text-align:center!important;}
- body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone{justify-content:center!important;}
- body.over25-page .over25-engine-logo-img{width:420px!important;height:290px!important;}
-}
-@media(max-width:760px){body.over25-page .over25-engine-logo-img{width:300px!important;height:220px!important;}}
+body.over25-page *{--accent:#f6b800;--green:#f6b800;--cyan:#f6b800;}
+body.over25-page .content{background:linear-gradient(rgba(255,215,106,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,215,106,.018) 1px,transparent 1px),radial-gradient(circle at 60% 0%,rgba(246,184,0,.06),transparent 34%)!important;background-size:64px 64px,64px 64px,auto!important;}
+body.over25-page .brand,body.over25-page .sidebar-ticket,body.over25-page .side-slip-panel,body.over25-page .side-slip-card,body.over25-page .side-bankroll-panel,body.over25-page .side-bankroll-row,body.over25-page .side-empty,body.over25-page .nav-link{border-color:rgba(246,184,0,.24)!important;background:linear-gradient(135deg,rgba(246,184,0,.08),rgba(0,0,0,.34))!important;box-shadow:inset 0 0 22px rgba(246,184,0,.025)!important;}
+body.over25-page .side-slip-panel *,body.over25-page .side-bankroll-panel *,body.over25-page .sidebar-ticket *,body.over25-page .nav-label{color:var(--gold2)!important;}
+body.over25-page .side-empty{color:#fff!important;}
+body.over25-page .nav-link.active{background:linear-gradient(90deg,rgba(246,184,0,.32),rgba(246,184,0,.08))!important;border-color:rgba(246,184,0,.78)!important;box-shadow:0 0 28px rgba(246,184,0,.22)!important;}
+body.over25-page .sport-dot.green,body.over25-page .sport-dot.blue,body.over25-page .sport-dot.orange{background:var(--gold)!important;box-shadow:0 0 18px var(--gold)!important;}
+body.over25-page .brand img{box-shadow:0 0 18px rgba(246,184,0,.35);}
+body.over25-page .brand span,body.over25-page .brand strong{color:#fff!important;}
+body.over25-page .brand span{color:var(--gold)!important;}
 
-/* =========================================================
-   OVER 2.5 V25 — RIMOZIONE DEFINITIVA VERDE/CYAN
-   ========================================================= */
-body.over25-page,
-body.over25-page *{
-  --green:#f6b900!important;
-  --green-soft:rgba(246,185,0,.10)!important;
-  --blue:#f6b900!important;
-  --blue-soft:rgba(246,185,0,.08)!important;
-  --cyan:#f6b900!important;
-  --neon-green:#f6b900!important;
-  --accent:#f6b900!important;
-}
-body.over25-page .content,
-body.over25-page main.content{
-  background:
-    linear-gradient(rgba(246,185,0,.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(246,185,0,.018) 1px, transparent 1px),
-    radial-gradient(circle at 54% 16%, rgba(246,185,0,.09), transparent 34%),
-    linear-gradient(135deg,#020202,#050403 52%,#020202)!important;
-  background-size:64px 64px,64px 64px,auto,auto!important;
-}
-body.over25-page .content:before,
-body.over25-page .content:after,
-body.over25-page .market-hero:before,
-body.over25-page .market-hero:after,
-body.over25-page .market-copy:before,
-body.over25-page .market-copy:after,
-body.over25-page .import-card:before,
-body.over25-page .import-card:after,
-body.over25-page .odds-table-card:before,
-body.over25-page .odds-table-card:after,
-body.over25-page .kpi-card:before,
-body.over25-page .kpi-card:after,
-body.over25-page .control-strip:before,
-body.over25-page .control-strip:after{
-  background:none!important;
-  background-image:none!important;
-  opacity:0!important;
-  display:none!important;
-  content:none!important;
-}
-body.over25-page .market-copy,
-body.over25-page .import-card,
-body.over25-page .kpi-card,
-body.over25-page .control-strip,
-body.over25-page .odds-table-card,
-body.over25-page .table-wrap,
-body.over25-page .odds-table,
-body.over25-page .empty-state{
-  background:
-    radial-gradient(circle at 78% 0%, rgba(246,185,0,.11), transparent 28%),
-    linear-gradient(135deg, rgba(246,185,0,.055), rgba(0,0,0,.86) 48%, rgba(246,185,0,.025))!important;
-  border-color:rgba(246,185,0,.28)!important;
-}
-body.over25-page .market-hero{
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-}
-body.over25-page .odds-table-card{
-  background:linear-gradient(135deg, rgba(246,185,0,.04), rgba(0,0,0,.94))!important;
-}
-body.over25-page .odds-table tbody,
-body.over25-page .odds-table tbody tr,
-body.over25-page .odds-table td{
-  background:transparent!important;
-}
-body.over25-page .side-bet-slip,
-body.over25-page .side-bet-slip *,
-body.over25-page .sidebar-ticket,
-body.over25-page .sidebar-ticket *,
-body.over25-page .side-slip-empty,
-body.over25-page .side-bankroll-mini,
-body.over25-page .side-slip-match{
-  border-color:rgba(246,185,0,.26)!important;
-}
-body.over25-page .side-bet-slip,
-body.over25-page .sidebar-ticket,
-body.over25-page .side-slip-empty,
-body.over25-page .side-bankroll-mini{
-  background:linear-gradient(135deg, rgba(246,185,0,.07), rgba(0,0,0,.88))!important;
-}
-/* label ENTRA e pallini: niente verde visibile */
-body.over25-page .kpi-card.accent,
-body.over25-page .hero-side-card,
-body.over25-page .flash.success{
-  background:linear-gradient(135deg, rgba(246,185,0,.09), rgba(0,0,0,.86))!important;
-  border-color:rgba(246,185,0,.30)!important;
-}
-body.over25-page .status-chip:before,
-body.over25-page .side-slip-head span,
-body.over25-page .roi-pos,
-body.over25-page .nav-link.active,
-body.over25-page .nav-link.active *{
-  color:#ffd76a!important;
-}
-body.over25-page .market-copy .status-chip:before{
-  color:#f6b900!important;
-}
-body.over25-page .danger-btn{
-  background:rgba(80,0,0,.22)!important;
-  color:#ffd6d6!important;
-  border:1px solid rgba(255,60,60,.48)!important;
-}
+body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{min-height:300px!important;grid-template-columns:430px minmax(560px,1fr) 315px!important;gap:34px!important;padding:22px 30px!important;background:radial-gradient(circle at 18% 50%,rgba(246,184,0,.30),transparent 27%),radial-gradient(circle at 85% 50%,rgba(246,184,0,.11),transparent 25%),linear-gradient(90deg,#030303 0%,#0a0803 48%,#050402 100%)!important;border:1px solid rgba(246,184,0,.38)!important;box-shadow:0 22px 70px rgba(0,0,0,.45),inset 0 0 80px rgba(246,184,0,.045)!important;}
+body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero:before{background:linear-gradient(115deg,transparent 0 62%,rgba(246,184,0,.18) 63%,transparent 65%),radial-gradient(circle at 33% 56%,rgba(255,220,100,.34),transparent 2.4%),radial-gradient(circle at 72% 55%,rgba(255,220,100,.25),transparent 2%),repeating-linear-gradient(90deg,rgba(246,184,0,.025) 0 1px,transparent 1px 92px)!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone{min-height:255px!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-logo-ring,
+body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone:before,
+body.over25-page .premium-section-hero.hero-over25 .hero-logo-zone:after,
+body.over25-page .premium-section-hero.hero-over25 .strategy-side-emblem{display:none!important;content:none!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-big-logo.over25-real-logo{display:block!important;width:390px!important;height:270px!important;max-width:100%!important;object-fit:contain!important;border-radius:22px!important;background:transparent!important;filter:drop-shadow(0 0 22px rgba(246,184,0,.70)) drop-shadow(0 0 50px rgba(246,184,0,.25));animation:over25BadgePulse 5s ease-in-out infinite;}
+body.over25-page .premium-section-hero.hero-over25 .hero-kicker{color:var(--gold2)!important;background:linear-gradient(90deg,rgba(246,184,0,.22),rgba(246,184,0,.06))!important;border-color:rgba(246,184,0,.55)!important;box-shadow:0 0 20px rgba(246,184,0,.20)!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-title .accent{color:var(--gold)!important;text-shadow:0 0 24px rgba(246,184,0,.58)!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-badge,body.over25-page .premium-section-hero.hero-over25 .hero-badge.orange{color:#fff3bd!important;background:linear-gradient(180deg,rgba(246,184,0,.28),rgba(98,69,0,.52))!important;border-color:rgba(246,184,0,.72)!important;box-shadow:0 0 18px rgba(246,184,0,.20)!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-side-card{background:linear-gradient(135deg,rgba(246,184,0,.15),rgba(0,0,0,.36))!important;border-color:rgba(246,184,0,.36)!important;}
+body.over25-page .premium-section-hero.hero-over25 .hero-side-card span{color:var(--gold2)!important;}
+
+body.over25-page .market-hero,body.over25-page .import-card,body.over25-page .kpi-card,body.over25-page .control-strip,body.over25-page .odds-table-card{background:linear-gradient(135deg,rgba(246,184,0,.075),rgba(0,0,0,.55) 45%,rgba(120,84,0,.065))!important;border-color:rgba(246,184,0,.30)!important;box-shadow:0 18px 45px rgba(0,0,0,.34),inset 0 0 28px rgba(246,184,0,.025)!important;}
+body.over25-page .market-hero:before,body.over25-page .market-hero:after,body.over25-page .odds-table-card:before,body.over25-page .odds-table-card:after{filter:hue-rotate(38deg) saturate(0.75)!important;opacity:.22!important;}
+body.over25-page .status-chip:before{background:var(--gold)!important;box-shadow:0 0 12px var(--gold)!important;}
+body.over25-page .status-chip,body.over25-page .eyebrow,body.over25-page .kpi-card span,body.over25-page .market-copy h2,body.over25-page .section-head h3,body.over25-page label{color:var(--gold2)!important;}
+body.over25-page .kpi-card.accent{background:linear-gradient(135deg,rgba(246,184,0,.11),rgba(0,0,0,.52))!important;}
+body.over25-page .primary-btn,body.over25-page .success-btn,body.over25-page .side-slip-panel .primary-btn,body.over25-page .side-slip-panel button,body.over25-page button[type="submit"]{background:linear-gradient(90deg,#8a5f00,#f6b800,#ffdd75)!important;color:#130e02!important;border-color:rgba(255,221,117,.76)!important;box-shadow:0 0 24px rgba(246,184,0,.20)!important;}
+body.over25-page .danger-btn{background:rgba(44,9,10,.65)!important;border-color:rgba(255,58,70,.70)!important;color:#fff!important;}
+body.over25-page input,body.over25-page select{background:rgba(0,0,0,.46)!important;border-color:rgba(246,184,0,.28)!important;color:#fff!important;box-shadow:inset 0 0 14px rgba(246,184,0,.025)!important;}
+body.over25-page .prob-pill,body.over25-page .market-pill,body.over25-page .count-pill{background:rgba(246,184,0,.14)!important;color:var(--gold2)!important;border-color:rgba(246,184,0,.32)!important;}
+body.over25-page .odds-table thead th{color:var(--gold2)!important;background:rgba(246,184,0,.075)!important;border-bottom:1px solid rgba(246,184,0,.23)!important;}
+body.over25-page .table-wrap,body.over25-page .odds-table{background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.52))!important;}
+body.over25-page .empty-state,body.over25-page .empty-state strong{color:#fff!important;}
+body.over25-page .empty-state:before{color:var(--gold)!important;border-color:rgba(246,184,0,.45)!important;}
+/* remove visible green/teal overlays from old theme */
+body.over25-page .market-hero,body.over25-page .odds-table-card{background-image:linear-gradient(135deg,rgba(246,184,0,.075),rgba(0,0,0,.58) 48%,rgba(120,84,0,.055))!important;}
+@media(max-width:1180px){body.over25-page .premium-section-hero.hero-over25.kickora-unified-hero{grid-template-columns:1fr!important;text-align:center}body.over25-page .premium-section-hero.hero-over25 .hero-big-logo.over25-real-logo{width:320px!important;height:230px!important}.hero-badges{justify-content:center}}
+@media(max-width:760px){body.over25-page .premium-section-hero.hero-over25 .hero-big-logo.over25-real-logo{width:250px!important;height:190px!important}}

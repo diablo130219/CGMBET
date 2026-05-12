@@ -4,14 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — {{ strategy }}</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-over25-final-gold-v23">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=kickora-over25-final-v26">
 </head>
 <body class="{% if strategy == 'Over 2.5' %}over25-page{% elif strategy == 'GG' %}gg-page{% elif strategy == 'Over 1.5' %}over15-page{% endif %}">
 <div class="app">
 
   <aside class="sidebar">
     <a class="brand" href="{{ url_for('dashboard') }}">
+      {% if strategy == 'Over 2.5' %}
+      <img src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine" style="width:54px;height:54px;border-radius:12px;object-fit:cover;object-position:center;">
+      {% else %}
       <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
+      {% endif %}
       <div>
         <strong>KICKORA</strong>
         <span>BET</span>
@@ -64,11 +68,11 @@
     {% set hero_class = 'hero-gg' if strategy == 'GG' else ('hero-over25' if strategy == 'Over 2.5' else 'hero-over15') %}
     <section class="premium-section-hero {{ hero_class }} strategy-hero-dynamic kickora-unified-hero">
       <div class="hero-logo-zone">
+        <div class="hero-logo-ring"></div>
         {% if strategy == 'Over 2.5' %}
-          <img class="over25-engine-logo-img" src="{{ url_for('static', filename='over25-engine-logo.jpg') }}" alt="Over 2.5 Engine">
+        <img class="hero-big-logo over25-real-logo" src="{{ url_for('static', filename='over25-engine-logo.png') }}" alt="Over 2.5 Engine">
         {% else %}
-          <div class="hero-logo-ring"></div>
-          <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
+        <img class="hero-big-logo" src="{{ url_for('static', filename='logo.png') }}" alt="Kickora">
         {% endif %}
       </div>
 
@@ -100,7 +104,7 @@
           <div class="strategy-side-emblem over15-emblem">OVER<br>1.5<small>CONTROL</small></div>
         {% endif %}
         <article class="hero-side-card floating-card"><span>Partite trovate</span><strong>{{ total }}</strong><small>righe visualizzate</small></article>
-        {% if strategy == 'Over 2.5' %}<article class="hero-side-card floating-card"><span>ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>{% else %}<article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>{% endif %}
+        <article class="hero-side-card floating-card"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>preferite</small></article>
         <article class="hero-side-card floating-card"><span>Quota media</span><strong>{% if total_strategy > 0 %}{{ avg_odds[strategy] if avg_odds is defined and avg_odds[strategy] > 0 else '0.00' }}{% else %}0.00{% endif %}</strong><small>della strategia</small></article>
       </div>
       <div class="hero-graphic"></div>
@@ -123,9 +127,9 @@
 
     <section class="kpi-grid">
       <article class="kpi-card"><span>Visualizzate</span><strong>{{ total }}</strong><small>righe filtrate</small></article>
-      {% if strategy == 'Over 2.5' %}<article class="kpi-card accent"><span>ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>{% else %}<article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>{% endif %}
-      {% if strategy == 'Over 2.5' %}<article class="kpi-card"><span>DOPPELINE</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>{% else %}<article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>{% endif %}
-      {% if strategy == 'Over 2.5' %}<article class="kpi-card"><span>SCARTATE</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>{% else %}<article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>{% endif %}
+      <article class="kpi-card accent"><span>✅ ENTRA</span><strong>{{ stat_entra }}</strong><small>da giocare</small></article>
+      <article class="kpi-card"><span>⚠️ Borderline</span><strong>{{ stat_borderline }}</strong><small>da valutare</small></article>
+      <article class="kpi-card"><span>❌ Scarte</span><strong>{{ stat_scarta }}</strong><small>da evitare</small></article>
       <article class="kpi-card"><span>Totale strategia</span><strong>{{ total_strategy }}</strong><small>{{ strategy }}</small></article>
       <article class="kpi-card accent"><span>Bolletta Pazza</span><strong>{{ bolletta|length }}</strong><small>partite selezionate</small></article>
     </section>
