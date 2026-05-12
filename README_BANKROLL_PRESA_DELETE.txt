@@ -1,0 +1,1 @@
+Aggiornamento: importo giocato modificabile nella Bolletta Pazza e sidebar, capitale attuale, % presa, vinte/perse, profitto/ROI e possibilità di eliminare una bolletta salvata.

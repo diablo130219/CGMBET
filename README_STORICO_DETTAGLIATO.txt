@@ -1,0 +1,1 @@
+Aggiornamento: lo storico bollette mostra ora il dettaglio delle partite salvate per ogni bolletta, con mercato, quota, casa/trasferta ed esito modificabile.

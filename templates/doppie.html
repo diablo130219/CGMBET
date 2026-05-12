@@ -4,53 +4,145 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Kickora — Sistema Doppie</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v7">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=doppie-v8">
   <style>
-    .kelly-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.75rem;font-weight:700;background:rgba(41,121,255,.15);color:#2979ff;}
-    .risk-grid{display:grid;grid-template-columns:repeat(3,minmax(140px,1fr));gap:10px;margin:12px 0;}
-    .risk-card{position:relative;display:block;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);cursor:pointer;transition:.18s;overflow:hidden;}
-    .risk-card input{position:absolute;opacity:0;pointer-events:none;}
-    .risk-card strong{display:block;font-size:1rem;margin-bottom:3px;}
-    .risk-card small{display:block;color:rgba(255,255,255,.55);font-size:.78rem;}
-    .risk-card.conservative{border-color:rgba(0,230,118,.25);}
-    .risk-card.balanced{border-color:rgba(41,121,255,.28);}
-    .risk-card.aggressive{border-color:rgba(255,23,68,.28);}
-    .risk-card:has(input:checked){transform:translateY(-1px);}
-    .risk-card.conservative:has(input:checked){background:rgba(0,230,118,.12);box-shadow:0 0 18px rgba(0,230,118,.28);border-color:#00e676;}
-    .risk-card.balanced:has(input:checked){background:rgba(41,121,255,.13);box-shadow:0 0 18px rgba(41,121,255,.30);border-color:#2979ff;}
-    .risk-card.aggressive:has(input:checked){background:rgba(255,23,68,.12);box-shadow:0 0 18px rgba(255,23,68,.26);border-color:#ff1744;}
-    .stake-info{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px;}
-    .stake-chip{padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08);font-size:.82rem;}
-    .stake-chip b{color:#ffd600;}
-    .doppia-card{background:var(--card,#13161e);border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:16px;margin-bottom:12px;}
-    .doppia-card.vinta{border-left:4px solid #00e676;}
-    .doppia-card.persa{border-left:4px solid #ff1744;}
-    .doppia-card.pending{border-left:4px solid rgba(255,255,255,.15);}
-    .vs-divider{display:flex;align-items:center;gap:10px;margin:8px 0;color:rgba(255,255,255,.3);font-size:.8rem;}
-    .vs-divider::before,.vs-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07);}
-    .esito-btn{padding:6px 14px;border-radius:8px;font-size:.82rem;font-weight:700;border:none;cursor:pointer;transition:.15s;}
-    .esito-btn.vinta{background:rgba(0,230,118,.15);color:#00e676;}
-    .esito-btn.vinta:hover,.esito-btn.vinta.active{background:#00e676;color:#0d0f14;}
-    .esito-btn.persa{background:rgba(255,23,68,.15);color:#ff1744;}
-    .esito-btn.persa:hover,.esito-btn.persa.active{background:#ff1744;color:#fff;}
-    .bankroll-bar{height:8px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden;margin-top:6px;}
-    .bankroll-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#00e676,#00c853);transition:.3s;}
-    .match-select-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
-    .match-select-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;cursor:pointer;transition:.15s;}
-    .match-select-card:hover{border-color:rgba(41,121,255,.4);background:rgba(41,121,255,.06);}
-    .match-select-card.selected{border-color:#2979ff;background:rgba(41,121,255,.1);}
+    /* ── KELLY PROFILES ── */
+    .kelly-profiles { display:flex; gap:10px; margin:18px 0; }
+    .kelly-btn {
+      padding:10px 22px; border-radius:10px; font-size:.9rem; font-weight:700;
+      cursor:pointer; border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.05); color:rgba(255,255,255,.6);
+      transition:.15s ease;
+    }
+    .kelly-btn.active-con { background:rgba(0,230,118,.15); border-color:#00e676; color:#00e676; }
+    .kelly-btn.active-bal { background:rgba(41,121,255,.18); border-color:#2979ff; color:#fff; }
+    .kelly-btn.active-agg { background:rgba(255,23,68,.15); border-color:#ff1744; color:#ff6b81; }
 
-    .match-option-entra{background:#063b25;color:#b8ffd7;font-weight:700;}
-    .match-option-borderline{background:#3f3305;color:#ffe68a;font-weight:700;}
+    /* ── MATCH CARDS ── */
+    .match-col-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+    .match-col { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:14px; overflow:hidden; }
+    .match-col-head {
+      padding:12px 16px; border-bottom:1px solid rgba(255,255,255,.07);
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .match-col-head h4 { font-size:.95rem; font-weight:700; color:var(--green,#00e676); margin:0; }
+    .match-col-head small { font-size:.78rem; color:rgba(255,255,255,.4); }
+
+    .match-card-row {
+      display:flex; align-items:center; gap:10px;
+      padding:11px 16px; border-bottom:1px solid rgba(255,255,255,.04);
+      cursor:pointer; transition:.15s;
+    }
+    .match-card-row:hover { background:rgba(255,255,255,.04); }
+    .match-card-row.selected-p1 { background:rgba(0,230,118,.08); border-left:3px solid #00e676; }
+    .match-card-row.selected-p2 { background:rgba(41,121,255,.08); border-left:3px solid #2979ff; }
+
+    .match-card-row input[type=radio] { display:none; }
+
+    .match-info { flex:1; min-width:0; }
+    .match-teams { font-size:.9rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .match-meta  { font-size:.75rem; color:rgba(255,255,255,.4); margin-top:2px; }
+
+    .match-quota { font-size:1rem; font-weight:900; color:#fff; min-width:36px; text-align:right; }
+
+    .badge-entra {
+      padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:800;
+      background:#063b25; color:#b8ffd7; border:1px solid rgba(0,230,118,.25);
+      white-space:nowrap;
+    }
+    .badge-border {
+      padding:4px 10px; border-radius:6px; font-size:.72rem; font-weight:800;
+      background:#3f3305; color:#ffe68a; border:1px solid rgba(255,214,0,.25);
+      white-space:nowrap;
+    }
+
+    .show-more-btn {
+      display:flex; align-items:center; justify-content:center; gap:6px;
+      padding:10px; font-size:.82rem; color:rgba(255,255,255,.4);
+      cursor:pointer; border-top:1px solid rgba(255,255,255,.05);
+      background:transparent; border:none; width:100%;
+      transition:.15s;
+    }
+    .show-more-btn:hover { color:rgba(255,255,255,.7); }
+
+    /* ── BOTTOM BAR ── */
+    .doppia-bar {
+      display:grid; grid-template-columns:1fr 1fr 1fr 1fr;
+      gap:12px; align-items:end;
+      background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.09);
+      border-radius:14px; padding:18px; margin-top:16px;
+    }
+    .doppia-bar-field label { font-size:.75rem; color:rgba(255,255,255,.4); display:block; margin-bottom:6px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; }
+    .doppia-bar-field input, .doppia-bar-field select {
+      width:100%; padding:11px 14px; border-radius:10px;
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+      color:inherit; font-size:.95rem; font-weight:600;
+    }
+    .doppia-bar-field .field-icon { position:relative; }
+    .doppia-bar-field .field-suffix {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      color:rgba(255,255,255,.3); font-size:.85rem;
+    }
+
+    .crea-doppia-btn {
+      width:100%; padding:13px; border-radius:12px; font-size:1rem; font-weight:800;
+      background:rgba(0,230,118,.12); border:1px solid rgba(0,230,118,.3);
+      color:#00e676; cursor:pointer; transition:.18s; display:flex;
+      align-items:center; justify-content:center; gap:8px;
+    }
+    .crea-doppia-btn:hover { background:rgba(0,230,118,.2); box-shadow:0 0 20px rgba(0,230,118,.2); }
+
+    /* ── KELLY SELECTOR ── */
+    .kelly-select-row {
+      display:flex; gap:8px; align-items:center;
+    }
+    .kelly-option {
+      flex:1; padding:9px 12px; border-radius:10px; text-align:center;
+      border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04);
+      cursor:pointer; font-size:.82rem; font-weight:700; transition:.15s;
+    }
+    .kelly-option:hover { border-color:rgba(255,255,255,.25); }
+    .kelly-option.k-con { border-color:rgba(0,230,118,.22); color:rgba(255,255,255,.7); }
+    .kelly-option.k-con.active { background:rgba(0,230,118,.15); border-color:#00e676; color:#00e676; }
+    .kelly-option.k-bal { border-color:rgba(41,121,255,.22); color:rgba(255,255,255,.7); }
+    .kelly-option.k-bal.active { background:rgba(41,121,255,.18); border-color:#2979ff; color:#fff; }
+    .kelly-option.k-agg { border-color:rgba(255,23,68,.22); color:rgba(255,255,255,.7); }
+    .kelly-option.k-agg.active { background:rgba(255,23,68,.15); border-color:#ff1744; color:#ff6b81; }
+
+    /* ── FILTER TABS ── */
+    .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+    .filter-tab {
+      padding:7px 16px; border-radius:8px; font-size:.82rem; font-weight:700;
+      cursor:pointer; border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.05); color:rgba(255,255,255,.6);
+      text-decoration:none; transition:.15s;
+    }
+    .filter-tab.active { background:var(--green,#00e676); color:#0d0f14; border-color:var(--green,#00e676); }
+    .filter-tab:hover:not(.active) { border-color:rgba(255,255,255,.3); color:#fff; }
+
+    /* ── DOPPIE CARD ── */
+    .doppia-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:12px; padding:16px; margin-bottom:12px; }
+    .doppia-card.vinta { border-left:3px solid #00e676; }
+    .doppia-card.persa { border-left:3px solid #ff1744; }
+    .vs-divider { display:flex; align-items:center; gap:10px; margin:6px 0; color:rgba(255,255,255,.3); font-size:.8rem; }
+    .vs-divider::before,.vs-divider::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.07); }
+    .esito-btn { padding:6px 14px; border-radius:8px; font-size:.82rem; font-weight:700; border:none; cursor:pointer; transition:.15s; }
+    .esito-btn.vinta { background:rgba(0,230,118,.15); color:#00e676; }
+    .esito-btn.vinta:hover,.esito-btn.vinta.active { background:#00e676; color:#0d0f14; }
+    .esito-btn.persa { background:rgba(255,23,68,.15); color:#ff1744; }
+    .esito-btn.persa:hover,.esito-btn.persa.active { background:#ff1744; color:#fff; }
+
+    .storico-card { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.07); border-radius:14px; padding:20px; }
   </style>
 </head>
 <body>
 <div class="app">
 
+  <!-- ── SIDEBAR ── -->
   <aside class="sidebar">
     <a class="brand" href="{{ url_for('dashboard') }}">
       <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora" style="width:48px;height:48px;border-radius:14px;object-fit:cover;">
-      <div><strong>KICKORA</strong><span>BET</span></div>
+      <div><strong>KICKORA</strong><span>BET—</span></div>
     </a>
 
     <nav class="nav">
@@ -69,87 +161,97 @@
       </a>
     </nav>
 
-    {# SIDEBAR BANKROLL DOPPIE #}
-    <section class="side-bet-slip">
-      <div class="side-slip-head">
-        <span>Bankroll Doppie</span>
-        <strong>€{{ "%.2f"|format(bankroll) }}</strong>
+    <!-- BANKROLL SIDEBAR -->
+    <div style="margin:12px 0;padding:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:14px;">
+      <div style="font-size:.72rem;color:rgba(255,255,255,.4);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;">Bankroll Doppie</div>
+      <div style="font-size:1.6rem;font-weight:900;color:#fff;margin-bottom:12px;">€{{ "%.2f"|format(bankroll) }}</div>
+      <div style="display:grid;gap:6px;font-size:.82rem;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">Capitale iniziale</span><strong>€{{ "%.2f"|format(capitale) }}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">Profitto totale</span><strong class="{{ 'roi-pos' if (bankroll - capitale) > 0 else 'roi-neg' }}">€{{ "%.2f"|format(bankroll - capitale) }}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">Doppie vinte</span><strong class="roi-pos">{{ stats_doppie.vinte or 0 }}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">Doppie perse</span><strong class="roi-neg">{{ stats_doppie.perse or 0 }}</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">ROI</span><strong class="{{ 'roi-pos' if roi_doppie > 0 else 'roi-neg' }}">{{ roi_doppie }}%</strong></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:rgba(255,255,255,.4);">Kelly protetto</span><strong style="color:#2979ff;">Balanced max €3</strong></div>
       </div>
 
-      <div class="side-bankroll-mini">
-        <div><span>Capitale iniziale</span><strong>€{{ "%.2f"|format(capitale) }}</strong></div>
-        <div>
-          <span>Profitto totale</span>
-          <strong class="{{ 'roi-pos' if (stats_doppie.tot_profitto or 0) > 0 else 'roi-neg' }}">
-            {{ '+' if (stats_doppie.tot_profitto or 0) > 0 }}€{{ "%.2f"|format(stats_doppie.tot_profitto or 0) }}
-          </strong>
-        </div>
-      </div>
-
-      {# Barra bankroll #}
-      {% if capitale > 0 %}
-      <div style="padding:0 10px 8px;">
-        <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-bottom:4px;">
-          Bankroll: {{ "%.0f"|format(bankroll/capitale*100) }}% del capitale
-        </div>
-        <div class="bankroll-bar">
-          <div class="bankroll-fill" style="width:{{ [bankroll/capitale*100, 100]|min }}%;"></div>
-        </div>
-      </div>
-      {% endif %}
-
-      <div class="side-bankroll-mini">
-        <div><span>Doppie vinte</span><strong style="color:#00e676;">{{ stats_doppie.vinte or 0 }}</strong></div>
-        <div><span>Doppie perse</span><strong style="color:#ff1744;">{{ stats_doppie.perse or 0 }}</strong></div>
-        <div><span>ROI</span>
-          <strong class="{{ 'roi-pos' if roi_doppie > 0 else 'roi-neg' }}">{{ roi_doppie }}%</strong>
-        </div>
-        <div><span>Kelly protetto</span><strong style="color:#2979ff;">Balanced max €3</strong></div>
-      </div>
-
-      {# Doppie di oggi nella sidebar #}
+      <!-- Doppie di oggi nella sidebar -->
       {% if doppie_oggi %}
-      <div class="side-slip-list">
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);">
         {% for d in doppie_oggi %}
-        <article class="side-slip-match">
-          <div>
-            <span style="font-size:.72rem;color:rgba(255,255,255,.4);">@{{ "%.2f"|format(d.quota_doppia) }}</span>
-            <strong style="font-size:.82rem;">{{ d.home1 }} + {{ d.home2 }}</strong>
-            <small>Punta €{{ "%.2f"|format(d.puntata) }}</small>
+        <div style="padding:8px;background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:6px;font-size:.78rem;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="color:rgba(255,255,255,.5);">Doppia #{{ loop.index }}</span>
+            {% if d.esito == 'vinta' %}<span style="color:#00e676;">✅</span>
+            {% elif d.esito == 'persa' %}<span style="color:#ff1744;">❌</span>
+            {% else %}<span style="color:rgba(255,255,255,.3);">⏳</span>{% endif %}
           </div>
-          <div class="side-slip-right">
-            {% if d.esito == 'vinta' %}
-              <b class="roi-pos">✅</b>
-            {% elif d.esito == 'persa' %}
-              <b class="roi-neg">❌</b>
-            {% else %}
-              <b style="color:rgba(255,255,255,.3);">⏳</b>
-            {% endif %}
-          </div>
-        </article>
+          <div style="color:#fff;font-weight:700;margin-top:2px;">{{ d.home1[:12] }} + {{ d.home2[:12] }}</div>
+          <div style="color:#ffd600;">€{{ "%.2f"|format(d.puntata) }} @{{ "%.2f"|format(d.quota_doppia) }}</div>
+        </div>
         {% endfor %}
       </div>
       {% else %}
-      <div class="side-slip-empty">
-        <strong>Nessuna doppia oggi</strong>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);font-size:.82rem;color:rgba(255,255,255,.35);text-align:center;">
+        <div>Nessuna doppia oggi</div>
         <small>Seleziona 2 partite e crea una doppia.</small>
       </div>
       {% endif %}
-    </section>
+    </div>
 
     <div class="sidebar-ticket">
       <span>Database</span><strong>{{ total_all }}</strong><small>partite totali</small>
     </div>
+
+    <!-- FOOTER ICONS -->
+    <div style="display:flex;gap:12px;padding:8px 4px;margin-top:auto;">
+      <a href="#" style="color:rgba(255,255,255,.3);font-size:1.1rem;">⚙️</a>
+      <a href="#" style="color:rgba(255,255,255,.3);font-size:1.1rem;">🔔</a>
+      <a href="{{ url_for('logout') }}" style="color:rgba(255,255,255,.3);font-size:1.1rem;">↪️</a>
+    </div>
   </aside>
 
+  <!-- ── MAIN ── -->
   <main class="content">
     <header class="topbar">
-      <div>
-        <span class="eyebrow">Kelly protetto</span>
-        <h1>🎲 Sistema Doppie</h1>
-        <p>Seleziona 2 partite — scegli il profilo Kelly visivo e controlla subito lo stake massimo.</p>
+      <div style="display:flex;align-items:center;gap:20px;">
+        <!-- HERO con logo -->
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Kickora"
+             style="width:80px;height:80px;border-radius:20px;object-fit:cover;box-shadow:0 12px 34px rgba(0,230,118,.2);flex-shrink:0;">
+        <div>
+          <span class="eyebrow">Sistema Doppie AI</span>
+          <h1 style="font-size:2rem;margin:2px 0;">Sistema <span style="color:var(--green,#00e676);">Doppie AI</span></h1>
+          <p style="max-width:380px;line-height:1.5;">Value betting con controllo Kelly intelligente.<br>Scegli <strong>ENTRA</strong> e <strong>BORDERLINE</strong>, imposta il profilo rischio<br>e mantieni lo stake sotto controllo.</p>
+          <!-- Kelly profile buttons -->
+          <div class="kelly-profiles" style="margin-top:12px;">
+            <button type="button" class="kelly-btn" onclick="setKelly('conservative', this)">CONSERVATIVE</button>
+            <button type="button" class="kelly-btn active-bal" id="kelly-default" onclick="setKelly('balanced', this)">⊕ BALANCED</button>
+            <button type="button" class="kelly-btn" onclick="setKelly('aggressive', this)">✦ AGGRESSIVE</button>
+          </div>
+        </div>
       </div>
-      <a href="{{ url_for('logout') }}" class="ghost-btn">Logout</a>
+      <!-- KPI top right -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;min-width:280px;">
+        <div class="kpi-card" style="padding:14px;">
+          <span>Bankroll attuale</span>
+          <strong style="font-size:1.4rem;">€{{ "%.2f"|format(bankroll) }}</strong>
+          <small>capitale disponibile</small>
+        </div>
+        <div class="kpi-card" style="padding:14px;">
+          <span>Doppie oggi</span>
+          <strong style="font-size:1.4rem;">{{ doppie_oggi|length }}</strong>
+          <small>doppie create</small>
+        </div>
+        <div class="kpi-card" style="padding:14px;">
+          <span>Win Rate</span>
+          <strong style="font-size:1.4rem;">{% if (stats_doppie.vinte or 0) + (stats_doppie.perse or 0) > 0 %}{{ "%.0f"|format((stats_doppie.vinte or 0) / ((stats_doppie.vinte or 0) + (stats_doppie.perse or 0)) * 100) }}%{% else %}0%{% endif %}</strong>
+          <small>su doppie chiuse</small>
+        </div>
+        <div class="kpi-card" style="padding:14px;">
+          <span>ROI Totale</span>
+          <strong style="font-size:1.4rem;" class="{{ 'roi-pos' if roi_doppie > 0 else ('roi-neg' if roi_doppie < 0 else '') }}">{{ roi_doppie }}%</strong>
+          <small>su €{{ "%.2f"|format(stats_doppie.tot_investito or 0) }} investiti</small>
+        </div>
+      </div>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -158,226 +260,241 @@
       {% endfor %}
     {% endwith %}
 
-    {# ── KPI BANKROLL ── #}
-    <section class="kpi-grid four">
-      <article class="kpi-card accent">
-        <span>Bankroll attuale</span>
-        <strong>€{{ "%.2f"|format(bankroll) }}</strong>
-        <small>capitale + profitti</small>
-      </article>
-      <article class="kpi-card">
-        <span>Doppie oggi</span>
-        <strong>{{ doppie_oggi|length }}</strong>
-        <small>create oggi</small>
-      </article>
-      <article class="kpi-card">
-        <span>Win rate</span>
-        <strong>
-          {% if (stats_doppie.vinte or 0) + (stats_doppie.perse or 0) > 0 %}
-            {{ "%.0f"|format((stats_doppie.vinte or 0) / ((stats_doppie.vinte or 0) + (stats_doppie.perse or 0)) * 100) }}%
-          {% else %}—{% endif %}
-        </strong>
-        <small>{{ stats_doppie.vinte or 0 }}V / {{ stats_doppie.perse or 0 }}P</small>
-      </article>
-      <article class="kpi-card">
-        <span>ROI totale</span>
-        <strong class="{{ 'roi-pos' if roi_doppie > 0 else ('roi-neg' if roi_doppie < 0 else '') }}">
-          {{ roi_doppie }}%
-        </strong>
-        <small>su €{{ "%.2f"|format(stats_doppie.tot_investito or 0) }} investiti</small>
-      </article>
-    </section>
-
-    {# ── CREA DOPPIA ── #}
+    <!-- ── CREA DOPPIA ── -->
     <section class="odds-table-card">
       <div class="section-head">
         <div>
           <span class="eyebrow">Nuova doppia</span>
-          <h3>➕ Crea Doppia — <span class="kelly-badge">Stake personalizzato</span></h3>
+          <h3>+ Crea Doppia — <span style="font-size:.8rem;background:rgba(255,255,255,.07);padding:3px 10px;border-radius:6px;font-weight:600;">Stake personalizzato</span></h3>
+          <p style="font-size:.85rem;color:rgba(255,255,255,.45);margin-top:4px;">
+            Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly resta protetto e viene bloccato dal profilo scelto.
+          </p>
         </div>
-        {# Selector strategia #}
-        <div style="display:flex;gap:8px;">
-          {% for s in ["GG","Over 2.5","Over 1.5"] %}
-          <a href="{{ url_for('doppie_page', strategy=s) }}"
-             style="padding:6px 14px;border-radius:8px;font-weight:600;font-size:.85rem;text-decoration:none;
-                    background:{{ 'var(--accent,#00e676)' if strategy==s else 'rgba(255,255,255,.07)' }};
-                    color:{{ '#0d0f14' if strategy==s else 'inherit' }};">{{ s }}</a>
-          {% endfor %}
+        <!-- FILTER TABS -->
+        <div class="filter-tabs">
+          <a href="{{ url_for('doppie_page', strategy='all') }}"
+             class="filter-tab {{ 'active' if strategy == 'all' or not strategy }}">TUTTI (GG / O2.5 / O1.5)</a>
+          <a href="{{ url_for('doppie_page', strategy='GG') }}"
+             class="filter-tab {{ 'active' if strategy == 'GG' }}">GG</a>
+          <a href="{{ url_for('doppie_page', strategy='Over 2.5') }}"
+             class="filter-tab {{ 'active' if strategy == 'Over 2.5' }}">OVER 2.5</a>
+          <a href="{{ url_for('doppie_page', strategy='Over 1.5') }}"
+             class="filter-tab {{ 'active' if strategy == 'Over 1.5' }}">OVER 1.5</a>
+          <div style="position:relative;display:flex;align-items:center;">
+            <input type="text" id="search-match" placeholder="Cerca partita o squadra..."
+                   style="padding:7px 34px 7px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:.82rem;width:200px;"
+                   oninput="filterMatches(this.value)">
+            <span style="position:absolute;right:10px;color:rgba(255,255,255,.3);">🔍</span>
+          </div>
         </div>
       </div>
 
-      <div style="padding:16px;">
-        <p style="font-size:.9rem;color:rgba(255,255,255,.5);margin-bottom:12px;">
-          Seleziona <strong>Partita 1</strong> e <strong>Partita 2</strong> — il Kelly resta protetto e viene bloccato dal profilo scelto.
-        </p>
+      <form action="{{ url_for('doppie_aggiungi') }}" method="POST" id="doppia-form">
+        <input type="hidden" name="strategy" value="{{ strategy }}">
+        <input type="hidden" name="risk_profile" id="hidden-risk" value="balanced">
+        <input type="hidden" name="stake_mode" value="kelly">
+        <input type="hidden" name="kelly_fraction" value="25">
 
-        <form action="{{ url_for('salva_bankroll') }}" method="POST" style="display:grid;grid-template-columns:repeat(2,minmax(160px,1fr)) auto;gap:10px;align-items:end;margin-bottom:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:12px;">
-          <div>
-            <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Bankroll iniziale</label>
-            <input type="number" name="capitale" value="{{ capitale }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
-          </div>
-          <div>
-            <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Stake fisso preferito</label>
-            <input type="number" name="importo_fisso" value="{{ importo_fisso or 0 }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
-          </div>
-          <button type="submit" class="ghost-btn">💾 Salva</button>
-        </form>
+        {% if all_matches %}
+        <!-- DUE COLONNE PARTITE -->
+        <div class="match-col-grid">
 
-        <form action="{{ url_for('doppie_aggiungi') }}" method="POST">
-          <input type="hidden" name="strategy" value="{{ strategy }}">
-
-          {% if all_matches %}
-          <div class="match-select-grid">
-            <div>
-              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 1 anche GG/Over misti</label>
-              <select name="match1_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
-                <option value="">— Scegli partita 1 —</option>
-                {% for m in all_matches %}
-                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
-                {% endfor %}
-              </select>
+          <!-- COLONNA 1 -->
+          <div class="match-col">
+            <div class="match-col-head">
+              <h4>SELEZIONA PARTITA 1</h4>
+              <small>Scegli la prima partita per la tua doppia</small>
             </div>
-            <div>
-              <label style="font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:8px;display:block;">Partita 2 anche GG/Over misti</label>
-              <select name="match2_id" required style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;font-size:.9rem;">
-                <option value="">— Scegli partita 2 —</option>
-                {% for m in all_matches %}
-                <option value="{{ m.id }}" class="{{ 'match-option-entra' if m.filtro_status == 'entra' else 'match-option-borderline' }}">{{ '✅ ENTRA' if m.filtro_status == 'entra' else '⚠️ BORDERLINE' }} · [{{ m.strategy }}] {{ m.home_team }} vs {{ m.away_team }} @{{ "%.2f"|format(m.odd or 0) }} · {{ m.filtro_score }}/{{ m.filtro_max }} filtri ({{ m.match_time }})</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-
-          <div class="stake-info">
-            <span class="stake-chip">Stake base: <b>€{{ "%.2f"|format(importo_fisso or 2) }}</b></span>
-            <span class="stake-chip">Max Conservative: <b>€2.50</b></span>
-            <span class="stake-chip">Max Balanced: <b>€3.00</b></span>
-            <span class="stake-chip">Max Aggressive: <b>€6.00</b></span>
-          </div>
-
-          <label style="font-size:.82rem;color:rgba(255,255,255,.55);display:block;margin-bottom:6px;">Profilo Kelly</label>
-          <div class="risk-grid">
-            <label class="risk-card conservative">
-              <input type="radio" name="risk_profile" value="conservative">
-              <strong>🛡️ Conservative</strong>
-              <small>Rischio basso · max €2.50</small>
+            {% for m in all_matches[:8] %}
+            <label class="match-card-row" id="p1-row-{{ m.id }}" onclick="selectP1({{ m.id }})">
+              <input type="radio" name="match1_id" value="{{ m.id }}" required>
+              <div style="width:8px;height:8px;border-radius:50%;background:{% if m.strategy == 'GG' %}#00e676{% elif m.strategy == 'Over 2.5' %}#f57c00{% else %}#2979ff{% endif %};flex-shrink:0;"></div>
+              <div class="match-info">
+                <div class="match-teams">{{ m.home_team }} vs {{ m.away_team }}</div>
+                <div class="match-meta">{{ m.match_date }} {{ m.match_time }} · {{ m.strategy }}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="match-quota">{{ "%.2f"|format(m.odd or 0) }}</div>
+                {% if m.filtro_status == 'entra' %}
+                  <span class="badge-entra">ENTRA</span>
+                {% else %}
+                  <span class="badge-border">BORDERLINE</span>
+                {% endif %}
+              </div>
             </label>
-            <label class="risk-card balanced">
-              <input type="radio" name="risk_profile" value="balanced" checked>
-              <strong>🎯 Balanced</strong>
-              <small>Equilibrato · max €3.00</small>
-            </label>
-            <label class="risk-card aggressive">
-              <input type="radio" name="risk_profile" value="aggressive">
-              <strong>🔥 Aggressive</strong>
-              <small>Alta esposizione · max €6.00</small>
-            </label>
-          </div>
-
-          <div style="display:grid;grid-template-columns:repeat(2,minmax(150px,1fr));gap:10px;margin:12px 0;">
-            <div>
-              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Tipo stake</label>
-              <select name="stake_mode" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
-                <option value="kelly">Kelly automatico protetto</option>
-                <option value="manuale">Stake manuale</option>
-              </select>
+            {% endfor %}
+            {% if all_matches|length > 8 %}
+            <button type="button" class="show-more-btn" onclick="showMore('col1')">
+              Mostra altre partite <span>⌄</span>
+            </button>
+            <div id="col1-more" style="display:none;">
+              {% for m in all_matches[8:] %}
+              <label class="match-card-row" id="p1-row-extra-{{ m.id }}" onclick="selectP1({{ m.id }})">
+                <input type="radio" name="match1_id" value="{{ m.id }}">
+                <div style="width:8px;height:8px;border-radius:50%;background:{% if m.strategy == 'GG' %}#00e676{% elif m.strategy == 'Over 2.5' %}#f57c00{% else %}#2979ff{% endif %};flex-shrink:0;"></div>
+                <div class="match-info">
+                  <div class="match-teams">{{ m.home_team }} vs {{ m.away_team }}</div>
+                  <div class="match-meta">{{ m.match_date }} {{ m.match_time }} · {{ m.strategy }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="match-quota">{{ "%.2f"|format(m.odd or 0) }}</div>
+                  {% if m.filtro_status == 'entra' %}
+                    <span class="badge-entra">ENTRA</span>
+                  {% else %}
+                    <span class="badge-border">BORDERLINE</span>
+                  {% endif %}
+                </div>
+              </label>
+              {% endfor %}
             </div>
-            <div>
-              <label style="font-size:.82rem;color:rgba(255,255,255,.5);display:block;margin-bottom:6px;">Stake manuale €</label>
-              <input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0" style="width:100%;padding:10px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:inherit;">
+            {% endif %}
+          </div>
+
+          <!-- COLONNA 2 -->
+          <div class="match-col">
+            <div class="match-col-head">
+              <h4>SELEZIONA PARTITA 2</h4>
+              <small>Scegli la seconda partita per la tua doppia</small>
+            </div>
+            {% for m in all_matches[:8] %}
+            <label class="match-card-row" id="p2-row-{{ m.id }}" onclick="selectP2({{ m.id }})">
+              <input type="radio" name="match2_id" value="{{ m.id }}" required>
+              <div style="width:8px;height:8px;border-radius:50%;background:{% if m.strategy == 'GG' %}#00e676{% elif m.strategy == 'Over 2.5' %}#f57c00{% else %}#2979ff{% endif %};flex-shrink:0;"></div>
+              <div class="match-info">
+                <div class="match-teams">{{ m.home_team }} vs {{ m.away_team }}</div>
+                <div class="match-meta">{{ m.match_date }} {{ m.match_time }} · {{ m.strategy }}</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="match-quota">{{ "%.2f"|format(m.odd or 0) }}</div>
+                {% if m.filtro_status == 'entra' %}
+                  <span class="badge-entra">ENTRA</span>
+                {% else %}
+                  <span class="badge-border">BORDERLINE</span>
+                {% endif %}
+              </div>
+            </label>
+            {% endfor %}
+            {% if all_matches|length > 8 %}
+            <button type="button" class="show-more-btn" onclick="showMore('col2')">
+              Mostra altre partite <span>⌄</span>
+            </button>
+            <div id="col2-more" style="display:none;">
+              {% for m in all_matches[8:] %}
+              <label class="match-card-row" id="p2-row-extra-{{ m.id }}" onclick="selectP2({{ m.id }})">
+                <input type="radio" name="match2_id" value="{{ m.id }}">
+                <div style="width:8px;height:8px;border-radius:50%;background:{% if m.strategy == 'GG' %}#00e676{% elif m.strategy == 'Over 2.5' %}#f57c00{% else %}#2979ff{% endif %};flex-shrink:0;"></div>
+                <div class="match-info">
+                  <div class="match-teams">{{ m.home_team }} vs {{ m.away_team }}</div>
+                  <div class="match-meta">{{ m.match_date }} {{ m.match_time }} · {{ m.strategy }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                  <div class="match-quota">{{ "%.2f"|format(m.odd or 0) }}</div>
+                  {% if m.filtro_status == 'entra' %}
+                    <span class="badge-entra">ENTRA</span>
+                  {% else %}
+                    <span class="badge-border">BORDERLINE</span>
+                  {% endif %}
+                </div>
+              </label>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- BOTTOM BAR -->
+        <div class="doppia-bar">
+          <div class="doppia-bar-field">
+            <label>Bankroll iniziale</label>
+            <div class="field-icon" style="position:relative;">
+              <input type="number" name="capitale_display" value="{{ capitale }}" step="0.50" min="0" readonly
+                     style="background:rgba(255,255,255,.06);">
+              <span class="field-suffix">€</span>
             </div>
           </div>
-          <input type="hidden" name="kelly_fraction" value="25">
-
-          <div style="background:rgba(41,121,255,.08);border:1px solid rgba(41,121,255,.2);border-radius:10px;padding:12px 16px;margin:12px 0;font-size:.88rem;color:rgba(255,255,255,.7);">
-            💡 Ora puoi creare doppie miste: esempio <strong>GG + Over 2.5</strong> senza perdere la prima selezione. Bankroll attuale: <strong>€{{ "%.2f"|format(bankroll) }}</strong>.
+          <div class="doppia-bar-field">
+            <label>Stake fisso preferito</label>
+            <div class="field-icon" style="position:relative;">
+              <input type="number" name="puntata_manual" value="{{ importo_fisso or 2 }}" step="0.50" min="0">
+              <span class="field-suffix">%</span>
+            </div>
           </div>
-
-          <button type="submit" class="primary-btn">🎲 Crea Doppia</button>
-          {% else %}
-          <div class="empty-state">
-            <strong>Nessuna partita caricata oggi</strong>
-            <span>Importa i CSV nelle sezioni GG / Over.</span>
+          <div class="doppia-bar-field">
+            <label>Profilo Kelly</label>
+            <select name="risk_profile_sel" onchange="document.getElementById('hidden-risk').value=this.value"
+                    style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#fff;">
+              <option value="conservative">🛡️ Conservative (max 2%)</option>
+              <option value="balanced" selected>⊕ Balanced (max 3%)</option>
+              <option value="aggressive">✦ Aggressive (max 6%)</option>
+            </select>
           </div>
-          {% endif %}
-        </form>
-      </div>
+          <div class="doppia-bar-field">
+            <label>Stake calcolato</label>
+            <div style="padding:11px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4);font-size:.9rem;">
+              — <span style="font-size:.75rem;">€ · Verrà mostrato dopo la selezione</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="crea-doppia-btn" style="margin-top:12px;">
+          ⊕ Crea Doppia
+        </button>
+
+        {% else %}
+        <div class="empty-state" style="padding:48px;text-align:center;">
+          <strong>Nessuna partita caricata oggi</strong>
+          <span>Importa i CSV nelle sezioni GG / Over.</span>
+        </div>
+        {% endif %}
+
+      </form>
     </section>
 
-    {# ── DOPPIE DI OGGI ── #}
+    <!-- ── DOPPIE DI OGGI ── -->
     {% if doppie_oggi %}
-    <section class="odds-table-card">
+    <section class="odds-table-card" style="margin-top:16px;">
       <div class="section-head">
         <div><span class="eyebrow">{{ oggi }}</span><h3>🎲 Doppie di oggi</h3></div>
         <span class="count-pill">{{ doppie_oggi|length }} doppie</span>
       </div>
-
       <div style="padding:16px;">
         {% for d in doppie_oggi %}
         <div class="doppia-card {{ d.esito }}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
-
-            {# Partite della doppia #}
             <div style="flex:1;min-width:200px;">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
                 <span class="market-pill" style="background:rgba(41,121,255,.15);color:#2979ff;">Doppia #{{ loop.index }}</span>
-                <span class="kelly-badge">{% if d.stake_mode == 'manuale' %}Manuale{% elif d.stake_mode == 'conservative' %}🛡️ Conservative{% elif d.stake_mode == 'aggressive' %}🔥 Aggressive{% else %}🎯 Balanced{% endif %}</span>
-                {% if d.esito == 'vinta' %}
-                  <span class="market-pill" style="color:#00e676;background:rgba(0,230,118,.1);">✅ VINTA</span>
-                {% elif d.esito == 'persa' %}
-                  <span class="market-pill" style="color:#ff1744;background:rgba(255,23,68,.1);">❌ PERSA</span>
-                {% else %}
-                  <span class="market-pill" style="color:#888;">⏳ In attesa</span>
-                {% endif %}
+                <span class="market-pill" style="background:rgba(255,255,255,.07);">{% if d.stake_mode == 'manuale' %}Manuale{% elif d.stake_mode == 'conservative' %}🛡️ Conservative{% elif d.stake_mode == 'aggressive' %}🔥 Aggressive{% else %}⊕ Balanced{% endif %}</span>
+                {% if d.esito == 'vinta' %}<span class="badge-entra">✅ VINTA</span>
+                {% elif d.esito == 'persa' %}<span style="padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:800;background:rgba(255,23,68,.15);color:#ff6b81;">❌ PERSA</span>
+                {% else %}<span class="market-pill" style="color:#888;">⏳ In attesa</span>{% endif %}
               </div>
-
-              <div style="font-size:.95rem;">
-                <strong>{{ d.home1 }} - {{ d.away1 }}</strong>
-                <span class="market-pill" style="margin-left:8px;background:rgba(255,255,255,.07);">{{ d.market1 or 'Mercato' }}</span>
-                <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd1) }}</span>
-              </div>
+              <div style="font-size:.95rem;"><strong>{{ d.home1 }} - {{ d.away1 }}</strong> <span class="market-pill" style="background:rgba(255,255,255,.07);">{{ d.market1 or 'GG' }}</span> <span style="color:rgba(255,255,255,.4);">@{{ "%.2f"|format(d.odd1) }}</span></div>
               <div class="vs-divider">+</div>
-              <div style="font-size:.95rem;">
-                <strong>{{ d.home2 }} - {{ d.away2 }}</strong>
-                <span class="market-pill" style="margin-left:8px;background:rgba(255,255,255,.07);">{{ d.market2 or 'Mercato' }}</span>
-                <span style="color:rgba(255,255,255,.4);margin-left:8px;">@{{ "%.2f"|format(d.odd2) }}</span>
-              </div>
+              <div style="font-size:.95rem;"><strong>{{ d.home2 }} - {{ d.away2 }}</strong> <span class="market-pill" style="background:rgba(255,255,255,.07);">{{ d.market2 or 'GG' }}</span> <span style="color:rgba(255,255,255,.4);">@{{ "%.2f"|format(d.odd2) }}</span></div>
             </div>
-
-            {# Numeri #}
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;min-width:240px;">
-              <div>
-                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">Quota</div>
-                <div style="font-size:1.2rem;font-weight:700;">{{ "%.2f"|format(d.quota_doppia) }}</div>
-              </div>
-              <div>
-                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">Puntata</div>
-                <div style="font-size:1.2rem;font-weight:700;color:#ffd600;">€{{ "%.2f"|format(d.puntata) }}</div>
-              </div>
-              <div>
-                <div style="font-size:.75rem;color:rgba(255,255,255,.4);">
-                  {% if d.esito == 'vinta' %}Incassato{% elif d.esito == 'persa' %}Perso{% else %}Vincita potenziale{% endif %}
-                </div>
-                <div style="font-size:1.2rem;font-weight:700;color:{{ '#00e676' if d.esito == 'vinta' else ('#ff1744' if d.esito == 'persa' else '#888') }};">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:center;min-width:220px;">
+              <div><div style="font-size:.72rem;color:rgba(255,255,255,.4);">Quota</div><div style="font-size:1.1rem;font-weight:700;">{{ "%.2f"|format(d.quota_doppia) }}</div></div>
+              <div><div style="font-size:.72rem;color:rgba(255,255,255,.4);">Puntata</div><div style="font-size:1.1rem;font-weight:700;color:#ffd600;">€{{ "%.2f"|format(d.puntata) }}</div></div>
+              <div><div style="font-size:.72rem;color:rgba(255,255,255,.4);">{% if d.esito == 'vinta' %}Incassato{% elif d.esito == 'persa' %}Perso{% else %}Potenziale{% endif %}</div>
+                <div style="font-size:1.1rem;font-weight:700;color:{{ '#00e676' if d.esito == 'vinta' else ('#ff1744' if d.esito == 'persa' else '#888') }};">
                   {% if d.esito == 'vinta' %}€{{ "%.2f"|format(d.incasso) }}
                   {% elif d.esito == 'persa' %}-€{{ "%.2f"|format(d.puntata) }}
                   {% else %}€{{ "%.2f"|format(d.puntata * d.quota_doppia) }}{% endif %}
                 </div>
               </div>
             </div>
-
-            {# Bottoni esito + elimina #}
             <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end;">
               <div style="display:flex;gap:6px;">
                 <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" style="display:inline;">
                   <input type="hidden" name="strategy" value="{{ strategy }}">
                   <input type="hidden" name="esito" value="vinta">
-                  <button type="submit" class="esito-btn vinta {{ 'active' if d.esito == 'vinta' else '' }}">✅ Vinta</button>
+                  <button type="submit" class="esito-btn vinta {{ 'active' if d.esito == 'vinta' }}">✅ Vinta</button>
                 </form>
                 <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" style="display:inline;">
                   <input type="hidden" name="strategy" value="{{ strategy }}">
                   <input type="hidden" name="esito" value="persa">
-                  <button type="submit" class="esito-btn persa {{ 'active' if d.esito == 'persa' else '' }}">❌ Persa</button>
+                  <button type="submit" class="esito-btn persa {{ 'active' if d.esito == 'persa' }}">❌ Persa</button>
                 </form>
               </div>
               <form action="{{ url_for('doppie_elimina', doppia_id=d.id) }}" method="POST"
@@ -387,11 +504,10 @@
               </form>
               {% if d.esito != 'pending' %}
               <div style="font-size:.78rem;color:{{ '#00e676' if d.profitto > 0 else '#ff1744' }};">
-                Profitto: {{ '+' if d.profitto > 0 }}€{{ "%.2f"|format(d.profitto) }}
+                {{ '+' if d.profitto > 0 else '' }}€{{ "%.2f"|format(d.profitto) }}
               </div>
               {% endif %}
             </div>
-
           </div>
         </div>
         {% endfor %}
@@ -399,9 +515,9 @@
     </section>
     {% endif %}
 
-    {# ── STORICO DOPPIE ── #}
+    <!-- ── STORICO ── -->
     {% if storico %}
-    <section class="storico-card">
+    <section class="storico-card" style="margin-top:16px;">
       <div class="section-head">
         <div><span class="eyebrow">Storico completo</span><h3>📅 Doppie precedenti</h3></div>
         <span class="count-pill">{{ stats_doppie.totale or 0 }} totali</span>
@@ -419,14 +535,10 @@
               <td><span class="prob-pill">{{ "%.2f"|format(d.quota_doppia) }}</span></td>
               <td style="color:#ffd600;">€{{ "%.2f"|format(d.puntata) }}</td>
               <td>€{{ "%.2f"|format(d.incasso) }}</td>
-              <td>
-                <span style="color:{{ '#00e676' if d.profitto > 0 else ('#ff1744' if d.profitto < 0 else '#888') }};">
-                  {{ '+' if d.profitto > 0 }}€{{ "%.2f"|format(d.profitto) }}
-                </span>
-              </td>
+              <td><span style="color:{{ '#00e676' if d.profitto > 0 else ('#ff1744' if d.profitto < 0 else '#888') }};">{{ '+' if d.profitto > 0 }}€{{ "%.2f"|format(d.profitto) }}</span></td>
               <td>€{{ "%.2f"|format(d.bankroll_post) }}</td>
               <td>
-                <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST" class="esito-form">
+                <form action="{{ url_for('doppie_esito', doppia_id=d.id) }}" method="POST">
                   <input type="hidden" name="strategy" value="{{ strategy }}">
                   <select name="esito" onchange="this.form.submit()"
                           style="background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:4px 8px;color:inherit;font-size:.82rem;">
@@ -444,7 +556,59 @@
     </section>
     {% endif %}
 
+    <!-- IMPORT CSV -->
+    <div style="position:fixed;bottom:24px;right:24px;z-index:99;">
+      <a href="{{ url_for('index', strategy='GG') }}" class="primary-btn" style="display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.4);">
+        ↑ Importa CSV
+      </a>
+    </div>
+
   </main>
 </div>
+
+<script>
+// Kelly buttons
+function setKelly(profile, btn) {
+  document.querySelectorAll('.kelly-btn').forEach(b => b.className = 'kelly-btn');
+  if (profile === 'conservative') btn.classList.add('active-con');
+  else if (profile === 'balanced') btn.classList.add('active-bal');
+  else btn.classList.add('active-agg');
+  document.getElementById('hidden-risk').value = profile;
+  const sel = document.querySelector('[name="risk_profile_sel"]');
+  if (sel) sel.value = profile;
+}
+
+// Selezione partita 1
+let p1 = null, p2 = null;
+function selectP1(id) {
+  document.querySelectorAll('[id^="p1-row-"]').forEach(r => r.classList.remove('selected-p1'));
+  document.getElementById('p1-row-' + id)?.classList.add('selected-p1');
+  document.getElementById('p1-row-extra-' + id)?.classList.add('selected-p1');
+  p1 = id;
+}
+function selectP2(id) {
+  document.querySelectorAll('[id^="p2-row-"]').forEach(r => r.classList.remove('selected-p2'));
+  document.getElementById('p2-row-' + id)?.classList.add('selected-p2');
+  document.getElementById('p2-row-extra-' + id)?.classList.add('selected-p2');
+  p2 = id;
+}
+
+// Show more
+function showMore(col) {
+  const el = document.getElementById(col + '-more');
+  if (el) {
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+}
+
+// Search filter
+function filterMatches(q) {
+  const rows = document.querySelectorAll('.match-card-row');
+  rows.forEach(row => {
+    const text = row.querySelector('.match-teams')?.textContent.toLowerCase() || '';
+    row.style.display = text.includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+</script>
 </body>
 </html>
