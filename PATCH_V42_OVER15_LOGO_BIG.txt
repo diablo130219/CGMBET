@@ -1,0 +1,4 @@
+Over 1.5 Control v42
+- Logo Over 1.5 molto più grande e proporzionato alla hero.
+- Hero section adattata per contenere il logo senza tagli.
+- Funzionalità originali mantenute.

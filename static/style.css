@@ -2726,3 +2726,108 @@ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
     max-height:300px!important;
   }
 }
+
+
+/* === OVER 1.5 CROPPED BIG LOGO v47 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:330px minmax(460px,1fr) 300px!important;
+  min-height:315px!important;
+  gap:34px!important;
+  padding:28px 32px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  width:330px!important;
+  min-height:260px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+  padding:0!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:315px!important;
+  height:315px!important;
+  max-width:315px!important;
+  max-height:315px!important;
+  object-fit:contain!important;
+  transform:none!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  filter:drop-shadow(0 0 28px rgba(34,211,255,.78)) drop-shadow(0 0 70px rgba(0,153,255,.32))!important;
+  animation:none!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:0!important;
+}
+
+@media(max-width:1180px){
+  body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+    grid-template-columns:1fr!important;
+    text-align:center!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+    width:100%!important;
+    min-height:280px!important;
+  }
+  body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+    width:300px!important;
+    height:300px!important;
+    max-width:300px!important;
+    max-height:300px!important;
+  }
+}
+
+
+/* === OVER 1.5 FINAL HERO REBUILD v48 === */
+body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+  grid-template-columns:420px minmax(420px,1fr) 260px!important;
+  min-height:340px!important;
+  gap:22px!important;
+  padding:22px 26px!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-logo-zone{
+  min-height:300px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:visible!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+  width:430px!important;
+  height:430px!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  transform:none!important;
+  filter:
+    drop-shadow(0 0 28px rgba(34,211,255,.90))
+    drop-shadow(0 0 80px rgba(0,153,255,.42))!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-title{
+  font-size:clamp(58px,5vw,88px)!important;
+  line-height:.9!important;
+}
+
+body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+  margin-left:-12px!important;
+}
+
+@media(max-width:1180px){
+ body.over15-page .premium-section-hero.hero-over15.kickora-unified-hero{
+   grid-template-columns:1fr!important;
+   text-align:center!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .hero-main-zone{
+   margin-left:0!important;
+ }
+ body.over15-page .premium-section-hero.hero-over15 .over15-control-img{
+   width:320px!important;
+   height:320px!important;
+ }
+}
