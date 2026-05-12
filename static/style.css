@@ -2538,3 +2538,219 @@ body.over25-page .empty-state span{color:#d8c28a!important;}
  body.over25-page .over25-engine-logo-img{width:420px!important;height:290px!important;}
 }
 @media(max-width:760px){body.over25-page .over25-engine-logo-img{width:300px!important;height:220px!important;}}
+
+
+/* =========================================================
+   OVER 2.5 — PATCH FINALE COMPLETO
+   Copre TUTTI gli elementi verdi residui nella pagina Over 2.5
+   ========================================================= */
+
+/* Brand mark */
+body.over25-page .brand-mark {
+  background: linear-gradient(135deg, #f6b900, #9a6804) !important;
+  box-shadow: 0 12px 34px rgba(246,185,0,.22) !important;
+  color: #170f00 !important;
+}
+
+/* Nav link active */
+body.over25-page .nav-link.active {
+  background: linear-gradient(135deg, rgba(246,185,0,.18), rgba(0,0,0,.35)) !important;
+  border-color: rgba(246,185,0,.35) !important;
+}
+
+/* Sidebar ticket + side-bet-slip gradiente */
+body.over25-page .sidebar-ticket,
+body.over25-page .side-bet-slip,
+body.over25-page .bankroll-card {
+  background:
+    linear-gradient(135deg, rgba(246,185,0,.10), rgba(0,0,0,.80)),
+    rgba(255,255,255,.03) !important;
+  border-color: rgba(246,185,0,.28) !important;
+}
+
+/* Hero glow verde → oro */
+body.over25-page .dashboard-hero::after,
+body.over25-page .market-hero::after {
+  background: radial-gradient(circle, rgba(246,185,0,.22), transparent 66%) !important;
+}
+
+/* Status chip */
+body.over25-page .status-chip {
+  background: rgba(246,185,0,.12) !important;
+  border-color: rgba(246,185,0,.28) !important;
+  color: #ffd76a !important;
+}
+
+/* KPI accent */
+body.over25-page .kpi-card.accent {
+  background: linear-gradient(135deg, rgba(246,185,0,.14), rgba(0,0,0,.80)) !important;
+  border-color: rgba(246,185,0,.25) !important;
+}
+
+/* Bottoni primari */
+body.over25-page .primary-btn,
+body.over25-page .add-slip-btn,
+body.over25-page .gen-btn,
+body.over25-page .success-btn {
+  background: linear-gradient(135deg, #ffd76a, #9a6804) !important;
+  color: #170f00 !important;
+  border: 1px solid rgba(246,185,0,.5) !important;
+  box-shadow: 0 16px 36px rgba(246,185,0,.18) !important;
+}
+
+/* Bottone aggiunto */
+body.over25-page .added-btn {
+  color: #ffd76a !important;
+  background: rgba(246,185,0,.12) !important;
+  border-color: rgba(246,185,0,.28) !important;
+}
+
+/* Flash success */
+body.over25-page .flash.success {
+  color: #fff7df !important;
+  border-color: rgba(246,185,0,.30) !important;
+  background: rgba(246,185,0,.08) !important;
+}
+
+/* Eyebrow + section head */
+body.over25-page .eyebrow,
+body.over25-page .section-head h3,
+body.over25-page .side-slip-footer strong {
+  color: #f6b900 !important;
+}
+
+/* Slip summary */
+body.over25-page .slip-summary {
+  border-color: rgba(246,185,0,.25) !important;
+  background: linear-gradient(135deg, rgba(246,185,0,.12), rgba(0,0,0,.70)) !important;
+}
+
+/* Summary card hover */
+body.over25-page .summary-card:hover {
+  border-color: rgba(246,185,0,.30) !important;
+}
+
+/* Pills colore base */
+body.over25-page .slip-top span,
+body.over25-page .market-pill,
+body.over25-page .stat-pill {
+  background: rgba(246,185,0,.12) !important;
+  color: #ffd76a !important;
+}
+
+body.over25-page .prob-pill,
+body.over25-page .slip-top strong {
+  background: rgba(246,185,0,.10) !important;
+  color: #ffd76a !important;
+}
+
+/* Table hover */
+body.over25-page .odds-table tbody tr:hover {
+  background: rgba(246,185,0,.045) !important;
+}
+
+/* Bankroll form button */
+body.over25-page .bankroll-form .ghost-btn {
+  border-color: rgba(246,185,0,.30) !important;
+  color: #ffd76a !important;
+}
+
+/* Side stake form */
+body.over25-page .side-stake-form button {
+  background: linear-gradient(135deg, #ffd76a, #9a6804) !important;
+  color: #170f00 !important;
+  border-color: rgba(246,185,0,.5) !important;
+}
+
+/* Side slip match badge */
+body.over25-page .side-slip-match span {
+  background: rgba(246,185,0,.12) !important;
+  color: #ffd76a !important;
+}
+
+body.over25-page .side-slip-match b {
+  color: #ffd76a !important;
+  background: rgba(246,185,0,.12) !important;
+  border-color: rgba(246,185,0,.22) !important;
+}
+
+/* Strat pill over25 specifica */
+body.over25-page .strat-pill {
+  background: rgba(246,185,0,.15) !important;
+  color: #ffd76a !important;
+  border-color: rgba(246,185,0,.30) !important;
+}
+
+/* Bankroll card valori */
+body.over25-page .bankroll-card .roi-pos,
+body.over25-page .roi-pos {
+  color: #ffd76a !important;
+  text-shadow: 0 0 14px rgba(246,185,0,.20) !important;
+}
+
+/* Strategy side emblem over25 → nascondilo, c'è già il logo */
+body.over25-page .over25-emblem {
+  display: none !important;
+}
+
+/* Hero logo — assicura che sia ben visibile e centrato */
+body.over25-page .over25-engine-logo-img {
+  display: block !important;
+  width: 420px !important;
+  height: 290px !important;
+  object-fit: cover !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(246,185,0,.45) !important;
+  box-shadow:
+    0 0 40px rgba(246,185,0,.55),
+    0 0 100px rgba(246,185,0,.25),
+    inset 0 0 24px rgba(246,185,0,.15) !important;
+}
+
+/* Bottone aggiorna nelle doppie e triple */
+body.over25-page button[type="submit"]:not(.danger-btn):not(.ghost-btn) {
+  background: linear-gradient(135deg, #ffd76a, #9a6804) !important;
+  color: #170f00 !important;
+  border-color: rgba(246,185,0,.5) !important;
+}
+
+/* Mini remove */
+body.over25-page .mini-remove {
+  border-color: rgba(246,185,0,.32) !important;
+  background: rgba(246,185,0,.10) !important;
+  color: #ffd76a !important;
+}
+
+/* Count pill */
+body.over25-page .count-pill {
+  background: rgba(246,185,0,.10) !important;
+  color: #ffd76a !important;
+  border-color: rgba(246,185,0,.25) !important;
+}
+
+/* Topbar h1 gradient */
+body.over25-page .topbar h1 {
+  background: linear-gradient(135deg, #fff7df, #f6b900) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+/* Side bankroll */
+body.over25-page .side-bankroll-mini div {
+  border-color: rgba(246,185,0,.15) !important;
+}
+
+/* Accent nel testo hero */
+body.over25-page .accent {
+  color: #f6b900 !important;
+}
+
+/* Hero badges */
+body.over25-page .hero-badge.orange,
+body.over25-page .hero-badge {
+  background: rgba(246,185,0,.15) !important;
+  color: #ffd76a !important;
+  border: 1px solid rgba(246,185,0,.30) !important;
+}
+
