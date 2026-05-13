@@ -173,7 +173,7 @@
                   {% set ns.last_date = m.match_date %}
                   <div class="date-separator {{ 'today' if m.match_date == today_iso else '' }}">{{ 'Oggi' if m.match_date == today_iso else (m.match_date[8:10] ~ '/' ~ m.match_date[5:7] ~ '/' ~ m.match_date[0:4] if m.match_date and m.match_date|length >= 10 else 'Data non indicata') }}</div>
                 {% endif %}
-              <label class="pick-card {{ m.filtro_status }}" data-market="{{ m.strategy }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy)|lower }}">
+              <label class="pick-card {{ m.filtro_status }}" data-market="{{ m.strategy }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy ~ ' ' ~ (m.market or ''))|lower }}">
                 <input type="radio" name="match1_id" value="{{ m.id }}" required>
                 <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date and m.match_date|length >= 10 else '' }}<br>{{ m.match_time }}</span>
                 <span class="teams"><strong>{{ m.home_team }} vs {{ m.away_team }}</strong><small>{{ m.strategy }}</small></span>
@@ -192,7 +192,7 @@
                   {% set ns.last_date = m.match_date %}
                   <div class="date-separator {{ 'today' if m.match_date == today_iso else '' }}">{{ 'Oggi' if m.match_date == today_iso else (m.match_date[8:10] ~ '/' ~ m.match_date[5:7] ~ '/' ~ m.match_date[0:4] if m.match_date and m.match_date|length >= 10 else 'Data non indicata') }}</div>
                 {% endif %}
-              <label class="pick-card {{ m.filtro_status }}" data-market="{{ m.strategy }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy)|lower }}">
+              <label class="pick-card {{ m.filtro_status }}" data-market="{{ m.strategy }}" data-search="{{ (m.home_team ~ ' ' ~ m.away_team ~ ' ' ~ m.strategy ~ ' ' ~ (m.market or ''))|lower }}">
                 <input type="radio" name="match2_id" value="{{ m.id }}" required>
                 <span class="ball">⚽</span><span class="when">{{ m.match_date[5:10] if m.match_date and m.match_date|length >= 10 else '' }}<br>{{ m.match_time }}</span>
                 <span class="teams"><strong>{{ m.home_team }} vs {{ m.away_team }}</strong><small>{{ m.strategy }}</small></span>
@@ -382,8 +382,42 @@
           return;
         }
         if(el.classList.contains('pick-card')){
-          const marketOk = activeMarket === 'all' || el.dataset.market === activeMarket;
-          const searchOk = !q || (el.dataset.search || '').includes(q);
+          const rawMarket = (el.dataset.market || '').toLowerCase().trim();
+          const rawSearch = (el.dataset.search || '').toLowerCase();
+          const selected = (activeMarket || 'all').toLowerCase().trim();
+
+          function isGG(m, s){
+            return m === 'gg'
+              || m.includes('gg')
+              || m.includes('goal')
+              || m.includes('gol')
+              || m.includes('btts')
+              || s.includes(' gg ')
+              || s.includes(' goal ')
+              || s.includes(' gol ')
+              || s.includes('btts');
+          }
+
+          function isOver25(m, s){
+            return m.includes('over 2.5')
+              || m.includes('over2.5')
+              || m.includes('o2.5')
+              || s.includes('over 2.5');
+          }
+
+          function isOver15(m, s){
+            return m.includes('over 1.5')
+              || m.includes('over1.5')
+              || m.includes('o1.5')
+              || s.includes('over 1.5');
+          }
+
+          let marketOk = selected === 'all';
+          if(!marketOk && selected === 'gg') marketOk = isGG(rawMarket, rawSearch);
+          if(!marketOk && selected === 'over 2.5') marketOk = isOver25(rawMarket, rawSearch);
+          if(!marketOk && selected === 'over 1.5') marketOk = isOver15(rawMarket, rawSearch);
+
+          const searchOk = !q || rawSearch.includes(q);
           const show = marketOk && searchOk;
           el.style.display = show ? 'grid' : 'none';
           if(show) visibleInGroup = true;

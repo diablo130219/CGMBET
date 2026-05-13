@@ -1,0 +1,1 @@
+Fix Sistema Doppie: il tab GG ora filtra correttamente anche se il mercato è salvato come GG, Goal, Gol o BTTS. Over 2.5 e Over 1.5 restano invariati.
